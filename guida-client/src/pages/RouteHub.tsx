@@ -5,7 +5,7 @@ import { DEFAULT_FILTER } from "@/types/filter";
 import { useAppStore } from "@/store/appStore";
 import { useRouteStore } from "@/store/routeStore";
 import { useRouteFilter, routeStats } from "@/hooks/useRouteFilter";
-import { likedCodes, MockServerError } from "@/api/routes";
+import { likedCodes, ApiError } from "@/api/routes";
 import { ServerUnavailableError } from "@/api/client";
 import { RouteCard } from "@/components/route/RouteCard";
 import { RouteFilter } from "@/components/route/RouteFilter";
@@ -42,7 +42,7 @@ export function RouteHub() {
       await likeHubRoute(c);
       toast.success("추천했습니다. 고마워요!");
     } catch (e) {
-      if (e instanceof MockServerError && e.code === "DUPLICATE") toast.error("이미 추천한 루트입니다.");
+      if (e instanceof ApiError && e.code === "DUPLICATE") toast.error("이미 추천한 루트입니다.");
       else if (e instanceof ServerUnavailableError) toast.error(e.message);
       else toast.error("추천 처리 중 오류가 발생했습니다.");
     } finally {
@@ -55,7 +55,7 @@ export function RouteHub() {
       const r = await importByCode(c);
       toast.success(`'${r.name}'을(를) 내 루트로 가져왔습니다.`);
     } catch (e) {
-      if (e instanceof MockServerError && e.code === "NOT_FOUND") toast.error("루트를 찾을 수 없습니다.");
+      if (e instanceof ApiError && e.code === "NOT_FOUND") toast.error("루트를 찾을 수 없습니다.");
       else toast.error("가져오기에 실패했습니다.");
     }
   };

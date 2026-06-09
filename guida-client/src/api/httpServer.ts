@@ -1,22 +1,26 @@
 /**
  * 실 중앙 서버(guida-server) HTTP 클라이언트.
  *
- * `VITE_API_BASE_URL` 이 설정되면 api/routes.ts 가 mockServer 대신 이 모듈을
- * 사용한다. mockServer 와 동일한 함수 시그니처를 노출하므로 상위 레이어
- * (api/routes.ts → store → UI)는 전혀 수정할 필요가 없다.
+ * api/routes.ts 가 이 모듈을 통해 중앙 서버와 통신한다.
  *
  * 이 모듈은 서버 ↔ 클라이언트 사이의 표현 차이를 경계에서 흡수한다:
  *  - 서버 `difficulty`           ↔ 클라이언트 `difficulty_tag`
  *  - 서버 평탄한 likes/play_count ↔ 클라이언트 패치별 `stats` 맵
- *  - 서버 HTTP status            ↔ MockServerError(code) / ServerUnavailableError
+ *  - 서버 HTTP status            ↔ ApiError(code) / ServerUnavailableError
  *
  * 서버는 "내가 추천한 코드" 조회 API가 없으므로, likedCodes() 동기 조회를
  * 지원하기 위해 추천 성공 시 로컬(localStorage)에 코드를 함께 기록한다.
  */
 
 import type { RouteStep, SharedRoute, RouteStat } from "@/types/route";
-import { API_BASE_URL, ServerUnavailableError } from "./client";
-import { MockServerError, type UploadPayload } from "./mockServer";
+import { API_BASE_URL, ApiError, ServerUnavailableError } from "./client";
+
+/** 루트 업로드 요청 페이로드 */
+export interface UploadPayload {
+  uuid: string;
+  patch_version: string;
+  route: Omit<SharedRoute, "route_code" | "stats" | "uploaded_at" | "patch_version">;
+}
 
 /** 서버 응답(Route) 형태 — guida-server/src/types/index.ts 의 Route 와 일치 */
 interface ServerRoute {
@@ -37,8 +41,8 @@ interface ServerRoute {
 
 const LIKES_KEY = "guida:server:likes"; // `${uuid}|${code}|${patch}` 집합
 
-/** HTTP status → MockServerError code 매핑 (UI 에러 분기 호환 유지) */
-const STATUS_TO_CODE: Record<number, MockServerError["code"]> = {
+/** HTTP status → ApiError code 매핑 (UI 에러 분기용) */
+const STATUS_TO_CODE: Record<number, ApiError["code"]> = {
   400: "INVALID",
   404: "NOT_FOUND",
   409: "DUPLICATE",
@@ -52,7 +56,7 @@ function url(path: string): string {
 /**
  * 공통 fetch 래퍼.
  * - 네트워크 실패(서버 다운/오프라인) → ServerUnavailableError
- * - 4xx → MockServerError(매핑된 code) 로 UI 가 기존처럼 분기
+ * - 4xx → ApiError(매핑된 code) 로 UI 가 상황별 분기
  * - 그 외 5xx → ServerUnavailableError
  */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -79,7 +83,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       /* 본문이 JSON 이 아니면 기본 메시지 사용 */
     }
     const code = STATUS_TO_CODE[res.status];
-    if (code) throw new MockServerError(message, code);
+    if (code) throw new ApiError(message, code);
     throw new ServerUnavailableError(message);
   }
 
@@ -124,7 +128,7 @@ function rememberLike(uuid: string, code: string, patch: string): void {
   localStorage.setItem(LIKES_KEY, JSON.stringify([...likes]));
 }
 
-// ── 공개 API (mockServer 와 동일한 시그니처) ───────────────────────
+// ── 공개 API ───────────────────────────────────────────────────────
 
 /** 루트 업로드 → 6자리 코드 발급 */
 export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> {
@@ -147,8 +151,7 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
     },
   );
 
-  // 업로드 응답은 코드만 주므로 갓 만든 루트를 그대로 재구성해 반환
-  // (mock.uploadRoute 와 동일하게 통계 0 초기값)
+  // 업로드 응답은 코드만 주므로 갓 만든 루트를 그대로 재구성해 반환 (통계 0 초기값)
   return {
     ...route,
     route_code,

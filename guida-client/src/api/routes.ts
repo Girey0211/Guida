@@ -2,24 +2,19 @@
  * 루트 공유 허브 API.
  *
  * 컴포넌트/스토어는 이 모듈만 호출한다.
- * `VITE_API_BASE_URL` 설정 여부에 따라 백엔드 구현이 결정된다:
- *  - 미설정 → 로컬 Mock 서버(api/mockServer.ts, localStorage)
- *  - 설정   → 실 중앙 서버(api/httpServer.ts, HTTP)
- * 두 구현은 동일한 시그니처를 노출하므로 이 레이어 위로는 차이가 드러나지 않는다.
+ * 실제 통신은 api/httpServer.ts(실 중앙 서버 HTTP)가 담당하며,
+ * 베이스 URL 은 `VITE_API_BASE_URL` 로 설정한다.
  */
 
 import type { SharedRoute } from "@/types/route";
-import { withServer, USE_MOCK_SERVER } from "./client";
-import * as mock from "./mockServer";
-import * as http from "./httpServer";
+import { withServer } from "./client";
+import * as server from "./httpServer";
+import type { UploadPayload } from "./httpServer";
 
-export { MockServerError } from "./mockServer";
-
-/** 활성 백엔드 구현 (Mock 또는 실 HTTP 서버) */
-const server = USE_MOCK_SERVER ? mock : http;
+export { ApiError } from "./client";
 
 /** 루트 업로드 → 6자리 코드 발급 */
-export function uploadRoute(payload: mock.UploadPayload): Promise<SharedRoute> {
+export function uploadRoute(payload: UploadPayload): Promise<SharedRoute> {
   return withServer(() => server.uploadRoute(payload));
 }
 

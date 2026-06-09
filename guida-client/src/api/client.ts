@@ -2,10 +2,7 @@
  * 서버 통신 기본 설정.
  *
  * 여기서는 (1) 서버 베이스 URL 설정, (2) 온라인/오프라인 상태 판단,
- * (3) Mock ↔ 실 서버 분기 플래그만 정의한다.
- *
- * `VITE_API_BASE_URL` 이 설정되면 실 중앙 서버(api/httpServer.ts)를,
- * 없으면 로컬 Mock 서버(api/mockServer.ts)를 사용한다.
+ * (3) 서버 통신 공통 에러 타입만 정의한다.
  *
  * 컴포넌트에서 직접 fetch 하지 말 것 — 반드시 api/ 레이어를 경유한다.
  */
@@ -14,12 +11,23 @@
 export const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
 
-/** 베이스 URL 미설정 시 로컬 Mock 서버로 폴백 */
-export const USE_MOCK_SERVER = !API_BASE_URL;
-
 /** 현재 네트워크 사용 가능 여부 */
 export function isOnline(): boolean {
   return typeof navigator === "undefined" ? true : navigator.onLine;
+}
+
+/**
+ * 서버가 요청을 거부했을 때의 에러 (4xx 류).
+ * `code` 로 UI 가 상황별 분기를 한다.
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public code: "DUPLICATE" | "NOT_FOUND" | "RATE_LIMIT" | "INVALID",
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
 }
 
 /**
