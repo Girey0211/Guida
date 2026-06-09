@@ -1,0 +1,19 @@
+# 환경변수 (절대 커밋 금지)
+.env
+
+# 의존성
+node_modules/
+
+# 빌드 산출물
+dist/
+
+# 로그
+*.log
+npm-debug.log*
+
+# DB 백업
+backup_*.sql
+
+# OS
+.DS_Store
+Thumbs.db
