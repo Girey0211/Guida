@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Share2, Copy, Check, ShieldCheck, ShieldAlert } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Pencil, Trash2, Share2, Copy, Check, ShieldCheck, ShieldAlert, Play } from "lucide-react";
 import type { LocalRoute, RouteDraft } from "@/types/route";
 import { useAppStore } from "@/store/appStore";
 import { useRouteStore } from "@/store/routeStore";
+import { usePlayStore } from "@/store/playStore";
 import { RouteEditor } from "@/components/route/RouteEditor";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PatchBadge } from "@/components/common/PatchBadge";
@@ -17,8 +19,10 @@ type EditorState = { mode: "create" } | { mode: "edit"; route: LocalRoute } | nu
 
 /** 내 루트 관리 페이지 */
 export function MyRoutes() {
+  const navigate = useNavigate();
   const { settings, gameData } = useAppStore();
   const { myRoutes, loadMyRoutes, createRoute, updateRoute, deleteRoute, shareRoute } = useRouteStore();
+  const startSession = usePlayStore((s) => s.startSession);
   const [editor, setEditor] = useState<EditorState>(null);
   const [sharing, setSharing] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -26,6 +30,11 @@ export function MyRoutes() {
   useEffect(() => {
     void loadMyRoutes();
   }, [loadMyRoutes]);
+
+  const handlePlay = (route: LocalRoute) => {
+    startSession(route.local_id);
+    navigate("/play");
+  };
 
   const handleSubmit = async (draft: RouteDraft, selfReported: boolean) => {
     if (editor?.mode === "edit") {
@@ -172,6 +181,10 @@ export function MyRoutes() {
 
                   {/* 액션 */}
                   <div className="flex gap-1.5">
+                    <Button size="sm" onClick={() => handlePlay(route)} title="이 루트로 거던 탐사 시작">
+                      <Play className="size-3.5" />
+                      플레이
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -195,6 +208,15 @@ export function MyRoutes() {
           ))}
         </div>
       )}
+
+      {/* 새 루트 작성 FAB (§11.2 섹션 A) */}
+      <button
+        onClick={() => setEditor({ mode: "create" })}
+        title="새 루트 작성"
+        className="fixed bottom-6 right-6 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-colors hover:bg-primary/90"
+      >
+        <Plus className="size-6" />
+      </button>
     </div>
   );
 }

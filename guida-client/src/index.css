@@ -2,47 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* shadcn/ui 디자인 토큰 (dark 우선) */
+/*
+ * Guida 디자인 시스템 (README §12) — Charcoal Black 다크 전용 팔레트.
+ * 라이트 모드는 제공하지 않으며, 모든 토큰은 다크 기준 단일 정의다.
+ * 원본 Hex → HSL 변환값을 사용한다.
+ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --primary: 47 80% 52%;
-    --primary-foreground: 240 10% 8%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 47 80% 52%;
-    --radius: 0.6rem;
-  }
+    /* Deep Abyss #121315 — 메인 배경 */
+    --background: 220 8% 8%;
+    /* Ash White #E1E4E6 — 본문/헤드라인 */
+    --foreground: 204 9% 89%;
 
-  .dark {
-    --background: 240 10% 6%;
-    --foreground: 0 0% 95%;
-    --card: 240 8% 9%;
-    --card-foreground: 0 0% 95%;
-    --primary: 47 85% 55%;
-    --primary-foreground: 240 10% 8%;
-    --secondary: 240 5% 16%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 240 5% 14%;
-    --muted-foreground: 240 5% 60%;
-    --accent: 240 5% 18%;
-    --accent-foreground: 0 0% 95%;
+    /* Card Surface #25282C — 카드/팝업/입력창 */
+    --card: 214 9% 16%;
+    --card-foreground: 204 9% 89%;
+    --popover: 214 9% 16%;
+    --popover-foreground: 204 9% 89%;
+
+    /* Charcoal Black #1C1E21 — 로고/네비게이션 바 */
+    --brand: 216 8% 12%;
+    --brand-foreground: 204 9% 89%;
+
+    /* Flame Amber #E67E22 — 활성 상태/CTA/하이라이트 */
+    --primary: 28 80% 52%;
+    --primary-foreground: 216 10% 10%;
+
+    /* 보조 버튼/표면 (Card Surface 계열) */
+    --secondary: 214 9% 16%;
+    --secondary-foreground: 204 9% 89%;
+
+    /* Muted Slate #90969D — 힌트/부제목/비활성 */
+    --muted: 216 8% 14%;
+    --muted-foreground: 212 6% 59%;
+
+    /* 중립 호버 표면 (ghost/outline hover 등) */
+    --accent: 214 8% 22%;
+    --accent-foreground: 204 9% 89%;
+
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5% 18%;
-    --input: 240 5% 20%;
-    --ring: 47 85% 55%;
+
+    --border: 215 8% 22%;
+    --input: 215 8% 24%;
+    --ring: 28 80% 52%;
+    --radius: 0.6rem;
   }
 
   * {

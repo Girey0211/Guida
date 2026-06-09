@@ -5,7 +5,7 @@
 
 import { create } from "zustand";
 import type { GameData, PatchInfo } from "@/types/gameData";
-import type { Theme, UserSettings } from "@/types/settings";
+import type { UserSettings } from "@/types/settings";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 import { ensureDeviceUuid, readJson, writeJson } from "@/lib/storage";
 import { syncGameData } from "@/api/gameData";
@@ -29,7 +29,6 @@ interface AppState {
   bootstrap: () => Promise<void>;
   /** 설정 일부 갱신 후 저장 */
   updateSettings: (patch: Partial<UserSettings>) => Promise<void>;
-  setTheme: (theme: Theme) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -86,11 +85,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     const next = { ...get().settings, ...patch };
     set({ settings: next });
     await writeJson(SETTINGS_FILE, next);
-  },
-
-  setTheme: async (theme) => {
-    await get().updateSettings({ theme });
-    document.documentElement.classList.toggle("dark", theme === "dark");
   },
 }));
 

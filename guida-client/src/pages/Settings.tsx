@@ -1,4 +1,4 @@
-import { Moon, Sun, RefreshCw, Copy, Check } from "lucide-react";
+import { Moon, RefreshCw, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { useAppStore } from "@/store/appStore";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -10,7 +10,7 @@ import { toast } from "@/components/ui/toast";
 
 /** 앱 설정 페이지 */
 export function Settings() {
-  const { settings, patch, online, setTheme, updateSettings, bootstrap } = useAppStore();
+  const { settings, patch, online, updateSettings, bootstrap } = useAppStore();
   const [copied, setCopied] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
@@ -41,22 +41,9 @@ export function Settings() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <Label>테마</Label>
-              <div className="flex gap-1.5">
-                <Button
-                  size="sm"
-                  variant={settings.theme === "dark" ? "default" : "outline"}
-                  onClick={() => void setTheme("dark")}
-                >
-                  <Moon className="size-4" /> 다크
-                </Button>
-                <Button
-                  size="sm"
-                  variant={settings.theme === "light" ? "default" : "outline"}
-                  onClick={() => void setTheme("light")}
-                >
-                  <Sun className="size-4" /> 라이트
-                </Button>
-              </div>
+              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Moon className="size-4" /> 다크 모드 전용
+              </span>
             </div>
 
             <div className="space-y-2">

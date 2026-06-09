@@ -1,5 +1,5 @@
-/** 앱 테마 */
-export type Theme = "dark" | "light";
+/** 앱 테마 — Guida는 다크 모드 전용이다 (README §12). */
+export type Theme = "dark";
 
 /**
  * 로컬 `user_settings.json` 스키마.
