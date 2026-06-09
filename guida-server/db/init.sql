@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS routes (
   route_type      VARCHAR(30)  NOT NULL,                  -- 파밍 효율 중심 | 특정 목표 중심
   target_rewards  TEXT[]       NOT NULL DEFAULT '{}',     -- 목표 재화 배열
   floors          INT[]        NOT NULL DEFAULT '{}',     -- 거던 층수 배열
+  steps           JSONB        NOT NULL DEFAULT '[]',     -- 층별 단계 메모 [{ floor, note }]
   memo            TEXT,                                   -- 작성자 메모
   verified_method VARCHAR(20)  NOT NULL,                  -- self_report | ocr
   uploader_uuid   UUID         NOT NULL,                  -- 업로드한 디바이스 UUID

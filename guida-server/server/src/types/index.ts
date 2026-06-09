@@ -7,6 +7,12 @@ export type Difficulty = '쉬움' | '보통' | '어려움';
 export type RouteType = '파밍 효율 중심' | '특정 목표 중심';
 export type VerifiedMethod = 'self_report' | 'ocr';
 
+/** 층별 단계 메모 (routes.steps JSONB 한 항목) */
+export interface RouteStep {
+  floor: number;
+  note: string;
+}
+
 /** routes 테이블 한 행 + 집계된 통계(likes / play_count)를 합친 응답 형태 */
 export interface Route {
   route_code: string;
@@ -16,6 +22,7 @@ export interface Route {
   route_type: RouteType;
   target_rewards: string[];
   floors: number[];
+  steps: RouteStep[];
   memo: string | null;
   verified_method: VerifiedMethod;
   uploaded_at: string;
@@ -39,6 +46,7 @@ export interface UploadBody {
   route_type: RouteType;
   target_rewards: string[];
   floors: number[];
+  steps?: RouteStep[];
   memo?: string;
   verified_method: VerifiedMethod;
 }

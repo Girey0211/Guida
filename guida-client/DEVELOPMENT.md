@@ -79,7 +79,7 @@ npm run tauri:build  # .exe / NSIS 설치 파일 (GitHub Releases 배포용)
 
 ## 다음 단계 제안
 
-- 실제 백엔드(루트 허브 API) 구축 후 `src/api/routes.ts` 교체
+- 실제 백엔드(루트 허브 API) 연결: `VITE_API_BASE_URL` 설정 시 `src/api/httpServer.ts`(실 HTTP), 미설정 시 Mock 으로 자동 전환됨
 - 이미지 에셋 CDN 업로드 및 `VITE_IMAGE_CDN_URL` 설정
 - Tauri 디스크 이미지 캐시(`%APPDATA%/LimbusGuide/cache`) 확장 (`useImageCache`)
 - Phase 2: `src-tauri/src/ocr/` 파이프라인 추가

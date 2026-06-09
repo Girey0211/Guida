@@ -38,6 +38,7 @@ const ROUTE_SELECT = `
     r.route_type,
     r.target_rewards,
     r.floors,
+    r.steps,
     r.memo,
     r.verified_method,
     r.uploaded_at,
@@ -134,6 +135,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       route_type,
       target_rewards,
       floors,
+      steps = [],
       memo = null,
       verified_method,
     } = body;
@@ -146,6 +148,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       !VALID_ROUTE_TYPE.includes(route_type) ||
       !Array.isArray(target_rewards) ||
       !Array.isArray(floors) ||
+      !Array.isArray(steps) ||
       !VALID_VERIFIED.includes(verified_method)
     ) {
       return reply.code(400).send({ error: '필수 필드가 누락되었거나 형식이 올바르지 않습니다.' });
@@ -167,8 +170,8 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
           await client.query(
             `INSERT INTO routes
                (route_code, name, patch_version, difficulty, route_type,
-                target_rewards, floors, memo, verified_method, uploader_uuid)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+                target_rewards, floors, steps, memo, verified_method, uploader_uuid)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
             [
               code,
               name,
@@ -177,6 +180,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
               route_type,
               target_rewards,
               floors,
+              JSON.stringify(steps), // JSONB 컬럼: 배열을 문자열로 직렬화해 전달
               memo,
               verified_method,
               uuid,

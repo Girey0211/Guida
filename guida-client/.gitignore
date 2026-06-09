@@ -9,6 +9,11 @@ dist
 dist-ssr
 *.local
 
+# Env (.env.example는 추적)
+.env
+.env.local
+.env.*.local
+
 # Editor
 .vscode/*
 !.vscode/extensions.json
