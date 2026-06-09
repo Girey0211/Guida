@@ -8,26 +8,31 @@
 -- ─────────────────────────────────────────────
 -- routes — 공유 루트
 -- ─────────────────────────────────────────────
+-- 루트 스키마는 README §8.4(서버 루트 공개 데이터)를 따른다.
 CREATE TABLE IF NOT EXISTS routes (
-  id              SERIAL PRIMARY KEY,
-  route_code      CHAR(6)      NOT NULL UNIQUE,           -- 공유용 6자리 난수 코드 (예: X7R2B9)
-  name            VARCHAR(100) NOT NULL,
-  patch_version   VARCHAR(10)  NOT NULL,                  -- 업로드 시점 패치 버전
-  difficulty      VARCHAR(10)  NOT NULL,                  -- 쉬움 | 보통 | 어려움
-  route_type      VARCHAR(30)  NOT NULL,                  -- 파밍 효율 중심 | 특정 목표 중심
-  target_rewards  TEXT[]       NOT NULL DEFAULT '{}',     -- 목표 재화 배열
-  floors          INT[]        NOT NULL DEFAULT '{}',     -- 거던 층수 배열
-  steps           JSONB        NOT NULL DEFAULT '[]',     -- 층별 단계 메모 [{ floor, note }]
-  memo            TEXT,                                   -- 작성자 메모
-  verified_method VARCHAR(20)  NOT NULL,                  -- self_report | ocr
-  uploader_uuid   UUID         NOT NULL,                  -- 업로드한 디바이스 UUID
-  uploaded_at     TIMESTAMPTZ  NOT NULL DEFAULT now()
+  id                      SERIAL PRIMARY KEY,
+  route_code              CHAR(6)      NOT NULL UNIQUE,       -- 공유용 6자리 난수 코드 (예: X7R2B9)
+  name                    VARCHAR(100) NOT NULL,
+  patch_version           VARCHAR(10)  NOT NULL,             -- 업로드 시점 패치 버전
+  difficulty_tag          VARCHAR(10)  NOT NULL,             -- 체감 난이도: 쉬움 | 보통 | 어려움
+  route_type              VARCHAR(30)  NOT NULL,             -- 파밍 효율 중심 | 특정 목표 중심
+  difficulty_mode         VARCHAR(10)  NOT NULL DEFAULT 'normal', -- 거던 난이도: normal | hard | extreme
+  difficulty_switch_floor INT,                               -- 노말→하드 전환 층 (null = 단일 난이도)
+  target_rewards          TEXT[]       NOT NULL DEFAULT '{}', -- 목표 재화 배열
+  floors                  INT[]        NOT NULL DEFAULT '{}', -- 거던 층수 배열
+  gift_order              JSONB        NOT NULL DEFAULT '[]', -- 기프트 획득 순서 [{ gift_id, priority, floor_target, difficulty, required }]
+  pack_order              JSONB        NOT NULL DEFAULT '[]', -- 팩 방문 순서 [{ pack_id, floor, difficulty, priority, memo }]
+  memo                    TEXT,                              -- 작성자 메모
+  verified_method         VARCHAR(20)  NOT NULL,             -- self_report | ocr
+  uploader_uuid           UUID         NOT NULL,             -- 업로드한 디바이스 UUID
+  uploaded_at             TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_routes_patch       ON routes (patch_version);
-CREATE INDEX IF NOT EXISTS idx_routes_difficulty  ON routes (difficulty);
-CREATE INDEX IF NOT EXISTS idx_routes_route_type  ON routes (route_type);
-CREATE INDEX IF NOT EXISTS idx_routes_uploaded_at ON routes (uploaded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_routes_patch           ON routes (patch_version);
+CREATE INDEX IF NOT EXISTS idx_routes_difficulty_tag  ON routes (difficulty_tag);
+CREATE INDEX IF NOT EXISTS idx_routes_difficulty_mode ON routes (difficulty_mode);
+CREATE INDEX IF NOT EXISTS idx_routes_route_type      ON routes (route_type);
+CREATE INDEX IF NOT EXISTS idx_routes_uploaded_at     ON routes (uploaded_at DESC);
 
 -- ─────────────────────────────────────────────
 -- route_stats — 패치 버전별 통계
@@ -66,9 +71,9 @@ CREATE TABLE IF NOT EXISTS config (
   value TEXT NOT NULL
 );
 
--- 현재 게임 패치 버전 초기값
+-- 현재 게임 패치 버전 초기값 (data/patch_version.json 과 일치)
 INSERT INTO config (key, value)
-VALUES ('current_patch', '2.4')
+VALUES ('current_patch', '2.7')
 ON CONFLICT (key) DO NOTHING;
 
 -- ─────────────────────────────────────────────
@@ -76,4 +81,12 @@ ON CONFLICT (key) DO NOTHING;
 --   CREATE TABLE IF NOT EXISTS 는 이미 존재하는 테이블을 변경하지 않으므로,
 --   컬럼 추가는 아래처럼 멱등 ALTER 로 작성한다.
 --   예) ALTER TABLE routes ADD COLUMN IF NOT EXISTS thumbnail_url TEXT;
+--
+--   ※ 구(舊) difficulty / steps 스키마 운영 DB 마이그레이션:
+--      ALTER TABLE routes RENAME COLUMN difficulty TO difficulty_tag;
+--      ALTER TABLE routes ADD COLUMN IF NOT EXISTS difficulty_mode VARCHAR(10) NOT NULL DEFAULT 'normal';
+--      ALTER TABLE routes ADD COLUMN IF NOT EXISTS difficulty_switch_floor INT;
+--      ALTER TABLE routes ADD COLUMN IF NOT EXISTS gift_order JSONB NOT NULL DEFAULT '[]';
+--      ALTER TABLE routes ADD COLUMN IF NOT EXISTS pack_order JSONB NOT NULL DEFAULT '[]';
+--      ALTER TABLE routes DROP COLUMN IF EXISTS steps;
 -- ─────────────────────────────────────────────

@@ -6,13 +6,15 @@ import type {
   LikeBody,
   PlayBody,
   ListRoutesQuery,
-  Difficulty,
+  DifficultyTag,
+  DifficultyMode,
   RouteType,
   VerifiedMethod,
 } from '../types/index.js';
 
 const CODE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-const VALID_DIFFICULTY: Difficulty[] = ['쉬움', '보통', '어려움'];
+const VALID_DIFFICULTY_TAG: DifficultyTag[] = ['쉬움', '보통', '어려움'];
+const VALID_DIFFICULTY_MODE: DifficultyMode[] = ['normal', 'hard', 'extreme'];
 const VALID_ROUTE_TYPE: RouteType[] = ['파밍 효율 중심', '특정 목표 중심'];
 const VALID_VERIFIED: VerifiedMethod[] = ['self_report', 'ocr'];
 
@@ -34,11 +36,14 @@ const ROUTE_SELECT = `
     r.route_code,
     r.name,
     r.patch_version,
-    r.difficulty,
+    r.difficulty_tag,
     r.route_type,
+    r.difficulty_mode,
+    r.difficulty_switch_floor,
     r.target_rewards,
     r.floors,
-    r.steps,
+    r.gift_order,
+    r.pack_order,
     r.memo,
     r.verified_method,
     r.uploaded_at,
@@ -55,7 +60,8 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   // GET /api/routes — 목록 조회 (필터 + 정렬 + 페이지네이션)
   // ──────────────────────────────────────────────
   fastify.get<{ Querystring: ListRoutesQuery }>('/api/routes', async (req) => {
-    const { patch, sort = 'likes', difficulty, route_type, min_likes } = req.query;
+    const { patch, sort = 'likes', difficulty_tag, difficulty_mode, route_type, min_likes } =
+      req.query;
 
     const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
     const offset = Math.max(Number(req.query.offset) || 0, 0);
@@ -67,9 +73,13 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       params.push(patch);
       conditions.push(`r.patch_version = $${params.length}`);
     }
-    if (difficulty) {
-      params.push(difficulty);
-      conditions.push(`r.difficulty = $${params.length}`);
+    if (difficulty_tag) {
+      params.push(difficulty_tag);
+      conditions.push(`r.difficulty_tag = $${params.length}`);
+    }
+    if (difficulty_mode) {
+      params.push(difficulty_mode);
+      conditions.push(`r.difficulty_mode = $${params.length}`);
     }
     if (route_type) {
       params.push(route_type);
@@ -131,11 +141,14 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
     const {
       uuid,
       name,
-      difficulty,
+      difficulty_tag,
       route_type,
+      difficulty_mode,
+      difficulty_switch_floor = null,
       target_rewards,
       floors,
-      steps = [],
+      gift_order = [],
+      pack_order = [],
       memo = null,
       verified_method,
     } = body;
@@ -144,11 +157,14 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
     if (
       !uuid ||
       !name ||
-      !VALID_DIFFICULTY.includes(difficulty) ||
+      !VALID_DIFFICULTY_TAG.includes(difficulty_tag) ||
       !VALID_ROUTE_TYPE.includes(route_type) ||
+      !VALID_DIFFICULTY_MODE.includes(difficulty_mode) ||
+      (difficulty_switch_floor !== null && typeof difficulty_switch_floor !== 'number') ||
       !Array.isArray(target_rewards) ||
       !Array.isArray(floors) ||
-      !Array.isArray(steps) ||
+      !Array.isArray(gift_order) ||
+      !Array.isArray(pack_order) ||
       !VALID_VERIFIED.includes(verified_method)
     ) {
       return reply.code(400).send({ error: '필수 필드가 누락되었거나 형식이 올바르지 않습니다.' });
@@ -169,18 +185,22 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
           await client.query('BEGIN');
           await client.query(
             `INSERT INTO routes
-               (route_code, name, patch_version, difficulty, route_type,
-                target_rewards, floors, steps, memo, verified_method, uploader_uuid)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+               (route_code, name, patch_version, difficulty_tag, route_type,
+                difficulty_mode, difficulty_switch_floor, target_rewards, floors,
+                gift_order, pack_order, memo, verified_method, uploader_uuid)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
             [
               code,
               name,
               patchVersion,
-              difficulty,
+              difficulty_tag,
               route_type,
+              difficulty_mode,
+              difficulty_switch_floor,
               target_rewards,
               floors,
-              JSON.stringify(steps), // JSONB 컬럼: 배열을 문자열로 직렬화해 전달
+              JSON.stringify(gift_order), // JSONB 컬럼: 배열을 문자열로 직렬화해 전달
+              JSON.stringify(pack_order),
               memo,
               verified_method,
               uuid,

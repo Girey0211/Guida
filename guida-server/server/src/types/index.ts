@@ -1,16 +1,32 @@
 /**
  * 공유 타입 정의
  * DB 스키마(routes / route_stats / route_likes / config)와 API 계약을 표현한다.
+ * 루트 스키마는 README §8.4(서버 루트 공개 데이터)를 단일 소스로 따른다.
  */
 
-export type Difficulty = '쉬움' | '보통' | '어려움';
+/** 난이도 태그 — 체감 난이도 라벨 (README §6.2) */
+export type DifficultyTag = '쉬움' | '보통' | '어려움';
+/** 난이도 모드 — 거던 실제 난이도 (gift_order / pack_order 항목과 연동) */
+export type DifficultyMode = 'normal' | 'hard' | 'extreme';
 export type RouteType = '파밍 효율 중심' | '특정 목표 중심';
 export type VerifiedMethod = 'self_report' | 'ocr';
 
-/** 층별 단계 메모 (routes.steps JSONB 한 항목) */
-export interface RouteStep {
+/** 기프트 획득 순서 한 항목 (routes.gift_order JSONB) — gifts.json 의 id 참조 */
+export interface GiftOrderItem {
+  gift_id: string;
+  priority: number;
+  floor_target: number;
+  difficulty: DifficultyMode;
+  required: boolean;
+}
+
+/** 팩 방문 순서 한 항목 (routes.pack_order JSONB) — packs.json 의 id 참조 */
+export interface PackOrderItem {
+  pack_id: string;
   floor: number;
-  note: string;
+  difficulty: DifficultyMode;
+  priority: number;
+  memo: string | null;
 }
 
 /** routes 테이블 한 행 + 집계된 통계(likes / play_count)를 합친 응답 형태 */
@@ -18,11 +34,14 @@ export interface Route {
   route_code: string;
   name: string;
   patch_version: string;
-  difficulty: Difficulty;
+  difficulty_tag: DifficultyTag;
   route_type: RouteType;
+  difficulty_mode: DifficultyMode;
+  difficulty_switch_floor: number | null;
   target_rewards: string[];
   floors: number[];
-  steps: RouteStep[];
+  gift_order: GiftOrderItem[];
+  pack_order: PackOrderItem[];
   memo: string | null;
   verified_method: VerifiedMethod;
   uploaded_at: string;
@@ -42,11 +61,14 @@ export interface Stats {
 export interface UploadBody {
   uuid: string;
   name: string;
-  difficulty: Difficulty;
+  difficulty_tag: DifficultyTag;
   route_type: RouteType;
+  difficulty_mode: DifficultyMode;
+  difficulty_switch_floor?: number | null;
   target_rewards: string[];
   floors: number[];
-  steps?: RouteStep[];
+  gift_order?: GiftOrderItem[];
+  pack_order?: PackOrderItem[];
   memo?: string;
   verified_method: VerifiedMethod;
 }
@@ -66,7 +88,8 @@ export interface PlayBody {
 export interface ListRoutesQuery {
   patch?: string;
   sort?: 'likes' | 'latest' | 'play_count';
-  difficulty?: Difficulty;
+  difficulty_tag?: DifficultyTag;
+  difficulty_mode?: DifficultyMode;
   route_type?: RouteType;
   min_likes?: number;
   limit?: number;
