@@ -51,6 +51,7 @@ const LIKES_KEY = "guida:server:likes"; // `${uuid}|${code}|${patch}` 집합
 /** HTTP status → ApiError code 매핑 (UI 에러 분기용) */
 const STATUS_TO_CODE: Record<number, ApiError["code"]> = {
   400: "INVALID",
+  403: "FORBIDDEN",
   404: "NOT_FOUND",
   409: "DUPLICATE",
   429: "RATE_LIMIT",
@@ -172,6 +173,35 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
     stats: { [patch_version]: { likes: 0, play_count: 0 } },
     uploaded_at: new Date().toISOString(),
   };
+}
+
+/**
+ * 기존 공유 루트 수정 (작성자 본인만 가능).
+ * 서버가 uploader_uuid 와 요청 uuid 불일치 시 403(FORBIDDEN) 으로 차단한다.
+ */
+export async function updateRoute(code: string, payload: UploadPayload): Promise<SharedRoute> {
+  const { route, uuid } = payload;
+  const r = await request<ServerRoute>(
+    `/api/routes/${encodeURIComponent(code.toUpperCase())}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        uuid,
+        name: route.name,
+        difficulty_tag: route.difficulty_tag,
+        route_type: route.route_type,
+        difficulty_mode: route.difficulty_mode,
+        difficulty_switch_floor: route.difficulty_switch_floor,
+        target_rewards: route.target_rewards,
+        floors: route.floors,
+        gift_order: route.gift_order,
+        pack_order: route.pack_order,
+        memo: route.memo,
+        verified_method: route.verified_method,
+      }),
+    },
+  );
+  return toShared(r);
 }
 
 /** 6자리 코드로 단건 조회 */

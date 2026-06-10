@@ -23,6 +23,8 @@ export function useRouteFilter(
   routes: SharedRoute[],
   filter: RouteFilterState,
   currentPatch: string,
+  /** 내 루트로 이미 가져온/내가 발행한 코드 집합 (hideImported 필터용) */
+  savedCodes: Set<string> = new Set(),
 ): SharedRoute[] {
   return useMemo(() => {
     // 통계 집계 기준 패치
@@ -30,6 +32,9 @@ export function useRouteFilter(
       filter.patch === "current" ? currentPatch : filter.patch === "all" ? "all" : filter.patch;
 
     let result = routes.filter((r) => {
+      // 이미 가져온 루트 숨기기
+      if (filter.hideImported && savedCodes.has(r.route_code)) return false;
+
       // 패치 버전 필터
       if (filter.patch === "current" && r.patch_version !== currentPatch) return false;
       if (filter.patch !== "current" && filter.patch !== "all" && r.patch_version !== filter.patch)
@@ -77,7 +82,7 @@ export function useRouteFilter(
     });
 
     return result;
-  }, [routes, filter, currentPatch]);
+  }, [routes, filter, currentPatch, savedCodes]);
 }
 
 /** 표시용: 현재 필터 기준 패치의 통계 반환 */

@@ -28,6 +28,34 @@ CREATE TABLE IF NOT EXISTS routes (
   uploaded_at             TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
+-- 구(舊) 스키마 운영 DB 자동 마이그레이션 (멱등).
+-- CREATE TABLE IF NOT EXISTS 는 기존 테이블을 변경하지 않으므로,
+-- 아래 ALTER 들이 인덱스 생성 전에 컬럼을 최신 상태로 맞춘다.
+DO $$
+BEGIN
+  -- difficulty → difficulty_tag 리네임 (구 컬럼이 있고 신 컬럼이 없을 때만)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'routes' AND column_name = 'difficulty'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'routes' AND column_name = 'difficulty_tag'
+  ) THEN
+    ALTER TABLE routes RENAME COLUMN difficulty TO difficulty_tag;
+  END IF;
+END $$;
+
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS difficulty_tag          VARCHAR(10)  NOT NULL DEFAULT '보통';
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS route_type              VARCHAR(30)  NOT NULL DEFAULT '파밍 효율 중심';
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS difficulty_mode         VARCHAR(10)  NOT NULL DEFAULT 'normal';
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS difficulty_switch_floor INT;
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS target_rewards          TEXT[]       NOT NULL DEFAULT '{}';
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS floors                  INT[]        NOT NULL DEFAULT '{}';
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS gift_order              JSONB        NOT NULL DEFAULT '[]';
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS pack_order              JSONB        NOT NULL DEFAULT '[]';
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS verified_method         VARCHAR(20)  NOT NULL DEFAULT 'self_report';
+ALTER TABLE routes DROP COLUMN IF EXISTS steps;
+
 CREATE INDEX IF NOT EXISTS idx_routes_patch           ON routes (patch_version);
 CREATE INDEX IF NOT EXISTS idx_routes_difficulty_tag  ON routes (difficulty_tag);
 CREATE INDEX IF NOT EXISTS idx_routes_difficulty_mode ON routes (difficulty_mode);

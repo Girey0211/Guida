@@ -8,7 +8,7 @@ import type { FastifyInstance } from 'fastify';
  * 앱 시작 시 patch 버전을 확인하고, 변경된 데이터 파일만 병렬로 내려받는다.
  *
  * - GET /api/game/patch          : 현재 패치 버전 (config 테이블 기준, JSON 파일 폴백)
- * - GET /api/game/:resource      : 게임 데이터 파일 (gifts | packs | events | dependencies)
+ * - GET /api/game/:resource      : 게임 데이터 파일 (gifts | packs | events | dependencies | dungeon_meta)
  */
 
 /** 서빙 허용 리소스 → 실제 파일명. 화이트리스트로 경로 조작(traversal) 차단. */
@@ -17,6 +17,8 @@ const GAME_DATA_FILES: Record<string, string> = {
   packs: 'packs.json',
   events: 'events.json',
   dependencies: 'dependencies.json',
+  // 시즌 메타: 시작 기프트 / 별의 가호 / EXTREME 제약 (README §8.5)
+  dungeon_meta: 'dungeon_meta.json',
 };
 
 export default async function gameDataRoutes(fastify: FastifyInstance) {

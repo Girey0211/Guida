@@ -4,7 +4,7 @@
  */
 
 import { create } from "zustand";
-import type { DungeonMeta, GameData, Gift, Pack, PatchInfo } from "@/types/gameData";
+import type { DungeonMeta, GameData, Gift, GiftDependency, Pack, PatchInfo } from "@/types/gameData";
 import type { UserSettings } from "@/types/settings";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 import { ensureDeviceUuid, readJson, writeJson } from "@/lib/storage";
@@ -30,6 +30,8 @@ interface AppState {
   gifts: Gift[];
   /** 팩 카탈로그 (루트 작성기 pack_order 선택용) */
   packs: Pack[];
+  /** 기프트 순서 의존성 (플레이화면 🔒 선행조건 판정용) */
+  dependencies: GiftDependency[];
 
   /** 앱 초기 부팅: UUID 확보 → 설정 로드 → 게임 데이터 동기화 */
   bootstrap: () => Promise<void>;
@@ -48,6 +50,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   dungeonMeta: null,
   gifts: [],
   packs: [],
+  dependencies: [],
 
   bootstrap: async () => {
     try {
@@ -69,6 +72,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       let dungeonMeta: DungeonMeta | null = null;
       let gifts: Gift[] = [];
       let packs: Pack[] = [];
+      let dependencies: GiftDependency[] = [];
       try {
         const result = await syncGameData();
         gameData = result.gameData;
@@ -76,6 +80,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         dungeonMeta = result.dungeonMeta;
         gifts = result.gifts;
         packs = result.packs;
+        dependencies = result.dependencies;
         online = result.fromNetwork;
         settings.current_patch = patch.current_patch;
       } catch (e) {
@@ -95,6 +100,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         dungeonMeta,
         gifts,
         packs,
+        dependencies,
         online,
         ready: true,
         bootError: null,

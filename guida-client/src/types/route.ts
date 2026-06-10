@@ -112,8 +112,10 @@ export interface LocalRoute {
   verified_method: VerifiedMethod;
   /** 검증 일시 (ISO, 검증된 경우) */
   verified_at?: string;
-  /** 공유 시 발급받은 6자리 코드 (공유 전에는 없음) */
+  /** 내가 공유(발행)해서 발급받은 6자리 코드. 발행 전/가져온 루트에는 없음. */
   shared_code?: string;
+  /** 허브에서 가져온(import) 루트의 원본 코드. 내가 발행한 게 아니라 출처 표시용. */
+  imported_from?: string;
   /** 목표 재화 목록 */
   target_rewards: string[];
   /** 난이도 태그 */

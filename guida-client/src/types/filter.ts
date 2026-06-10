@@ -34,6 +34,8 @@ export interface RouteFilterState {
   minLikes: number;
   /** 최소 플레이수 */
   minPlays: number;
+  /** 이미 내 루트로 가져온(또는 내가 발행한) 루트를 목록에서 숨길지 여부 */
+  hideImported: boolean;
 }
 
 export const DEFAULT_FILTER: RouteFilterState = {
@@ -47,4 +49,5 @@ export const DEFAULT_FILTER: RouteFilterState = {
   routeType: null,
   minLikes: 0,
   minPlays: 0,
+  hideImported: false,
 };

@@ -229,6 +229,104 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   });
 
   // ──────────────────────────────────────────────
+  // PUT /api/routes/:code — 루트 수정 (작성자 UUID 일치 시에만 허용)
+  // 업로드한 디바이스(uploader_uuid)와 요청 uuid 가 다르면 403.
+  // ──────────────────────────────────────────────
+  fastify.put<{ Params: { code: string }; Body: UploadBody }>(
+    '/api/routes/:code',
+    async (req, reply) => {
+      const code = req.params.code.toUpperCase();
+      const body = req.body ?? ({} as UploadBody);
+      const {
+        uuid,
+        name,
+        difficulty_tag,
+        route_type,
+        difficulty_mode,
+        difficulty_switch_floor = null,
+        target_rewards,
+        floors,
+        gift_order = [],
+        pack_order = [],
+        memo = null,
+        verified_method,
+      } = body;
+
+      // 필수 필드 검증 (업로드와 동일 규칙)
+      if (
+        !uuid ||
+        !name ||
+        !VALID_DIFFICULTY_TAG.includes(difficulty_tag) ||
+        !VALID_ROUTE_TYPE.includes(route_type) ||
+        !VALID_DIFFICULTY_MODE.includes(difficulty_mode) ||
+        (difficulty_switch_floor !== null && typeof difficulty_switch_floor !== 'number') ||
+        !Array.isArray(target_rewards) ||
+        !Array.isArray(floors) ||
+        !Array.isArray(gift_order) ||
+        !Array.isArray(pack_order) ||
+        !VALID_VERIFIED.includes(verified_method)
+      ) {
+        return reply.code(400).send({ error: '필수 필드가 누락되었거나 형식이 올바르지 않습니다.' });
+      }
+
+      // 루트 존재 + 작성자 확인
+      const { rows: owner } = await fastify.pg.query<{ uploader_uuid: string }>(
+        `SELECT uploader_uuid FROM routes WHERE route_code = $1`,
+        [code],
+      );
+      if (!owner[0]) {
+        return reply.code(404).send({ error: '루트를 찾을 수 없습니다.' });
+      }
+      if (owner[0].uploader_uuid !== uuid) {
+        return reply.code(403).send({ error: '본인이 업로드한 루트만 수정할 수 있습니다.' });
+      }
+
+      // 통계(route_stats)는 그대로 유지하고 루트 내용만 갱신한다.
+      const { rows } = await fastify.pg.query<{ route_code: string }>(
+        `UPDATE routes SET
+           name = $2,
+           difficulty_tag = $3,
+           route_type = $4,
+           difficulty_mode = $5,
+           difficulty_switch_floor = $6,
+           target_rewards = $7,
+           floors = $8,
+           gift_order = $9,
+           pack_order = $10,
+           memo = $11,
+           verified_method = $12,
+           uploaded_at = now()
+         WHERE route_code = $1
+         RETURNING route_code`,
+        [
+          code,
+          name,
+          difficulty_tag,
+          route_type,
+          difficulty_mode,
+          difficulty_switch_floor,
+          target_rewards,
+          floors,
+          JSON.stringify(gift_order),
+          JSON.stringify(pack_order),
+          memo,
+          verified_method,
+        ],
+      );
+      if (!rows[0]) {
+        return reply.code(404).send({ error: '루트를 찾을 수 없습니다.' });
+      }
+
+      // 갱신된 루트를 통계와 합쳐 반환
+      const { rows: full } = await fastify.pg.query<Route>(
+        `${ROUTE_SELECT} WHERE r.route_code = $1`,
+        [code],
+      );
+      return full[0];
+    },
+  );
+
+  // ──────────────────────────────────────────────
   // POST /api/routes/:code/like — 추천 (패치 버전당 UUID 1회)
   // ──────────────────────────────────────────────
   fastify.post<{ Params: { code: string }; Body: LikeBody }>(

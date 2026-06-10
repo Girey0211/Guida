@@ -23,7 +23,7 @@ export function isOnline(): boolean {
 export class ApiError extends Error {
   constructor(
     message: string,
-    public code: "DUPLICATE" | "NOT_FOUND" | "RATE_LIMIT" | "INVALID",
+    public code: "DUPLICATE" | "NOT_FOUND" | "RATE_LIMIT" | "INVALID" | "FORBIDDEN",
   ) {
     super(message);
     this.name = "ApiError";

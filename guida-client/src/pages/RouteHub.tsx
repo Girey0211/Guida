@@ -17,7 +17,8 @@ import { toast } from "@/components/ui/toast";
 /** 루트 공유 허브 (탐색) 페이지 */
 export function RouteHub() {
   const { uuid, settings, gameData } = useAppStore();
-  const { hubRoutes, loadingHub, hubError, loadHub, likeHubRoute, importByCode } = useRouteStore();
+  const { hubRoutes, myRoutes, loadingHub, hubError, loadHub, loadMyRoutes, likeHubRoute, importByCode } =
+    useRouteStore();
   const [filter, setFilter] = useState<RouteFilterState>(DEFAULT_FILTER);
   const [code, setCode] = useState("");
   const [likeBusy, setLikeBusy] = useState<string | null>(null);
@@ -26,10 +27,21 @@ export function RouteHub() {
 
   useEffect(() => {
     void loadHub();
-  }, [loadHub]);
+    void loadMyRoutes();
+  }, [loadHub, loadMyRoutes]);
+
+  // 이미 내 루트로 가져왔거나(import) 내가 발행한(share) 루트의 코드 집합
+  const savedCodes = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of myRoutes) {
+      if (r.shared_code) set.add(r.shared_code);
+      if (r.imported_from) set.add(r.imported_from);
+    }
+    return set;
+  }, [myRoutes]);
 
   const liked = likedCodes(uuid, currentPatch);
-  const filtered = useRouteFilter(hubRoutes, filter, currentPatch);
+  const filtered = useRouteFilter(hubRoutes, filter, currentPatch, savedCodes);
 
   const availablePatches = useMemo(
     () => [...new Set(hubRoutes.map((r) => r.patch_version))].sort().reverse(),
@@ -51,6 +63,7 @@ export function RouteHub() {
   };
 
   const handleImport = async (c: string) => {
+    if (savedCodes.has(c)) return toast.info("이미 내 루트로 가져온 루트입니다.");
     try {
       const r = await importByCode(c);
       toast.success(`'${r.name}'을(를) 내 루트로 가져왔습니다.`);
@@ -131,6 +144,7 @@ export function RouteHub() {
                     likes={likes}
                     plays={plays}
                     liked={liked.has(route.route_code)}
+                    saved={savedCodes.has(route.route_code)}
                     likeBusy={likeBusy === route.route_code}
                     onLike={handleLike}
                     onImport={handleImport}

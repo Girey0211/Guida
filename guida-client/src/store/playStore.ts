@@ -1,8 +1,8 @@
 /**
- * 플레이 세션 상태 (README §8.4 / §11.3).
+ * 플레이 세션 상태 (README §8.3 / §11.3).
  * 거던 탐사 진행 중 데이터를 메모리로 유지한다.
- *  - acquiredGifts: 획득 완료한 목표 에고기프트(재화) 이름 목록
- *  - visitedPacks: 방문 완료한 팩(층) 번호 목록
+ *  - acquiredGifts: 획득 완료한 목표 에고기프트 gift_id 목록 (gift_order 참조)
+ *  - visitedPacks: 방문 완료한 팩 pack_id 목록 (pack_order 참조)
  *  - routeSwitchedAtFloor: 플레이 중 루트를 변경한 시점의 층 (§11.4)
  */
 
@@ -25,10 +25,10 @@ interface PlayState {
   startedAt: string | null;
   /** 현재 층 */
   currentFloor: number;
-  /** 획득 완료한 목표 에고기프트(재화) 이름 */
+  /** 획득 완료한 목표 에고기프트 gift_id */
   acquiredGifts: string[];
-  /** 방문 완료한 팩(층) 번호 */
-  visitedPacks: number[];
+  /** 방문 완료한 팩 pack_id */
+  visitedPacks: string[];
   /** 플레이 중 루트를 변경한 시점의 층 (변경 없으면 null) */
   routeSwitchedAtFloor: number | null;
 
@@ -43,10 +43,10 @@ interface PlayState {
   switchRoute: (routeId: string) => void;
   /** 현재 층 설정 */
   setFloor: (floor: number) => void;
-  /** 목표 에고기프트 획득 여부 토글 */
-  toggleGift: (gift: string) => void;
-  /** 팩(층) 방문 여부 토글 */
-  togglePack: (pack: number) => void;
+  /** 목표 에고기프트 획득 여부 토글 (gift_id) */
+  toggleGift: (giftId: string) => void;
+  /** 팩 방문 여부 토글 (pack_id) */
+  togglePack: (packId: string) => void;
 }
 
 export const usePlayStore = create<PlayState>((set) => ({
@@ -89,17 +89,17 @@ export const usePlayStore = create<PlayState>((set) => ({
 
   setFloor: (currentFloor) => set({ currentFloor }),
 
-  toggleGift: (gift) =>
+  toggleGift: (giftId) =>
     set((s) => ({
-      acquiredGifts: s.acquiredGifts.includes(gift)
-        ? s.acquiredGifts.filter((g) => g !== gift)
-        : [...s.acquiredGifts, gift],
+      acquiredGifts: s.acquiredGifts.includes(giftId)
+        ? s.acquiredGifts.filter((g) => g !== giftId)
+        : [...s.acquiredGifts, giftId],
     })),
 
-  togglePack: (pack) =>
+  togglePack: (packId) =>
     set((s) => ({
-      visitedPacks: s.visitedPacks.includes(pack)
-        ? s.visitedPacks.filter((p) => p !== pack)
-        : [...s.visitedPacks, pack],
+      visitedPacks: s.visitedPacks.includes(packId)
+        ? s.visitedPacks.filter((p) => p !== packId)
+        : [...s.visitedPacks, packId],
     })),
 }));

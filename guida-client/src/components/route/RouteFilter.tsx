@@ -82,6 +82,17 @@ export function RouteFilter({
         </Select>
       </div>
 
+      <div className="space-y-1.5">
+        <Label>이미 가져온 루트</Label>
+        <Select
+          value={filter.hideImported ? "hide" : "all"}
+          onChange={(e) => set("hideImported", e.target.value === "hide")}
+        >
+          <option value="all">함께 보기</option>
+          <option value="hide">숨기기</option>
+        </Select>
+      </div>
+
       <hr className="border-border" />
 
       {/* 게임 콘텐츠 필터 */}

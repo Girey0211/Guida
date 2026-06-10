@@ -18,6 +18,11 @@ export function uploadRoute(payload: UploadPayload): Promise<SharedRoute> {
   return withServer(() => server.uploadRoute(payload));
 }
 
+/** 기존 공유 루트 수정 (작성자 본인만, 서버가 uuid 검증) */
+export function updateRoute(code: string, payload: UploadPayload): Promise<SharedRoute> {
+  return withServer(() => server.updateRoute(code, payload));
+}
+
 /** 6자리 코드로 단건 조회 */
 export function getRouteByCode(code: string): Promise<SharedRoute> {
   return withServer(() => server.getRouteByCode(code));

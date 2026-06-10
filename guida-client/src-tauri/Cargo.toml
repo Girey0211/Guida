@@ -24,6 +24,10 @@ tauri-plugin-os = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 uuid = { version = "1", features = ["v4"] }
+# 디바이스 UUID를 OS 보호 저장소(Windows 자격 증명 관리자 = DPAPI 암호화)에
+# 보관해 평문 파일 변조를 무력화한다. Windows 외 플랫폼은 백엔드 부재 시
+# 파일-서명 폴백으로 동작한다(웹/타 플랫폼은 테스트용).
+keyring = { version = "3", features = ["windows-native"] }
 
 [profile.release]
 panic = "abort"

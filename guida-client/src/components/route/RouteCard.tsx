@@ -11,6 +11,8 @@ interface Props {
   likes: number;
   plays: number;
   liked: boolean;
+  /** 이미 내 루트로 가져왔거나 내가 발행한 루트 → 가져오기 비활성화 */
+  saved: boolean;
   onLike: (code: string) => void;
   onImport: (code: string) => void;
   likeBusy?: boolean;
@@ -23,6 +25,7 @@ export function RouteCard({
   likes,
   plays,
   liked,
+  saved,
   onLike,
   onImport,
   likeBusy,
@@ -86,9 +89,15 @@ export function RouteCard({
               <ThumbsUp className="size-3.5" />
               {liked ? "추천함" : "추천"}
             </Button>
-            <Button size="sm" onClick={() => onImport(route.route_code)} title="내 루트로 가져오기">
+            <Button
+              size="sm"
+              variant={saved ? "secondary" : "default"}
+              disabled={saved}
+              onClick={() => onImport(route.route_code)}
+              title={saved ? "이미 내 루트에 있습니다" : "내 루트로 가져오기"}
+            >
               <Download className="size-3.5" />
-              가져오기
+              {saved ? "가져옴" : "가져오기"}
             </Button>
           </div>
         </div>

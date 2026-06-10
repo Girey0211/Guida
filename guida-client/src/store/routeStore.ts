@@ -106,7 +106,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
     }
 
     const { uuid, settings } = useAppStore.getState();
-    const shared = await routesApi.uploadRoute({
+    const payload = {
       uuid,
       patch_version: settings.current_patch,
       route: {
@@ -122,15 +122,34 @@ export const useRouteStore = create<RouteState>((set, get) => ({
         pack_order: route.pack_order,
         verified_method: route.verified_method,
       },
-    });
+    };
 
-    // 발급받은 코드를 로컬 루트에 반영
+    let code: string;
+    if (route.shared_code) {
+      // 내가 이미 발행한 루트 → 수정 업로드 (서버가 uploader_uuid 일치 검증).
+      // 서버에서 루트가 사라졌으면(NOT_FOUND) 새로 업로드로 폴백한다.
+      try {
+        const updated = await routesApi.updateRoute(route.shared_code, payload);
+        code = updated.route_code;
+      } catch (e) {
+        if (e instanceof routesApi.ApiError && e.code === "NOT_FOUND") {
+          code = (await routesApi.uploadRoute(payload)).route_code;
+        } else {
+          throw e;
+        }
+      }
+    } else {
+      // 신규 발행
+      code = (await routesApi.uploadRoute(payload)).route_code;
+    }
+
+    // 발급/유지된 코드를 로컬 루트에 반영
     const next = get().myRoutes.map((r) =>
-      r.local_id === localId ? { ...r, shared_code: shared.route_code } : r,
+      r.local_id === localId ? { ...r, shared_code: code } : r,
     );
     set({ myRoutes: next });
     await persist(next);
-    return shared.route_code;
+    return code;
   },
 
   loadHub: async () => {
@@ -164,7 +183,9 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       patch_version: shared.patch_version,
       verified: false,
       verified_method: "self_report",
-      shared_code: shared.route_code,
+      // 가져온 루트는 내가 발행한 게 아니므로 shared_code 가 아니라 출처(imported_from)로 기록한다.
+      // 이래야 재공유 시 남의 루트를 덮어쓰지 않고 내 코드로 새로 발행된다.
+      imported_from: shared.route_code,
       target_rewards: shared.target_rewards,
       floors: shared.floors,
       difficulty_tag: shared.difficulty_tag,
