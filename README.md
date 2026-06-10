@@ -400,7 +400,31 @@ guida/
           "priority": 3,
           "memo": null
         }
-      ]
+      ],
+      "starting_gift": {
+        "keyword_type": "호흡",
+        "gift_id": "gift_물부리",
+        "name": "물부리"
+      },
+      "gahos": [
+        {
+          "gaho_id": "gaho_시작의_별",
+          "name": "시작의 별",
+          "stage": 1
+        }
+      ],
+      "restrictions": {
+        "11": [
+          { "name": "쇠약", "score": 1 }
+        ],
+        "12": [
+          { "name": "정신력 고갈 I", "score": 3 },
+          { "name": "레벨 강화", "score": 1 }
+        ],
+        "13": [],
+        "14": [],
+        "15": []
+      }
     }
   ]
 }
@@ -417,6 +441,9 @@ guida/
 | `pack_order` | 방문할 팩을 순서, 층, 난이도와 함께 명시 |
 | `pack_order[].floor` | 해당 팩을 방문할 목표 층 |
 | `pack_order[].difficulty` | 해당 팩을 방문할 시점의 난이도 |
+| `starting_gift` | 탐사 시작 시 선택한 기프트 1개. `dungeon_meta.json`의 `starting_gifts`에서 선택. `null`이면 미선택 |
+| `gahos[].stage` | 0 = 기본 / 1 = + / 2 = ++ |
+| `restrictions` | `difficulty_mode: "extreme"`일 때만 유효. 층별 선택한 제약 목록 |
 
 > 📌 `verified_method`: `"self_report"` (Phase 1) / `"ocr"` (Phase 2~)
 
@@ -488,7 +515,8 @@ data/
 ├── gifts.json
 ├── packs.json
 ├── events.json
-└── dependencies.json
+├── dependencies.json
+└── dungeon_meta.json
 ```
 
 #### `gifts.json` — 에고기프트 (449개, 실제 데이터 기준)
@@ -655,6 +683,64 @@ data/
 
 > ⚠️ `dependencies.json` 빌드 시 DAG 검증 스크립트를 실행하여 순환 참조를 사전 차단합니다.
 
+#### `dungeon_meta.json` - 시즌별 던전 메타 데이터 (시작 기프트 / 별의 가호 / EXTREME 제약)
+
+```json
+{
+  "dungeon_name": "이름과 거미의 거울",
+  "dungeon_season": 7,
+
+  "starting_gifts": [
+    {
+      "keyword_type": "화상",
+      "grade": "2",
+      "gifts": [
+        { "name": "지옥나비의 꿈", "gift_id": "gift_지옥나비의_꿈" },
+        { "name": "작열우모",      "gift_id": "gift_작열우모" },
+        { "name": "울화통",        "gift_id": "gift_울화통" }
+      ]
+    }
+  ],
+
+  "gahos": [
+    {
+      "id": "gaho_시작의_별",
+      "name": "시작의 별",
+      "required_bonus_points": 10,
+      "description": "시작 코스트+150/250/250 ...",
+      "stages": ["기본", "+", "++"],
+      "max_stage": 2
+    }
+  ],
+
+  "restrictions_by_floor": {
+    "11": [
+      {
+        "name": "레벨 강화",
+        "effect": "모든 적 레벨 3 증가",
+        "score": 1,
+        "bonus": "1515"
+      }
+    ]
+  }
+}
+```
+
+**필드 설명**
+
+| 필드 | 설명 |
+|---|---|
+| `starting_gifts` | 키워드별 시작 기프트 선택지. 키워드당 3개 중 1개 선택. 시즌마다 교체 |
+| `starting_gifts[].grade` | 시작 기프트 등급. 현재 시즌 기준 모두 `"2"` |
+| `gahos` | 별의 가호 전체 목록. 루트 작성 시 `gaho_id` 참조 |
+| `gahos[].required_bonus_points` | 해당 가호 해금에 필요한 별빛 보너스 점수 |
+| `gahos[].max_stage` | 최대 강화 단계. 항상 `2` (기본/+/++) |
+| `restrictions_by_floor` | EXTREME 모드(11~15층)에서 층별 선택 가능한 제약 목록 |
+| `restrictions_by_floor[층].score` | 제약 선택 시 획득하는 점수 |
+| `restrictions_by_floor[층].bonus` | 별빛 보너스 + 투영도 획득량 (예: `"1515"` = 별빛 15 + 투영도 15) |
+
+> 📌 `dungeon_meta.json`은 시즌 교체 시 전체 갱신됩니다. `patch_version.json`과 달리 패치마다 바뀌지 않고 새 거울 던전 시즌이 시작될 때만 교체합니다.
+
 ### 8.6. 의존성 기반 루트 편집기 동작
 
 **루트 편집 시 경고**
@@ -678,6 +764,20 @@ data/
    현재 설정: 3층 · 노말
    [수정하기]  [무시]
 ```
+
+### 8.7. 팩 데이터 해석 규칙
+
+**층수별 등장 팩 풀**
+
+| 층 범위 | 등장 팩 기준 |
+|---|---|
+| 1~5층 | `available_floors_normal` 또는 `available_floors_hard`에 해당 층 포함 여부 |
+| 6~10층 | 5층 등장 가능 팩과 동일한 풀 (`available_floors`에 `5` 포함 여부로 판단) |
+| 11~15층 | `available_floors_extreme`이 존재하는 팩만 등장 (EXTREME 모드 전용) |
+
+**`gift_pool_type: "모든_통상_기프트"` 팩 처리**
+
+`gift_pool`이 비어있는 EXTREME 팩은 `gifts.json` 전체 중 `pack_exclusive: false`인 기프트를 드랍 풀로 간주합니다. 별도 목록 없이 앱 런타임에 동적으로 계산합니다.
 
 ---
 
