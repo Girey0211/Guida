@@ -20,7 +20,7 @@
 ## 아키텍처 메모
 
 - **저장소 추상화** (`src/lib/storage.ts`): Tauri에서는 Rust IPC로
-  `%APPDATA%/LimbusGuide/` 하위 JSON을 읽고 쓰며, 브라우저(Vite dev)에서는
+  `%APPDATA%/Local/Guida/` 하위 JSON을 읽고 쓰며, 브라우저(Vite dev)에서는
   localStorage로 폴백합니다. 덕분에 Rust 없이도 전체 흐름을 검증할 수 있습니다.
 - **중앙 서버 클라이언트** (`src/api/httpServer.ts`): 루트 공유/탐색/추천을 실
   중앙 서버(guida-server)와 HTTP로 주고받습니다. 컴포넌트/스토어는 `src/api/routes.ts`
@@ -66,7 +66,7 @@ npm run tauri:build  # .exe / NSIS 설치 파일 (GitHub Releases 배포용)
 ```
 
 데스크톱 모드에서는:
-- 로컬 데이터가 `%APPDATA%/LimbusGuide/`의 실제 파일로 저장됩니다.
+- 로컬 데이터가 `%APPDATA%/Local/Guida/`의 실제 파일로 저장됩니다.
 - 오버레이가 별도 투명 창(`overlay` 라벨)으로 뜨고, 클릭 관통이 OS 레벨로 동작합니다.
 
 ## 환경 변수
@@ -81,5 +81,5 @@ npm run tauri:build  # .exe / NSIS 설치 파일 (GitHub Releases 배포용)
 
 - 루트 허브 API: `src/api/httpServer.ts`(실 HTTP)가 `VITE_API_BASE_URL` 의 중앙 서버와 통신함
 - 이미지 에셋 CDN 업로드 및 `VITE_IMAGE_CDN_URL` 설정
-- Tauri 디스크 이미지 캐시(`%APPDATA%/LimbusGuide/cache`) 확장 (`useImageCache`)
+- Tauri 디스크 이미지 캐시(`%APPDATA%/Local/Guida/cache`) 확장 (`useImageCache`)
 - Phase 2: `src-tauri/src/ocr/` 파이프라인 추가

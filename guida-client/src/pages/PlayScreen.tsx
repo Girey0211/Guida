@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { ArrowLeft, LogOut, Gift, Boxes, Check, Lock } from "lucide-react";
-import type { DifficultyMode, GiftOrderItem, PackOrderItem } from "@/types/route";
+import type { DifficultyMode, GiftOrderItem, PackOrderItem, RouteDependency } from "@/types/route";
 import type { DependencyEdge, Gift as GiftEntity, Pack as PackEntity } from "@/types/gameData";
 import { useAppStore } from "@/store/appStore";
 import { useRouteStore } from "@/store/routeStore";
@@ -11,11 +11,11 @@ import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-type PlayTab = "gifts" | "packs";
+type PlayTab = "packs" | "gifts";
 
 const TABS: { id: PlayTab; label: string; icon: typeof Gift }[] = [
-  { id: "gifts", label: "에고기프트", icon: Gift },
   { id: "packs", label: "팩", icon: Boxes },
+  { id: "gifts", label: "에고기프트", icon: Gift },
 ];
 
 const DIFFICULTY_LABEL: Record<DifficultyMode, string> = {
@@ -32,7 +32,7 @@ const DIFFICULTY_LABEL: Record<DifficultyMode, string> = {
  */
 export function PlayScreen() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<PlayTab>("gifts");
+  const [tab, setTab] = useState<PlayTab>("packs");
 
   const { gifts, packs, dependencies } = useAppStore();
   const { myRoutes, loadMyRoutes } = useRouteStore();
@@ -122,9 +122,21 @@ export function PlayScreen() {
         ) : (
           <div className="mx-auto max-w-3xl p-5">
             {tab === "gifts" && (
-              <GiftsTab giftOrder={route.gift_order} giftById={giftById} depsByGift={depsByGift} />
+              <GiftsTab
+                giftOrder={route.gift_order}
+                giftById={giftById}
+                depsByGift={depsByGift}
+                giftDependencies={route.gift_dependencies ?? []}
+              />
             )}
-            {tab === "packs" && <PacksTab packOrder={route.pack_order} packById={packById} />}
+            {tab === "packs" && (
+              <PacksTab
+                packOrder={route.pack_order}
+                packById={packById}
+                giftOrder={route.gift_order}
+                giftById={giftById}
+              />
+            )}
           </div>
         )}
       </main>
@@ -143,18 +155,32 @@ function GiftsTab({
   giftOrder,
   giftById,
   depsByGift,
+  giftDependencies,
 }: {
   giftOrder: GiftOrderItem[];
   giftById: Map<string, GiftEntity>;
   depsByGift: Map<string, DependencyEdge[]>;
+  giftDependencies: RouteDependency[];
 }) {
   const { acquiredGifts, toggleGift } = usePlayStore();
 
-  /** 미충족 선행조건: type "before"(이 기프트는 대상보다 나중에 획득) 중 대상 미획득 */
-  const unmetBefore = (giftId: string): DependencyEdge[] =>
-    (depsByGift.get(giftId) ?? []).filter(
+  /** 미충족 선행조건: type "before"(이 기프트는 대상보다 나중에 획득) 중 대상 미획득 및 사용자 지정 우선순위 */
+  const unmetBefore = (giftId: string): DependencyEdge[] => {
+    const globalDeps = (depsByGift.get(giftId) ?? []).filter(
       (e) => e.type === "before" && !acquiredGifts.includes(e.target_gift_id),
     );
+
+    const customDeps: DependencyEdge[] = giftDependencies
+      .filter((d) => d.second_gift_id === giftId && !acquiredGifts.includes(d.first_gift_id))
+      .map((d) => ({
+        target_gift_id: d.first_gift_id,
+        type: "before",
+        required: true,
+        reason: "사용자 설정 우선순위 제약",
+      }));
+
+    return [...globalDeps, ...customDeps];
+  };
 
   // priority 순 정렬 후 [획득가능 미획득 → 잠금 → 획득완료] 로 재배치
   const ordered = useMemo(() => {
@@ -263,11 +289,15 @@ function GiftsTab({
 function PacksTab({
   packOrder,
   packById,
+  giftOrder,
+  giftById,
 }: {
   packOrder: PackOrderItem[];
   packById: Map<string, PackEntity>;
+  giftOrder: GiftOrderItem[];
+  giftById: Map<string, GiftEntity>;
 }) {
-  const { visitedPacks, togglePack } = usePlayStore();
+  const { visitedPacks, togglePack, acquiredGifts } = usePlayStore();
 
   // 층 오름차순 → 같은 층은 우선순위 순
   const ordered = useMemo(
@@ -299,6 +329,14 @@ function PacksTab({
         // 직전 팩과 난이도가 다르면 전환 구분선
         const showDivider = prev && prev.difficulty !== item.difficulty;
         const hasExclusive = (pack?.exclusive_gifts?.length ?? 0) > 0;
+
+        // 이 팩의 전용 기프트 중 루트에 목표로 등록된 것들 추출
+        const targetGiftIds = new Set(giftOrder.map((g) => g.gift_id));
+        const exclusiveGiftsInRoute = (pack?.exclusive_gifts ?? [])
+          .filter((eg) => targetGiftIds.has(eg.gift_id))
+          .map((eg) => giftById.get(eg.gift_id))
+          .filter((g): g is GiftEntity => !!g);
+
         return (
           <div key={`${item.pack_id}__${item.floor}`}>
             {showDivider && (
@@ -346,6 +384,37 @@ function PacksTab({
               </span>
               {item.memo && (
                 <span className="pl-5 text-[11px] text-muted-foreground">└ {item.memo}</span>
+              )}
+              {/* 전용 기프트 목록 표시 */}
+              {exclusiveGiftsInRoute.length > 0 && (
+                <div className="mt-2 space-y-1.5 pl-5 border-t border-border/40 pt-2 w-full">
+                  {exclusiveGiftsInRoute.map((eg) => {
+                    const acquired = acquiredGifts.includes(eg.id);
+                    return (
+                      <div key={eg.id} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                        <span>🎯 전용 기프트:</span>
+                        <span
+                          className="rounded px-1 py-0.25 text-[9px] font-medium text-white"
+                          style={{ backgroundColor: eg.keyword_color }}
+                        >
+                          {eg.keyword_type}
+                        </span>
+                        <span className={cn("font-medium text-foreground", acquired && "text-muted-foreground/60 line-through")}>
+                          {eg.name}
+                        </span>
+                        {acquired ? (
+                          <Badge variant="success" className="h-4 px-1 text-[8px] rounded gap-0.5">
+                            <Check className="size-2" /> 획득
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="h-4 px-1 text-[8px] rounded border-amber-500/50 text-amber-500 bg-amber-500/5">
+                            미획득
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </button>
           </div>

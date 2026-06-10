@@ -24,6 +24,18 @@ async function main() {
     trustProxy: true, // Nginx / Cloudflare Tunnel 뒤에서 실제 클라이언트 IP 인식
   });
 
+  // application/json content parser to capture raw body string for signatures
+  fastify.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
+    try {
+      const bodyStr = body as string;
+      const json = JSON.parse(bodyStr);
+      (req as any).rawBody = bodyStr;
+      done(null, json);
+    } catch (err) {
+      done(err as Error);
+    }
+  });
+
   // 플러그인
   await fastify.register(cors, { origin: true });
   await fastify.register(dbPlugin);

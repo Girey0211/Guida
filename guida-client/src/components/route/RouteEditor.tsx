@@ -6,8 +6,10 @@ import type {
   PackOrderItem,
   RouteDraft,
   RouteType,
+  RouteRestrictions,
 } from "@/types/route";
 import type { DungeonMeta, Gift, Pack } from "@/types/gameData";
+import { useAppStore } from "@/store/appStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -107,6 +109,7 @@ const EMPTY: RouteDraft = {
   starting_gift: null,
   gahos: [],
   restrictions: {},
+  gift_dependencies: [],
 };
 
 /** 검색 + 클릭 추가형 카탈로그 피커 */
@@ -164,6 +167,8 @@ export function RouteEditor({
   const [giftPickerOpen, setGiftPickerOpen] = useState(false);
   const [openPackBucket, setOpenPackBucket] = useState<string | null>(null);
 
+  const { dependencies } = useAppStore();
+
   const set = <K extends keyof RouteDraft>(key: K, value: RouteDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
@@ -172,7 +177,24 @@ export function RouteEditor({
 
   // ── 목표 층수 ─────────────────────────────────────────────────
   const targetDepth = draft.floors[0] ?? 5;
-  const setDepth = (d: number) => set("floors", [d]);
+  const setDepth = (d: number) => {
+    setDraft((dStore) => {
+      let nextMode = dStore.difficulty_mode;
+      if (d === 10) {
+        nextMode = "hard";
+      } else if (d === 15) {
+        nextMode = "extreme";
+      } else if (d === 5) {
+        nextMode = "normal";
+      }
+      return {
+        ...dStore,
+        floors: [d],
+        difficulty_mode: nextMode,
+        difficulty_switch_floor: nextMode === "normal" ? dStore.difficulty_switch_floor : null,
+      };
+    });
+  };
 
   // ── 난이도 모드 / 하드 전환 층 ──────────────────────────────────
   const switchEnabled = draft.difficulty_mode === "normal";
@@ -218,12 +240,76 @@ export function RouteEditor({
       },
     ]);
   };
-  const removeGift = (id: string) =>
+  const removeGift = (id: string) => {
     set(
       "gift_order",
       draft.gift_order.filter((g) => g.gift_id !== id).map((g, i) => ({ ...g, priority: i + 1 })),
     );
+    const currentDeps = draft.gift_dependencies ?? [];
+    set(
+      "gift_dependencies",
+      currentDeps.filter((d) => d.first_gift_id !== id && d.second_gift_id !== id)
+    );
+  };
   const toggleGift = (id: string) => (giftIds.has(id) ? removeGift(id) : addGift(id));
+
+  // ── 기프트 우선순위 (우선순위 페어) ─────────────────────────────
+  const [firstGiftId, setFirstGiftId] = useState("");
+  const [secondGiftId, setSecondGiftId] = useState("");
+
+  const addDependencyPair = (first: string, second: string) => {
+    if (!first || !second || first === second) return;
+    const current = draft.gift_dependencies ?? [];
+    if (current.some((d) => d.first_gift_id === first && d.second_gift_id === second)) return;
+
+    set("gift_dependencies", [...current, { first_gift_id: first, second_gift_id: second }]);
+    setFirstGiftId("");
+    setSecondGiftId("");
+  };
+
+  const removeDependencyPair = (first: string, second: string) => {
+    const current = draft.gift_dependencies ?? [];
+    set(
+      "gift_dependencies",
+      current.filter((d) => !(d.first_gift_id === first && d.second_gift_id === second))
+    );
+  };
+
+  const recommendedPairs = useMemo(() => {
+    const pairs: { first_gift_id: string; second_gift_id: string; reason: string }[] = [];
+    const currentGiftIds = new Set(draft.gift_order.map((g) => g.gift_id));
+
+    for (const dep of dependencies) {
+      const gId = dep.gift_id;
+      if (currentGiftIds.has(gId)) {
+        for (const edge of dep.dependencies) {
+          if (currentGiftIds.has(edge.target_gift_id)) {
+            if (edge.type === "before") {
+              pairs.push({
+                first_gift_id: edge.target_gift_id,
+                second_gift_id: gId,
+                reason: edge.reason,
+              });
+            } else if (edge.type === "after") {
+              pairs.push({
+                first_gift_id: gId,
+                second_gift_id: edge.target_gift_id,
+                reason: edge.reason,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    const existingPairs = draft.gift_dependencies ?? [];
+    return pairs.filter(
+      (p) =>
+        !existingPairs.some(
+          (ep) => ep.first_gift_id === p.first_gift_id && ep.second_gift_id === p.second_gift_id
+        )
+    );
+  }, [draft.gift_order, draft.gift_dependencies, dependencies]);
 
   // ── 팩 방문 (구간별) ───────────────────────────────────────────
   const packsByBucket = useMemo(() => {
@@ -313,6 +399,19 @@ export function RouteEditor({
         .reduce((sum, r) => sum + r.score, 0),
     [draft.restrictions],
   );
+
+  const selectAllRestrictions = () => {
+    const next: RouteRestrictions = {};
+    for (const floor of EXTREME_FLOORS) {
+      const options = restrictionsByFloor[floor] ?? [];
+      next[floor] = options.map((opt) => ({ name: opt.name, score: opt.score }));
+    }
+    set("restrictions", next);
+  };
+
+  const clearAllRestrictions = () => {
+    set("restrictions", {});
+  };
 
   const handleSubmit = () => {
     if (!draft.name.trim()) return setError("루트 이름을 입력해 주세요.");
@@ -517,6 +616,166 @@ export function RouteEditor({
         )}
       </div>
 
+      {/* 기프트 우선순위 설정 (우선순위 페어) */}
+      <div className="space-y-3 rounded-md border border-border p-3 bg-muted/10">
+        <div className="flex flex-col gap-0.5">
+          <Label className="text-sm font-semibold">기프트 우선순위 설정 (우선순위 페어)</Label>
+          <span className="text-[11px] text-muted-foreground">
+            특정 기프트를 먼저 먹은 후 다음 기프트를 획득해야 하는 의존 관계를 정의합니다.
+          </span>
+        </div>
+
+        {/* 현재 추가된 의존성 리스트 */}
+        {(draft.gift_dependencies ?? []).length > 0 && (
+          <div className="space-y-1.5">
+            {draft.gift_dependencies?.map((dep, idx) => {
+              const firstGift = giftById.get(dep.first_gift_id);
+              const secondGift = giftById.get(dep.second_gift_id);
+              return (
+                <div
+                  key={`${dep.first_gift_id}_${dep.second_gift_id}_${idx}`}
+                  className="flex items-center justify-between gap-2 rounded bg-card border border-border px-3 py-1.5 text-xs"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="rounded px-1.5 py-0.5 text-[10px] font-medium text-white"
+                      style={{ backgroundColor: firstGift?.keyword_color || "#90969D" }}
+                    >
+                      {firstGift?.keyword_type || "일반"}
+                    </span>
+                    <span className="font-semibold">{firstGift?.name || dep.first_gift_id}</span>
+                    <span className="text-muted-foreground font-light">먼저 획득 ➔</span>
+                    <span
+                      className="rounded px-1.5 py-0.5 text-[10px] font-medium text-white"
+                      style={{ backgroundColor: secondGift?.keyword_color || "#90969D" }}
+                    >
+                      {secondGift?.keyword_type || "일반"}
+                    </span>
+                    <span className="font-semibold">{secondGift?.name || dep.second_gift_id}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeDependencyPair(dep.first_gift_id, dep.second_gift_id)}
+                    className="text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* 새 우선순위 페어 추가 */}
+        {draft.gift_order.length >= 2 ? (
+          <div className="space-y-2 border-t border-border/50 pt-2.5">
+            <div className="flex items-end gap-2">
+              <div className="flex-1 space-y-1">
+                <span className="text-[10px] text-muted-foreground font-medium">먼저 획득할 기프트</span>
+                <Select
+                  value={firstGiftId}
+                  onChange={(e) => setFirstGiftId(e.target.value)}
+                  className="h-8 text-xs"
+                >
+                  <option value="">선택하세요</option>
+                  {draft.gift_order.map((g) => {
+                    const gift = giftById.get(g.gift_id);
+                    return (
+                      <option key={g.gift_id} value={g.gift_id}>
+                        {gift?.name || g.gift_id}
+                      </option>
+                    );
+                  })}
+                </Select>
+              </div>
+
+              <div className="flex-none text-muted-foreground font-medium pb-2">➔</div>
+
+              <div className="flex-1 space-y-1">
+                <span className="text-[10px] text-muted-foreground font-medium">나중에 획득할 기프트</span>
+                <Select
+                  value={secondGiftId}
+                  onChange={(e) => setSecondGiftId(e.target.value)}
+                  className="h-8 text-xs"
+                >
+                  <option value="">선택하세요</option>
+                  {draft.gift_order
+                    .filter((g) => g.gift_id !== firstGiftId)
+                    .map((g) => {
+                      const gift = giftById.get(g.gift_id);
+                      return (
+                        <option key={g.gift_id} value={g.gift_id}>
+                          {gift?.name || g.gift_id}
+                        </option>
+                      );
+                    })}
+                </Select>
+              </div>
+
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={() => addDependencyPair(firstGiftId, secondGiftId)}
+                disabled={!firstGiftId || !secondGiftId || firstGiftId === secondGiftId}
+                className="h-8 shrink-0"
+              >
+                페어 추가
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground py-2 text-center">
+            우선순위를 설정하려면 먼저 2개 이상의 에고기프트를 추가하세요.
+          </p>
+        )}
+
+        {/* dependencies.json 기반 추천 페어 노출 */}
+        {recommendedPairs.length > 0 && (
+          <div className="space-y-1.5 border-t border-border/50 pt-2.5">
+            <span className="text-[10px] font-bold text-amber-500 block">💡 추천 우선순위 페어 (dependencies.json 기반)</span>
+            <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
+              {recommendedPairs.map((pair, idx) => {
+                const firstGift = giftById.get(pair.first_gift_id);
+                const secondGift = giftById.get(pair.second_gift_id);
+                return (
+                  <div
+                    key={`rec_${pair.first_gift_id}_${pair.second_gift_id}_${idx}`}
+                    className="flex flex-col gap-1 rounded bg-amber-500/5 border border-amber-500/20 p-2 text-xs"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <span className="font-semibold text-amber-600 dark:text-amber-400">
+                          {firstGift?.name || pair.first_gift_id}
+                        </span>
+                        <span className="text-muted-foreground">➔</span>
+                        <span className="font-semibold text-amber-600 dark:text-amber-400">
+                          {secondGift?.name || pair.second_gift_id}
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addDependencyPair(pair.first_gift_id, pair.second_gift_id)}
+                        className="h-5 px-1.5 text-[9px] border-amber-500/40 text-amber-500 hover:bg-amber-500/10 hover:text-amber-600"
+                      >
+                        적용
+                      </Button>
+                    </div>
+                    {pair.reason && (
+                      <span className="text-[10px] text-muted-foreground leading-tight">
+                        ※ {pair.reason}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* 팩 방문 (구간별) */}
       <div className="space-y-2">
         <Label>팩 방문</Label>
@@ -713,7 +972,15 @@ export function RouteEditor({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label>EXTREME 제약 (11~15층)</Label>
-            <span className="text-xs text-muted-foreground">선택 점수 합계: {restrictionScore}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground mr-1">선택 점수 합계: {restrictionScore}</span>
+              <Button type="button" variant="outline" size="sm" onClick={selectAllRestrictions} className="h-7 px-2 text-[11px]">
+                전체 선택
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={clearAllRestrictions} className="h-7 px-2 text-[11px]">
+                전체 해제
+              </Button>
+            </div>
           </div>
           {Object.keys(restrictionsByFloor).length === 0 ? (
             <p className="text-xs text-muted-foreground">시즌 메타(dungeon_meta)를 불러오지 못해 선택할 수 없습니다.</p>
@@ -725,7 +992,36 @@ export function RouteEditor({
                 if (options.length === 0) return null;
                 return (
                   <div key={floor} className="rounded-md border border-border p-2">
-                    <p className="mb-1.5 text-xs font-semibold text-muted-foreground">{floor}층</p>
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <p className="text-xs font-semibold text-muted-foreground">{floor}층</p>
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const options = restrictionsByFloor[floor] ?? [];
+                            set("restrictions", {
+                              ...draft.restrictions,
+                              [floor]: options.map((opt) => ({ name: opt.name, score: opt.score })),
+                            });
+                          }}
+                          className="rounded px-1.5 py-0.5 text-[10px] bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors font-medium"
+                        >
+                          전체 선택
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            set("restrictions", {
+                              ...draft.restrictions,
+                              [floor]: [],
+                            });
+                          }}
+                          className="rounded px-1.5 py-0.5 text-[10px] bg-muted hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors font-medium"
+                        >
+                          전체 해제
+                        </button>
+                      </div>
+                    </div>
                     <div className="space-y-1">
                       {options.map((opt) => (
                         <label key={opt.name} className="flex items-start gap-2 text-xs" title={opt.effect}>

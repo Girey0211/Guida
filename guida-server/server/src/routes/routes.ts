@@ -1,5 +1,77 @@
-import { randomInt } from 'node:crypto';
+import crypto, { randomInt } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
+
+declare module 'fastify' {
+  interface FastifyRequest {
+    rawBody?: string;
+  }
+}
+
+const NAMESPACE_DNS = Buffer.from('6ba7b8109dad11d180b400c04fd430c8', 'hex');
+
+function uuidv5(name: string | Buffer): string {
+  const nameBuf = typeof name === 'string' ? Buffer.from(name) : name;
+  const hash = crypto.createHash('sha1')
+    .update(Buffer.concat([NAMESPACE_DNS, nameBuf]))
+    .digest();
+
+  // Set version to 5
+  hash[6] = (hash[6] & 0x0f) | 0x50;
+  // Set variant to RFC 4122
+  hash[8] = (hash[8] & 0x3f) | 0x80;
+
+  const hex = hash.toString('hex', 0, 16);
+  return [
+    hex.substring(0, 8),
+    hex.substring(8, 12),
+    hex.substring(12, 16),
+    hex.substring(16, 20),
+    hex.substring(20, 32)
+  ].join('-');
+}
+
+function verifyRequestSignature(req: any, action: string): string {
+  const pubkey = req.headers['x-guida-pubkey'];
+  const timestampStr = req.headers['x-guida-timestamp'];
+  const signature = req.headers['x-guida-signature'];
+
+  if (!pubkey || !timestampStr || !signature) {
+    throw new Error('보안 서명 헤더가 누락되었습니다.');
+  }
+
+  const timestamp = parseInt(timestampStr, 10);
+  const now = Date.now();
+  if (isNaN(timestamp) || Math.abs(now - timestamp) > 5 * 60 * 1000) {
+    throw new Error('요청이 만료되었거나 타임스탬프가 유효하지 않습니다.');
+  }
+
+  const rawBody = req.rawBody || '';
+  const bodyHash = crypto.createHash('sha256').update(rawBody).digest('hex');
+  const message = `${action}:${timestampStr}:${bodyHash}`;
+
+  try {
+    const publicKeyObject = crypto.createPublicKey({
+      key: Buffer.from(pubkey, 'hex'),
+      format: 'raw',
+      type: 'spki'
+    } as any);
+
+    const isValid = crypto.verify(
+      null,
+      Buffer.from(message),
+      publicKeyObject,
+      Buffer.from(signature, 'hex')
+    );
+
+    if (!isValid) {
+      throw new Error('서명 검증에 실패했습니다.');
+    }
+  } catch (e) {
+    throw new Error(`보안 검증 오류: ${(e as Error).message}`);
+  }
+
+  return uuidv5(pubkey);
+}
 import type {
   Route,
   UploadBody,
@@ -170,6 +242,13 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ error: '필수 필드가 누락되었거나 형식이 올바르지 않습니다.' });
     }
 
+    let uploaderUuid: string;
+    try {
+      uploaderUuid = verifyRequestSignature(req, 'upload');
+    } catch (err) {
+      return reply.code(401).send({ error: (err as Error).message });
+    }
+
     // 현재 패치 버전
     const { rows: cfg } = await fastify.pg.query<{ value: string }>(
       `SELECT value FROM config WHERE key = 'current_patch'`,
@@ -203,7 +282,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
               JSON.stringify(pack_order),
               memo,
               verified_method,
-              uuid,
+              uploaderUuid,
             ],
           );
           // 초기 통계 행 생성
@@ -269,6 +348,13 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         return reply.code(400).send({ error: '필수 필드가 누락되었거나 형식이 올바르지 않습니다.' });
       }
 
+      let uploaderUuid: string;
+      try {
+        uploaderUuid = verifyRequestSignature(req, 'update');
+      } catch (err) {
+        return reply.code(401).send({ error: (err as Error).message });
+      }
+
       // 루트 존재 + 작성자 확인
       const { rows: owner } = await fastify.pg.query<{ uploader_uuid: string }>(
         `SELECT uploader_uuid FROM routes WHERE route_code = $1`,
@@ -277,7 +363,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       if (!owner[0]) {
         return reply.code(404).send({ error: '루트를 찾을 수 없습니다.' });
       }
-      if (owner[0].uploader_uuid !== uuid) {
+      if (owner[0].uploader_uuid !== uploaderUuid) {
         return reply.code(403).send({ error: '본인이 업로드한 루트만 수정할 수 있습니다.' });
       }
 
@@ -419,6 +505,53 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       );
 
       return { success: true, play_count: rows[0]?.play_count ?? 1 };
+    },
+  );
+
+  // ──────────────────────────────────────────────
+  // POST /api/backup — 백업 데이터 저장 (UPSERT)
+  // ──────────────────────────────────────────────
+  fastify.post<{ Body: { recovery_code_hash: string; encrypted_blob: string } }>(
+    '/api/backup',
+    async (req, reply) => {
+      const { recovery_code_hash, encrypted_blob } = req.body ?? {};
+      if (!recovery_code_hash || !encrypted_blob) {
+        return reply.code(400).send({ error: '필수 필드가 누락되었습니다.' });
+      }
+
+      await fastify.pg.query(
+        `INSERT INTO backups (recovery_code_hash, encrypted_blob, uploaded_at)
+         VALUES ($1, $2, now())
+         ON CONFLICT (recovery_code_hash)
+         DO UPDATE SET encrypted_blob = EXCLUDED.encrypted_blob, uploaded_at = now()`,
+        [recovery_code_hash, encrypted_blob],
+      );
+
+      return { success: true };
+    },
+  );
+
+  // ──────────────────────────────────────────────
+  // POST /api/backup/restore — 백업 데이터 복구
+  // ──────────────────────────────────────────────
+  fastify.post<{ Body: { recovery_code_hash: string } }>(
+    '/api/backup/restore',
+    async (req, reply) => {
+      const { recovery_code_hash } = req.body ?? {};
+      if (!recovery_code_hash) {
+        return reply.code(400).send({ error: '복구 코드가 누락되었습니다.' });
+      }
+
+      const { rows } = await fastify.pg.query<{ encrypted_blob: string }>(
+        `SELECT encrypted_blob FROM backups WHERE recovery_code_hash = $1`,
+        [recovery_code_hash],
+      );
+
+      if (!rows[0]) {
+        return reply.code(404).send({ error: '백업 데이터를 찾을 수 없습니다.' });
+      }
+
+      return { encrypted_blob: rows[0].encrypted_blob };
     },
   );
 }

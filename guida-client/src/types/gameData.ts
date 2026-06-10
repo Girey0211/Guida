@@ -140,8 +140,8 @@ export interface Pack {
   bosses: string[];
   /** 통상 기프트 풀 그룹 코드 목록 (A~J) */
   gift_groups: string[];
-  /** 이 팩에서만 얻을 수 있는 전용 기프트 이름 목록 */
-  exclusive_gifts: string[];
+  /** 이 팩에서만 얻을 수 있는 전용 기프트 목록 */
+  exclusive_gifts: { name: string; gift_id: string }[];
   is_hidden: boolean;
   is_extreme_only: boolean;
   added_patch: string | null;

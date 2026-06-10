@@ -18,7 +18,12 @@
     "related": "환상체:바질리스프크",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "훔쳐온 불꽃",
+        "gift_id": "gift_훔쳐온_불꽃"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -124,8 +129,21 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "타오르는 지성",
+        "gift_id": "gift_타오르는_지성"
+      },
+      {
+        "name": "그을린 원반",
+        "gift_id": "gift_그을린_원반"
+      },
+      {
+        "name": "만년 화롯불",
+        "gift_id": "gift_만년_화롯불"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -153,7 +171,16 @@
     "related": "환상체:바질리스프크",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "요리 비법 전서",
+        "gift_id": "gift_요리_비법_전서"
+      },
+      {
+        "name": "진혼",
+        "gift_id": "gift_진혼"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -205,8 +232,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "캐릭터:봉이 아빠",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "융해된 파라핀",
+        "gift_id": "gift_융해된_파라핀"
+      },
+      {
+        "name": "만년 동안 끓는 솥",
+        "gift_id": "gift_만년_동안_끓는_솥"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -234,7 +270,16 @@
     "related": "환상체:살갗 예언자",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "요리 비법 전서",
+        "gift_id": "gift_요리_비법_전서"
+      },
+      {
+        "name": "진혼",
+        "gift_id": "gift_진혼"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -315,7 +360,12 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "훔쳐온 불꽃",
+        "gift_id": "gift_훔쳐온_불꽃"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -369,7 +419,12 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "제식 복장 - 리우 협회",
+        "gift_id": "gift_제식_복장___리우_협회"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -421,8 +476,17 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "융해된 파라핀",
+        "gift_id": "gift_융해된_파라핀"
+      },
+      {
+        "name": "만년 동안 끓는 솥",
+        "gift_id": "gift_만년_동안_끓는_솥"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -450,7 +514,12 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "훔쳐온 불꽃",
+        "gift_id": "gift_훔쳐온_불꽃"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -504,7 +573,16 @@
     "related": "환상체:사백송이의 장미",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "치성",
+        "gift_id": "gift_치성"
+      },
+      {
+        "name": "피안개",
+        "gift_id": "gift_피안개"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -585,7 +663,12 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "출혈성 쇼크",
+        "gift_id": "gift_출혈성_쇼크"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -612,7 +695,12 @@
     "related": "환상체:아파하는 테디",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "출혈성 쇼크",
+        "gift_id": "gift_출혈성_쇼크"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -666,7 +754,12 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "미니어처 대관람차",
+        "gift_id": "gift_미니어처_대관람차"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -691,8 +784,21 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "늘어붙은 쇠말뚝",
+        "gift_id": "gift_늘어붙은_쇠말뚝"
+      },
+      {
+        "name": "녹슨 커터 나이프",
+        "gift_id": "gift_녹슨_커터_나이프"
+      },
+      {
+        "name": "찢어진 피주머니",
+        "gift_id": "gift_찢어진_피주머니"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -718,8 +824,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "환상체:귀곡관",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "억류된 찬송",
+        "gift_id": "gift_억류된_찬송"
+      },
+      {
+        "name": "밀라르카",
+        "gift_id": "gift_밀라르카"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -747,7 +862,12 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "작. 형. 등장",
+        "gift_id": "gift_작__형__등장"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -774,7 +894,16 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "치성",
+        "gift_id": "gift_치성"
+      },
+      {
+        "name": "피안개",
+        "gift_id": "gift_피안개"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -799,8 +928,17 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "캐릭터:붉은안개",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "억류된 찬송",
+        "gift_id": "gift_억류된_찬송"
+      },
+      {
+        "name": "밀라르카",
+        "gift_id": "gift_밀라르카"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -855,7 +993,12 @@
     "related": "환상체:아파하는 테디",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "미니어처 대관람차",
+        "gift_id": "gift_미니어처_대관람차"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -909,7 +1052,12 @@
     "related": "환상체:단수어",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "출혈성 쇼크",
+        "gift_id": "gift_출혈성_쇼크"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1044,7 +1192,12 @@
     "related": "환상체:장미 표지판",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "작. 형. 등장",
+        "gift_id": "gift_작__형__등장"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1096,8 +1249,17 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "닉시 다이버전스",
+        "gift_id": "gift_닉시_다이버전스"
+      },
+      {
+        "name": "감합된 톱니바퀴",
+        "gift_id": "gift_감합된_톱니바퀴"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -1150,8 +1312,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "보석 진동자",
+        "gift_id": "gift_보석_진동자"
+      },
+      {
+        "name": "흔들리는 술통",
+        "gift_id": "gift_흔들리는_술통"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -1231,8 +1402,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "보석 진동자",
+        "gift_id": "gift_보석_진동자"
+      },
+      {
+        "name": "흔들리는 술통",
+        "gift_id": "gift_흔들리는_술통"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -1368,7 +1548,16 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "진원점",
+        "gift_id": "gift_진원점"
+      },
+      {
+        "name": "무진팔방종",
+        "gift_id": "gift_무진팔방종"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1395,7 +1584,12 @@
     "related": "불명",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "분홍빛 꽃잎다발",
+        "gift_id": "gift_분홍빛_꽃잎다발"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1422,7 +1616,12 @@
     "related": "환상체:길 잃은 마음",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "손거울",
+        "gift_id": "gift_손거울"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1503,7 +1702,16 @@
     "related": "환상체:주정뱅이",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "진원점",
+        "gift_id": "gift_진원점"
+      },
+      {
+        "name": "무진팔방종",
+        "gift_id": "gift_무진팔방종"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1530,7 +1738,12 @@
     "related": "불명[62]",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "연성진동",
+        "gift_id": "gift_연성진동"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1557,7 +1770,12 @@
     "related": "환상체:증기 운반 기계",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "연성진동",
+        "gift_id": "gift_연성진동"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1611,7 +1829,12 @@
     "related": "환상체:장미 사냥꾼",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "황홀경",
+        "gift_id": "gift_황홀경"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1636,8 +1859,21 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "부적 묶음",
+        "gift_id": "gift_부적_묶음"
+      },
+      {
+        "name": "가시오랏줄",
+        "gift_id": "gift_가시오랏줄"
+      },
+      {
+        "name": "근무용 통상 배터리",
+        "gift_id": "gift_근무용_통상_배터리"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -1690,8 +1926,13 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 3)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "뼈 말뚝",
+        "gift_id": "gift_뼈_말뚝"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -1719,7 +1960,12 @@
     "related": "환상체:누구도 울지 않도록",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "황홀경",
+        "gift_id": "gift_황홀경"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -1771,8 +2017,13 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "뼈 말뚝",
+        "gift_id": "gift_뼈_말뚝"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -1800,7 +2051,16 @@
     "related": "환상체:떠돌이 여우",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "부치지 못한 편지",
+        "gift_id": "gift_부치지_못한_편지"
+      },
+      {
+        "name": "생강꽃, 안경 그리고 전해진 편지",
+        "gift_id": "gift_생강꽃__안경_그리고_전해진_편지"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2043,7 +2303,12 @@
     "related": "환상체:충격 지네",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "황홀경",
+        "gift_id": "gift_황홀경"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2070,7 +2335,16 @@
     "related": "환상체:이빨 딱딱이",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "기괴한 석상",
+        "gift_id": "gift_기괴한_석상"
+      },
+      {
+        "name": "파탄",
+        "gift_id": "gift_파탄"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2097,7 +2371,16 @@
     "related": "불명[87]",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "서지 글로브",
+        "gift_id": "gift_서지_글로브"
+      },
+      {
+        "name": "덮칠 파도",
+        "gift_id": "gift_덮칠_파도"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2257,8 +2540,21 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "캐릭터:검은침묵[92]",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "머리 없는 초상화",
+        "gift_id": "gift_머리_없는_초상화"
+      },
+      {
+        "name": "뒤엉킨 뼛조각",
+        "gift_id": "gift_뒤엉킨_뼛조각"
+      },
+      {
+        "name": "한겨울 밤의 악몽",
+        "gift_id": "gift_한겨울_밤의_악몽"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -2313,7 +2609,12 @@
     "related": "환상체:요정초롱",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "검은 악보",
+        "gift_id": "gift_검은_악보"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2367,7 +2668,12 @@
     "related": "환상체:뼈무덤",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "검은 악보",
+        "gift_id": "gift_검은_악보"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2421,7 +2727,16 @@
     "related": "환상체:죽을 나비의 장례",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "서지 글로브",
+        "gift_id": "gift_서지_글로브"
+      },
+      {
+        "name": "덮칠 파도",
+        "gift_id": "gift_덮칠_파도"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2554,8 +2869,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "칸타빌레",
+        "gift_id": "gift_칸타빌레"
+      },
+      {
+        "name": "빛바랜 외투",
+        "gift_id": "gift_빛바랜_외투"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -2583,7 +2907,12 @@
     "related": "환상체:어느 날의 초상",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "검은 악보",
+        "gift_id": "gift_검은_악보"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2608,8 +2937,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "칸타빌레",
+        "gift_id": "gift_칸타빌레"
+      },
+      {
+        "name": "빛바랜 외투",
+        "gift_id": "gift_빛바랜_외투"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -2718,7 +3056,12 @@
     "related": "불명[105]",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "캐스크 스피리츠",
+        "gift_id": "gift_캐스크_스피리츠"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2824,8 +3167,17 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "추억의 펜던트",
+        "gift_id": "gift_추억의_펜던트"
+      },
+      {
+        "name": "어느 날의 기억",
+        "gift_id": "gift_어느_날의_기억"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -2853,7 +3205,16 @@
     "related": "환상체:어느 날의 초상",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "추억",
+        "gift_id": "gift_추억"
+      },
+      {
+        "name": "복주머니",
+        "gift_id": "gift_복주머니"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2878,8 +3239,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "추억의 펜던트",
+        "gift_id": "gift_추억의_펜던트"
+      },
+      {
+        "name": "어느 날의 기억",
+        "gift_id": "gift_어느_날의_기억"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -2907,7 +3277,16 @@
     "related": "환상체:흉탄의 사수",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "추억",
+        "gift_id": "gift_추억"
+      },
+      {
+        "name": "복주머니",
+        "gift_id": "gift_복주머니"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2934,7 +3313,12 @@
     "related": "환상체:지난 날의 침낭",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "앞을 비추는 가스등",
+        "gift_id": "gift_앞을_비추는_가스등"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -2988,7 +3372,12 @@
     "related": "환상체:주정뱅이",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "캐스크 스피리츠",
+        "gift_id": "gift_캐스크_스피리츠"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -3013,8 +3402,21 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "데블스 셰어",
+        "gift_id": "gift_데블스_셰어"
+      },
+      {
+        "name": "엔도르핀 키트",
+        "gift_id": "gift_엔도르핀_키트"
+      },
+      {
+        "name": "엔젤스 컷",
+        "gift_id": "gift_엔젤스_컷"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -3096,7 +3498,12 @@
     "related": "환상체:꿈먹는 탁류",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "캐스크 스피리츠",
+        "gift_id": "gift_캐스크_스피리츠"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -3150,7 +3557,16 @@
     "related": "환상체:kqe-1j-23",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "인슐레이터",
+        "gift_id": "gift_인슐레이터"
+      },
+      {
+        "name": "제 5종 영구기관",
+        "gift_id": "gift_제_5종_영구기관"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -3202,8 +3618,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "무정전 전원장치",
+        "gift_id": "gift_무정전_전원장치"
+      },
+      {
+        "name": "미니어처 전봇대",
+        "gift_id": "gift_미니어처_전봇대"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -3229,8 +3654,21 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "손목 보호대",
+        "gift_id": "gift_손목_보호대"
+      },
+      {
+        "name": "1B 타입 팔각 볼트",
+        "gift_id": "gift_1B_타입_팔각_볼트"
+      },
+      {
+        "name": "물리 간섭 보호장",
+        "gift_id": "gift_물리_간섭_보호장"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -3256,8 +3694,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "무정전 전원장치",
+        "gift_id": "gift_무정전_전원장치"
+      },
+      {
+        "name": "미니어처 전봇대",
+        "gift_id": "gift_미니어처_전봇대"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
@@ -3285,7 +3732,12 @@
     "related": "환상체:당신은 강해졌나요",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "제 1종 영구기관",
+        "gift_id": "gift_제_1종_영구기관"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -3312,7 +3764,12 @@
     "related": "환상체:메트로폴라리스의 주민",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "제 1종 영구기관",
+        "gift_id": "gift_제_1종_영구기관"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -3474,7 +3931,16 @@
     "related": "환상체:골목파수견",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "인슐레이터",
+        "gift_id": "gift_인슐레이터"
+      },
+      {
+        "name": "제 5종 영구기관",
+        "gift_id": "gift_제_5종_영구기관"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -3501,7 +3967,12 @@
     "related": "환상체:악수의 악수",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "제 1종 영구기관",
+        "gift_id": "gift_제_1종_영구기관"
+      }
+    ],
     "source_type": "기본_7키워드",
     "source_category": "기본_7키워드",
     "added_patch": null,
@@ -4095,7 +4566,12 @@
     "related": "환상체:흉탄의 사수",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "데스페라도",
+        "gift_id": "gift_데스페라도"
+      }
+    ],
     "source_type": "기본_7키워드_외",
     "source_category": "기본_7키워드_외",
     "added_patch": null,
@@ -4176,7 +4652,12 @@
     "related": "불명[19]",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "분홍빛 꽃잎다발",
+        "gift_id": "gift_분홍빛_꽃잎다발"
+      }
+    ],
     "source_type": "기본_7키워드_외",
     "source_category": "기본_7키워드_외",
     "added_patch": null,
@@ -4419,7 +4900,12 @@
     "related": "환상체:파란 별",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "제식 복장 - 리우 협회",
+        "gift_id": "gift_제식_복장___리우_협회"
+      }
+    ],
     "source_type": "기본_7키워드_외",
     "source_category": "기본_7키워드_외",
     "added_patch": null,
@@ -4986,7 +5472,12 @@
     "related": "환상체:연기노인",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "수작",
+        "gift_id": "gift_수작"
+      }
+    ],
     "source_type": "기본_7키워드_외",
     "source_category": "기본_7키워드_외",
     "added_patch": null,
@@ -6336,7 +6827,12 @@
     "related": "환상체:분홍신",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "서릿발 발자국",
+        "gift_id": "gift_서릿발_발자국"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6361,8 +6857,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "환상체:바바야가",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "귀신 들린 신발",
+        "gift_id": "gift_귀신_들린_신발"
+      },
+      {
+        "name": "얼어붙은 아우성",
+        "gift_id": "gift_얼어붙은_아우성"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -6390,7 +6895,12 @@
     "related": "환상체:바바야가 및 하위개체",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "서릿발 발자국",
+        "gift_id": "gift_서릿발_발자국"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6444,7 +6954,12 @@
     "related": "집단:N사 광신도",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "완전함",
+        "gift_id": "gift_완전함"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6498,7 +7013,12 @@
     "related": "집단:N사 광신도",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "완전함",
+        "gift_id": "gift_완전함"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6523,8 +7043,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "집단:N사 광신도",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "못과 망치의 책",
+        "gift_id": "gift_못과_망치의_책"
+      },
+      {
+        "name": "불결함",
+        "gift_id": "gift_불결함"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -6604,8 +7133,17 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "캐릭터:이상,동백,동랑",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "해진 우산",
+        "gift_id": "gift_해진_우산"
+      },
+      {
+        "name": "깨진 안경",
+        "gift_id": "gift_깨진_안경"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -6633,7 +7171,16 @@
     "related": "캐릭터:동랑",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "부치지 못한 편지",
+        "gift_id": "gift_부치지_못한_편지"
+      },
+      {
+        "name": "생강꽃, 안경 그리고 전해진 편지",
+        "gift_id": "gift_생강꽃__안경_그리고_전해진_편지"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6658,8 +7205,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "캐릭터:이상",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "해진 우산",
+        "gift_id": "gift_해진_우산"
+      },
+      {
+        "name": "깨진 안경",
+        "gift_id": "gift_깨진_안경"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -6687,7 +7243,12 @@
     "related": "집단:피쿼드타운",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "모든 악의 끝",
+        "gift_id": "gift_모든_악의_끝"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6712,8 +7273,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "집단:피쿼드호",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "네뷸라이저",
+        "gift_id": "gift_네뷸라이저"
+      },
+      {
+        "name": "작살 의족",
+        "gift_id": "gift_작살_의족"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -6741,7 +7311,12 @@
     "related": "캐릭터:창백한 고래",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "모든 악의 끝",
+        "gift_id": "gift_모든_악의_끝"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6766,8 +7341,17 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "집단:피쿼드호캐릭터:창백한 고래",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "마을을 지킬 작살",
+        "gift_id": "gift_마을을_지킬_작살"
+      },
+      {
+        "name": "고래의 심장",
+        "gift_id": "gift_고래의_심장"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -6795,7 +7379,12 @@
     "related": "캐릭터:에이해브",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "앞을 비추는 가스등",
+        "gift_id": "gift_앞을_비추는_가스등"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6849,7 +7438,12 @@
     "related": "캐릭터:힌들리",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "조그맣고 근사한 바이올린",
+        "gift_id": "gift_조그맣고_근사한_바이올린"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -6874,8 +7468,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "캐릭터:캐서린",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "거울 촉각 공감각",
+        "gift_id": "gift_거울_촉각_공감각"
+      },
+      {
+        "name": "치프 버틀러의 비급서",
+        "gift_id": "gift_치프_버틀러의_비급서"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -6957,7 +7560,12 @@
     "related": "캐릭터:넬리",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "손거울",
+        "gift_id": "gift_손거울"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7036,8 +7644,21 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "집단:라만차랜드",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "덧붙인 반창고",
+        "gift_id": "gift_덧붙인_반창고"
+      },
+      {
+        "name": "전혈 플라스크",
+        "gift_id": "gift_전혈_플라스크"
+      },
+      {
+        "name": "퍼레이드의 가면",
+        "gift_id": "gift_퍼레이드의_가면"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -7119,7 +7740,12 @@
     "related": "집단:라만차랜드",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "미니어처 대관람차",
+        "gift_id": "gift_미니어처_대관람차"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7281,7 +7907,12 @@
     "related": "집단:리우 협회",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "제식 복장 - 리우 협회",
+        "gift_id": "gift_제식_복장___리우_협회"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7306,8 +7937,21 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "집단:리우 협회",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "편광",
+        "gift_id": "gift_편광"
+      },
+      {
+        "name": "가장 낮은 별",
+        "gift_id": "gift_가장_낮은_별"
+      },
+      {
+        "name": "붉은색 넥타이",
+        "gift_id": "gift_붉은색_넥타이"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -7362,7 +8006,12 @@
     "related": "집단:약지",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "수작",
+        "gift_id": "gift_수작"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7389,7 +8038,12 @@
     "related": "집단:약지",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "수작",
+        "gift_id": "gift_수작"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7414,8 +8068,21 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "집단:약지",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "귀로",
+        "gift_id": "gift_귀로"
+      },
+      {
+        "name": "새하얀 캔버스",
+        "gift_id": "gift_새하얀_캔버스"
+      },
+      {
+        "name": "범작",
+        "gift_id": "gift_범작"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -7767,7 +8434,12 @@
     "related": "집단:어금니 보트 센터",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "조그맣고 근사한 바이올린",
+        "gift_id": "gift_조그맣고_근사한_바이올린"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7821,7 +8493,12 @@
     "related": "캐릭터:크랲게",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "조그맣고 근사한 바이올린",
+        "gift_id": "gift_조그맣고_근사한_바이올린"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7846,8 +8523,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "환상체:아늑한 침대",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "불 꺼진 랜턴",
+        "gift_id": "gift_불_꺼진_랜턴"
+      },
+      {
+        "name": "불 꺼진 촛대",
+        "gift_id": "gift_불_꺼진_촛대"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -7875,7 +8561,12 @@
     "related": "집단:선물 공장환상체:산돌프",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "선물",
+        "gift_id": "gift_선물"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7900,8 +8591,21 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "집단:선물 공장",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "털방울 모자",
+        "gift_id": "gift_털방울_모자"
+      },
+      {
+        "name": "거대한 선물 보따리",
+        "gift_id": "gift_거대한_선물_보따리"
+      },
+      {
+        "name": "슬픈 봉제인형",
+        "gift_id": "gift_슬픈_봉제인형"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -7929,7 +8633,12 @@
     "related": "환상체:아늑한 침대",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "그림자 괴물",
+        "gift_id": "gift_그림자_괴물"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7956,7 +8665,12 @@
     "related": "집단:선물 공장",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "기쁜 봉제인형",
+        "gift_id": "gift_기쁜_봉제인형"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -7983,7 +8697,12 @@
     "related": "집단:선물 공장",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "기쁜 봉제인형",
+        "gift_id": "gift_기쁜_봉제인형"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8008,8 +8727,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "집단:선물 공장환상체:산돌프",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "포장용 상자",
+        "gift_id": "gift_포장용_상자"
+      },
+      {
+        "name": "포장용 끈",
+        "gift_id": "gift_포장용_끈"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8037,7 +8765,12 @@
     "related": "집단:선물 공장환상체:산돌프",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "선물",
+        "gift_id": "gift_선물"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8064,7 +8797,12 @@
     "related": "환상체:아늑한 침대",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "그림자 괴물",
+        "gift_id": "gift_그림자_괴물"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8091,7 +8829,12 @@
     "related": "집단:선물 공장",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "기쁜 봉제인형",
+        "gift_id": "gift_기쁜_봉제인형"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8172,7 +8915,16 @@
     "related": "집단:흑운회",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "절경",
+        "gift_id": "gift_절경"
+      },
+      {
+        "name": "장관",
+        "gift_id": "gift_장관"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8197,8 +8949,17 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "집단:흑운회",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "조각난 칼날",
+        "gift_id": "gift_조각난_칼날"
+      },
+      {
+        "name": "녹슨 칼자루",
+        "gift_id": "gift_녹슨_칼자루"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8224,8 +8985,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "집단:흑운회",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "조각난 칼날",
+        "gift_id": "gift_조각난_칼날"
+      },
+      {
+        "name": "낡은 칼자루",
+        "gift_id": "gift_낡은_칼자루"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8280,7 +9050,16 @@
     "related": "집단:흑운회, 검계",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "절경",
+        "gift_id": "gift_절경"
+      },
+      {
+        "name": "탁마",
+        "gift_id": "gift_탁마"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8388,7 +9167,12 @@
     "related": "집단:검계",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "부동",
+        "gift_id": "gift_부동"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8413,8 +9197,13 @@
     "upgradeable": false,
     "first_appeared": "호수의 거울(거울 던전 3)",
     "related": "집단:검계",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "부서진 칼날",
+        "gift_id": "gift_부서진_칼날"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8440,8 +9229,13 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "집단:검계",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "낡은 칼자루",
+        "gift_id": "gift_낡은_칼자루"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8469,7 +9263,12 @@
     "related": "캐릭터:주막 손님집단:검계, 흑운회",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "장관",
+        "gift_id": "gift_장관"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8550,7 +9349,12 @@
     "related": "집단:T사",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "회중시계: 타입 E",
+        "gift_id": "gift_회중시계__타입_E"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8575,8 +9379,13 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "집단:T사",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "에칭 시계침",
+        "gift_id": "gift_에칭_시계침"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8656,8 +9465,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "집단:T사",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "은빛 시계 케이스",
+        "gift_id": "gift_은빛_시계_케이스"
+      },
+      {
+        "name": "녹슨 시계침",
+        "gift_id": "gift_녹슨_시계침"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8685,7 +9503,16 @@
     "related": "집단:T사",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "회중시계: 타입 Y",
+        "gift_id": "gift_회중시계__타입_Y"
+      },
+      {
+        "name": "회중시계: 타입 L",
+        "gift_id": "gift_회중시계__타입_L"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8712,7 +9539,12 @@
     "related": "집단:T사",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "회중시계: 타입 P",
+        "gift_id": "gift_회중시계__타입_P"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8737,8 +9569,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "집단:T사",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "빛바랜 시계 케이스",
+        "gift_id": "gift_빛바랜_시계_케이스"
+      },
+      {
+        "name": "녹슨 시계침",
+        "gift_id": "gift_녹슨_시계침"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8847,7 +9688,16 @@
     "related": "집단:T사",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "회중시계: 타입 P",
+        "gift_id": "gift_회중시계__타입_P"
+      },
+      {
+        "name": "회중시계: 타입 E",
+        "gift_id": "gift_회중시계__타입_E"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8872,8 +9722,13 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "집단:T사",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "에칭 시계침",
+        "gift_id": "gift_에칭_시계침"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -8901,7 +9756,16 @@
     "related": "캐릭터:혈귀, 피주머니",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "과충전된 배터리",
+        "gift_id": "gift_과충전된_배터리"
+      },
+      {
+        "name": "하츠 파워드 쥬얼",
+        "gift_id": "gift_하츠_파워드_쥬얼"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -8955,7 +9819,12 @@
     "related": "집단:W사",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "과충전된 배터리",
+        "gift_id": "gift_과충전된_배터리"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9036,7 +9905,12 @@
     "related": "집단:W사, 멀티크랙 사무소",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "하츠 파워드 쥬얼",
+        "gift_id": "gift_하츠_파워드_쥬얼"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9088,8 +9962,13 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "집단:멀티크랙 사무소",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "의체관절 서보모터",
+        "gift_id": "gift_의체관절_서보모터"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -9115,8 +9994,13 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "집단:멀티크랙 사무소",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "의체관절 서보모터",
+        "gift_id": "gift_의체관절_서보모터"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -9144,7 +10028,12 @@
     "related": "집단:W사",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "C형 정리 요원 장비 세트",
+        "gift_id": "gift_C형_정리_요원_장비_세트"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9169,8 +10058,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "캐릭터:사샤",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "생체 발전형 배터리",
+        "gift_id": "gift_생체_발전형_배터리"
+      },
+      {
+        "name": "결정화된 혈액",
+        "gift_id": "gift_결정화된_혈액"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -9196,8 +10094,17 @@
     "upgradeable": false,
     "first_appeared": "폭풍의 거울(거울 던전 4)",
     "related": "캐릭터:사샤",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "심장 리액트 모듈",
+        "gift_id": "gift_심장_리액트_모듈"
+      },
+      {
+        "name": "결정화된 혈액",
+        "gift_id": "gift_결정화된_혈액"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -9225,7 +10132,12 @@
     "related": "집단:W사",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "C형 정리 요원 장비 세트",
+        "gift_id": "gift_C형_정리_요원_장비_세트"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9279,7 +10191,16 @@
     "related": "집단:멀티크랙 사무소",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "자율 작동식 관절",
+        "gift_id": "gift_자율_작동식_관절"
+      },
+      {
+        "name": "영구동력 서보모터",
+        "gift_id": "gift_영구동력_서보모터"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9304,8 +10225,21 @@
     "upgradeable": false,
     "first_appeared": "영생의 거울(거울 던전 6)",
     "related": "집단:W사",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "E식 차원 단검",
+        "gift_id": "gift_E식_차원_단검"
+      },
+      {
+        "name": "휴대용 역장 배터리",
+        "gift_id": "gift_휴대용_역장_배터리"
+      },
+      {
+        "name": "W사 보급 모자",
+        "gift_id": "gift_W사_보급_모자"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -9333,7 +10267,12 @@
     "related": "집단:W사",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "C형 정리 요원 장비 세트",
+        "gift_id": "gift_C형_정리_요원_장비_세트"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9495,7 +10434,12 @@
     "related": "집단:림버스 컴퍼니",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "고위험 작전용 장비",
+        "gift_id": "gift_고위험_작전용_장비"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9601,8 +10545,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "집단:림버스 컴퍼니",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "통상 작전용 장비",
+        "gift_id": "gift_통상_작전용_장비"
+      },
+      {
+        "name": "작전 승인 카드",
+        "gift_id": "gift_작전_승인_카드"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -9657,7 +10610,12 @@
     "related": "집단:림버스 컴퍼니",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "고위험 작전용 장비",
+        "gift_id": "gift_고위험_작전용_장비"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9711,7 +10669,12 @@
     "related": "집단:흑수 - 묘",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "이전칠자",
+        "gift_id": "gift_이전칠자"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9738,7 +10701,12 @@
     "related": "집단:중지",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "영속하는 인연 사슬",
+        "gift_id": "gift_영속하는_인연_사슬"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9765,7 +10733,12 @@
     "related": "집단:흑수 - 묘",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "암약",
+        "gift_id": "gift_암약"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9790,8 +10763,21 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "집단:흑수 - 묘",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "흑수환 - 묘",
+        "gift_id": "gift_흑수환___묘"
+      },
+      {
+        "name": "묘각",
+        "gift_id": "gift_묘각"
+      },
+      {
+        "name": "그림자 삿갓",
+        "gift_id": "gift_그림자_삿갓"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -9817,8 +10803,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "집단:흑수 - 묘",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "괴문자 부적",
+        "gift_id": "gift_괴문자_부적"
+      },
+      {
+        "name": "새겨넣어진 괴문자",
+        "gift_id": "gift_새겨넣어진_괴문자"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -9873,7 +10868,12 @@
     "related": "집단:흑수 - 묘",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "암약",
+        "gift_id": "gift_암약"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9900,7 +10900,12 @@
     "related": "집단:흑수 - 묘",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "이전칠자",
+        "gift_id": "gift_이전칠자"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9927,7 +10932,12 @@
     "related": "집단:흑수 - 묘",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "암약",
+        "gift_id": "gift_암약"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9954,7 +10964,12 @@
     "related": "집단:중지",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "영속하는 인연 사슬",
+        "gift_id": "gift_영속하는_인연_사슬"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -9981,7 +10996,12 @@
     "related": "집단:중지",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "작. 형. 등장",
+        "gift_id": "gift_작__형__등장"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -10006,8 +11026,17 @@
     "upgradeable": false,
     "first_appeared": "꿈결의 거울(거울 던전 5)",
     "related": "집단:중지",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "강화 문신 - 중지",
+        "gift_id": "gift_강화_문신___중지"
+      },
+      {
+        "name": "의리 사슬",
+        "gift_id": "gift_의리_사슬"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -10033,8 +11062,21 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "캐릭터:리카르도",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "안식처",
+        "gift_id": "gift_안식처"
+      },
+      {
+        "name": "혈향도래",
+        "gift_id": "gift_혈향도래"
+      },
+      {
+        "name": "등장 전용 붐박스",
+        "gift_id": "gift_등장_전용_붐박스"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -10089,7 +11131,12 @@
     "related": "캐릭터:가시춘",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "절차탁마(切磋琢磨)",
+        "gift_id": "gift_절차탁마_切磋琢磨"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -10170,7 +11217,12 @@
     "related": "캐릭터:가시춘",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "절차탁마(切磋琢磨)",
+        "gift_id": "gift_절차탁마_切磋琢磨"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -10195,8 +11247,21 @@
     "upgradeable": false,
     "first_appeared": "영생의 거울(거울 던전 6)",
     "related": "캐릭터:가시춘",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "덕목 - 지(智)",
+        "gift_id": "gift_덕목___지_智"
+      },
+      {
+        "name": "덕목 - 용(勇)",
+        "gift_id": "gift_덕목___용_勇"
+      },
+      {
+        "name": "덕목 - 인(仁)",
+        "gift_id": "gift_덕목___인_仁"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -10251,7 +11316,12 @@
     "related": "캐릭터:가시춘",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "절차탁마(切磋琢磨)",
+        "gift_id": "gift_절차탁마_切磋琢磨"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -10305,7 +11375,12 @@
     "related": "집단:약지",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "수작 : 박제된 야성",
+        "gift_id": "gift_수작___박제된_야성"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -10332,7 +11407,12 @@
     "related": "집단:약지",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "수작 : 진화하는 약동",
+        "gift_id": "gift_수작___진화하는_약동"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -10357,8 +11437,17 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "집단:약지 야수파",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "작품 : 야성",
+        "gift_id": "gift_작품___야성"
+      },
+      {
+        "name": "모든 것의 본능",
+        "gift_id": "gift_모든_것의_본능"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -10384,8 +11473,17 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "집단:약지 신체파",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "작품 : 약동",
+        "gift_id": "gift_작품___약동"
+      },
+      {
+        "name": "모든 것의 뼈대",
+        "gift_id": "gift_모든_것의_뼈대"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -10440,7 +11538,12 @@
     "related": "집단:약지 야수파",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "수작 : 박제된 야성",
+        "gift_id": "gift_수작___박제된_야성"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -10467,7 +11570,12 @@
     "related": "집단:약지 신체파",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "수작 : 진화하는 약동",
+        "gift_id": "gift_수작___진화하는_약동"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -11061,7 +12169,12 @@
     "related": "환상체:징벌 새",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "데스페라도",
+        "gift_id": "gift_데스페라도"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -11142,7 +12255,12 @@
     "related": "환상체:1.76 MHz",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "데스페라도",
+        "gift_id": "gift_데스페라도"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -11167,8 +12285,21 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "불명",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "찢어진 밴돌리어",
+        "gift_id": "gift_찢어진_밴돌리어"
+      },
+      {
+        "name": "부리 모양 목걸이",
+        "gift_id": "gift_부리_모양_목걸이"
+      },
+      {
+        "name": "노이즈 섞인 무전기",
+        "gift_id": "gift_노이즈_섞인_무전기"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -11196,7 +12327,12 @@
     "related": "환상체:알리우네",
     "is_craftable": false,
     "craft_recipe": null,
-    "craft_result_of": null,
+    "craft_result_of": [
+      {
+        "name": "분홍빛 꽃잎다발",
+        "gift_id": "gift_분홍빛_꽃잎다발"
+      }
+    ],
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
     "added_patch": null,
@@ -11221,8 +12357,21 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "환상체:알리우네",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "잔향",
+        "gift_id": "gift_잔향"
+      },
+      {
+        "name": "축복이었던",
+        "gift_id": "gift_축복이었던"
+      },
+      {
+        "name": "분홍 꽃잎",
+        "gift_id": "gift_분홍_꽃잎"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",
@@ -11842,8 +12991,21 @@
     "upgradeable": false,
     "first_appeared": "이름과 거미의 거울(거울 던전 7)",
     "related": "캐릭터:힌들리",
-    "is_craftable": false,
-    "craft_recipe": null,
+    "is_craftable": true,
+    "craft_recipe": [
+      {
+        "name": "기름때 찌든 스패너",
+        "gift_id": "gift_기름때_찌든_스패너"
+      },
+      {
+        "name": "반짝이는 폐품",
+        "gift_id": "gift_반짝이는_폐품"
+      },
+      {
+        "name": "부서진 바이올린",
+        "gift_id": "gift_부서진_바이올린"
+      }
+    ],
     "craft_result_of": null,
     "source_type": "테마팩_전용",
     "source_category": "테마팩_전용",

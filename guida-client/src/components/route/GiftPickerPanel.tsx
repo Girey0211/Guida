@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, X } from "lucide-react";
 import type { Gift } from "@/types/gameData";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,52 @@ export function GiftPickerPanel({ gifts, selectedIds, onToggle, onClose }: Props
   const [hardOnly, setHardOnly] = useState(false);
   const [craftableOnly, setCraftableOnly] = useState(false);
   const [selectedOnly, setSelectedOnly] = useState(false);
+
+  // 드래그 다중 선택 상태
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragAction, setDragAction] = useState<"select" | "deselect" | null>(null);
+  const [draggedIds, setDraggedIds] = useState<Set<string>>(new Set());
+
+  // mouseup 감지하여 드래그 세션 종료
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false);
+      setDragAction(null);
+      setDraggedIds(new Set());
+    };
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener("mouseup", handleGlobalMouseUp);
+    };
+  }, [isDragging]);
+
+  const handleMouseDown = (id: string, currentlySelected: boolean) => {
+    setIsDragging(true);
+    const action = currentlySelected ? "deselect" : "select";
+    setDragAction(action);
+    onToggle(id);
+
+    const initial = new Set<string>();
+    initial.add(id);
+    setDraggedIds(initial);
+  };
+
+  const handleMouseEnter = (id: string, currentlySelected: boolean) => {
+    if (!isDragging || !dragAction || draggedIds.has(id)) return;
+
+    if (dragAction === "select" && !currentlySelected) {
+      onToggle(id);
+    } else if (dragAction === "deselect" && currentlySelected) {
+      onToggle(id);
+    }
+
+    setDraggedIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
 
   const keywords = useMemo(() => distinct(gifts.map((g) => g.keyword_type)), [gifts]);
   const grades = useMemo(
@@ -146,14 +192,21 @@ export function GiftPickerPanel({ gifts, selectedIds, onToggle, onClose }: Props
               조건에 맞는 기프트가 없습니다.
             </p>
           ) : (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 select-none">
               {filtered.map((g) => {
                 const selected = selectedIds.has(g.id);
                 return (
                   <button
                     key={g.id}
                     type="button"
-                    onClick={() => onToggle(g.id)}
+                    onMouseDown={() => handleMouseDown(g.id, selected)}
+                    onMouseEnter={() => handleMouseEnter(g.id, selected)}
+                    onDragStart={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      if (e.detail === 0) {
+                        onToggle(g.id);
+                      }
+                    }}
                     title={g.effect}
                     className={cn(
                       "relative flex flex-col gap-1 rounded-md border p-2 text-left transition-colors",

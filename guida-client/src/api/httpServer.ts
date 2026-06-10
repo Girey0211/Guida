@@ -17,6 +17,7 @@ import type {
   SharedRoute,
   RouteStat,
 } from "@/types/route";
+import { isTauri } from "@/lib/env";
 import { API_BASE_URL, ApiError, ServerUnavailableError } from "./client";
 
 /** 루트 업로드 요청 페이로드 */
@@ -139,29 +140,119 @@ function rememberLike(uuid: string, code: string, patch: string): void {
   localStorage.setItem(LIKES_KEY, JSON.stringify([...likes]));
 }
 
+// ── 브라우저/개발 모드 폴백 키쌍 생성 및 서명 ───────────────────────────────
+let cachedBrowserKeys: { publicKey: string; privateKey: CryptoKey } | null = null;
+
+async function getBrowserKeys(): Promise<{ publicKey: string; privateKey: CryptoKey }> {
+  if (cachedBrowserKeys) return cachedBrowserKeys;
+
+  const storedPub = localStorage.getItem("guida:dev:pubkey");
+  const storedPriv = localStorage.getItem("guida:dev:privkey");
+
+  if (storedPub && storedPriv) {
+    try {
+      const pubkey = storedPub;
+      const privJwk = JSON.parse(storedPriv);
+      const privateKey = await window.crypto.subtle.importKey(
+        "jwk",
+        privJwk,
+        { name: "Ed25519", namedCurve: "Ed25519" } as any,
+        true,
+        ["sign"]
+      );
+      cachedBrowserKeys = { publicKey: pubkey, privateKey };
+      return cachedBrowserKeys;
+    } catch (e) {
+      console.warn("Failed to import stored dev key, generating new one", e);
+    }
+  }
+
+  const keyPair = (await window.crypto.subtle.generateKey(
+    { name: "Ed25519", namedCurve: "Ed25519" } as any,
+    true,
+    ["sign", "verify"]
+  )) as CryptoKeyPair;
+
+  const privJwk = await window.crypto.subtle.exportKey("jwk", keyPair.privateKey);
+  const pubRaw = await window.crypto.subtle.exportKey("raw", keyPair.publicKey);
+  const pubHex = Array.from(new Uint8Array(pubRaw))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  localStorage.setItem("guida:dev:pubkey", pubHex);
+  localStorage.setItem("guida:dev:privkey", JSON.stringify(privJwk));
+
+  cachedBrowserKeys = { publicKey: pubHex, privateKey: keyPair.privateKey };
+  return cachedBrowserKeys;
+}
+
+/** 요청 메시지에 대한 인증 헤더를 생성한다. */
+async function getAuthHeaders(action: string, bodyString: string): Promise<Record<string, string>> {
+  const timestamp = Date.now().toString();
+
+  // SHA-256 해시 계산
+  const hashBuffer = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(bodyString));
+  const hashHex = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const message = `${action}:${timestamp}:${hashHex}`;
+  let pubkey = "";
+  let signature = "";
+
+  if (isTauri()) {
+    const { invoke } = await import("@tauri-apps/api/core");
+    const keys = await invoke<[string, string]>("get_device_keys");
+    pubkey = keys[0];
+    signature = await invoke<string>("sign_api_request", { message });
+  } else {
+    const keys = await getBrowserKeys();
+    pubkey = keys.publicKey;
+    const signatureBuffer = await window.crypto.subtle.sign(
+      { name: "Ed25519" } as any,
+      keys.privateKey,
+      new TextEncoder().encode(message)
+    );
+    signature = Array.from(new Uint8Array(signatureBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  return {
+    "X-Guida-PubKey": pubkey,
+    "X-Guida-Timestamp": timestamp,
+    "X-Guida-Signature": signature,
+  };
+}
+
 // ── 공개 API ───────────────────────────────────────────────────────
 
 /** 루트 업로드 → 6자리 코드 발급 */
 export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> {
   const { uuid, patch_version, route } = payload;
+  const bodyObj = {
+    uuid,
+    name: route.name,
+    difficulty_tag: route.difficulty_tag,
+    route_type: route.route_type,
+    difficulty_mode: route.difficulty_mode,
+    difficulty_switch_floor: route.difficulty_switch_floor,
+    target_rewards: route.target_rewards,
+    floors: route.floors,
+    gift_order: route.gift_order,
+    pack_order: route.pack_order,
+    memo: route.memo,
+    verified_method: route.verified_method,
+  };
+  const bodyString = JSON.stringify(bodyObj);
+  const headers = await getAuthHeaders("upload", bodyString);
+
   const { route_code } = await request<{ route_code: string }>(
     "/api/routes/upload",
     {
       method: "POST",
-      body: JSON.stringify({
-        uuid,
-        name: route.name,
-        difficulty_tag: route.difficulty_tag,
-        route_type: route.route_type,
-        difficulty_mode: route.difficulty_mode,
-        difficulty_switch_floor: route.difficulty_switch_floor,
-        target_rewards: route.target_rewards,
-        floors: route.floors,
-        gift_order: route.gift_order,
-        pack_order: route.pack_order,
-        memo: route.memo,
-        verified_method: route.verified_method,
-      }),
+      headers,
+      body: bodyString,
     },
   );
 
@@ -181,24 +272,29 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
  */
 export async function updateRoute(code: string, payload: UploadPayload): Promise<SharedRoute> {
   const { route, uuid } = payload;
+  const bodyObj = {
+    uuid,
+    name: route.name,
+    difficulty_tag: route.difficulty_tag,
+    route_type: route.route_type,
+    difficulty_mode: route.difficulty_mode,
+    difficulty_switch_floor: route.difficulty_switch_floor,
+    target_rewards: route.target_rewards,
+    floors: route.floors,
+    gift_order: route.gift_order,
+    pack_order: route.pack_order,
+    memo: route.memo,
+    verified_method: route.verified_method,
+  };
+  const bodyString = JSON.stringify(bodyObj);
+  const headers = await getAuthHeaders("update", bodyString);
+
   const r = await request<ServerRoute>(
     `/api/routes/${encodeURIComponent(code.toUpperCase())}`,
     {
       method: "PUT",
-      body: JSON.stringify({
-        uuid,
-        name: route.name,
-        difficulty_tag: route.difficulty_tag,
-        route_type: route.route_type,
-        difficulty_mode: route.difficulty_mode,
-        difficulty_switch_floor: route.difficulty_switch_floor,
-        target_rewards: route.target_rewards,
-        floors: route.floors,
-        gift_order: route.gift_order,
-        pack_order: route.pack_order,
-        memo: route.memo,
-        verified_method: route.verified_method,
-      }),
+      headers,
+      body: bodyString,
     },
   );
   return toShared(r);
@@ -259,4 +355,26 @@ export function likedCodes(uuid: string, patch: string): Set<string> {
     if (u === uuid && p === patch) result.add(code);
   }
   return result;
+}
+
+/** 백업 데이터 서버 업로드 */
+export async function uploadBackup(recoveryCodeHash: string, encryptedBlob: string): Promise<void> {
+  await request<void>("/api/backup", {
+    method: "POST",
+    body: JSON.stringify({
+      recovery_code_hash: recoveryCodeHash,
+      encrypted_blob: encryptedBlob,
+    }),
+  });
+}
+
+/** 백업 데이터 서버 복구 */
+export async function restoreBackup(recoveryCodeHash: string): Promise<string> {
+  const res = await request<{ encrypted_blob: string }>("/api/backup/restore", {
+    method: "POST",
+    body: JSON.stringify({
+      recovery_code_hash: recoveryCodeHash,
+    }),
+  });
+  return res.encrypted_blob;
 }

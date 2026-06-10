@@ -1,7 +1,7 @@
 mod commands;
 mod utils;
 
-use commands::{fs as gfs, settings};
+use commands::{fs as gfs, settings, crypto};
 
 /// Tauri 앱 진입점. JS에서 호출 가능한 IPC 커맨드를 등록한다.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -10,7 +10,7 @@ pub fn run() {
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
-            // 파일 시스템: %APPDATA%/LimbusGuide/ 하위 JSON 읽기/쓰기
+            // 파일 시스템: %APPDATA%/Local/Guida/ 하위 JSON 읽기/쓰기
             gfs::read_data_file,
             gfs::write_data_file,
             gfs::data_dir_path,
@@ -18,6 +18,11 @@ pub fn run() {
             settings::load_settings,
             settings::save_settings,
             settings::ensure_device_uuid,
+            // 암호화 및 서명
+            crypto::get_device_keys,
+            crypto::sign_api_request,
+            crypto::encrypt_backup,
+            crypto::decrypt_backup,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Guida application");

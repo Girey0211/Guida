@@ -28,6 +28,11 @@ uuid = { version = "1", features = ["v4"] }
 # 보관해 평문 파일 변조를 무력화한다. Windows 외 플랫폼은 백엔드 부재 시
 # 파일-서명 폴백으로 동작한다(웹/타 플랫폼은 테스트용).
 keyring = { version = "3", features = ["windows-native"] }
+aes-gcm = "0.10.3"
+sha2 = "0.10.8"
+rand = "0.8"
+ed25519-dalek = { version = "2.1.1", features = ["rand_core"] }
+base64 = "0.22.1"
 
 [profile.release]
 panic = "abort"

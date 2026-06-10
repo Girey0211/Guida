@@ -47,3 +47,13 @@ export function recordPlay(uuid: string, code: string, patch: string): Promise<S
 export function likedCodes(uuid: string, patch: string): Set<string> {
   return server.likedCodes(uuid, patch);
 }
+
+/** 백업 데이터 서버 업로드 */
+export function uploadBackup(recoveryCodeHash: string, encryptedBlob: string): Promise<void> {
+  return withServer(() => server.uploadBackup(recoveryCodeHash, encryptedBlob));
+}
+
+/** 백업 데이터 서버 복구 */
+export function restoreBackup(recoveryCodeHash: string): Promise<string> {
+  return withServer(() => server.restoreBackup(recoveryCodeHash));
+}

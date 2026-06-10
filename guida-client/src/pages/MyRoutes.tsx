@@ -91,6 +91,7 @@ export function MyRoutes() {
             starting_gift: editor.route.starting_gift,
             gahos: editor.route.gahos,
             restrictions: editor.route.restrictions,
+            gift_dependencies: editor.route.gift_dependencies ?? [],
           }
         : undefined;
     return (

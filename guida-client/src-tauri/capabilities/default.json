@@ -12,19 +12,19 @@
     "os:allow-platform",
     {
       "identifier": "fs:allow-read-text-file",
-      "allow": [{ "path": "$APPDATA/LimbusGuide/**" }]
+      "allow": [{ "path": "$LOCALAPPDATA/Guida/**" }]
     },
     {
       "identifier": "fs:allow-write-text-file",
-      "allow": [{ "path": "$APPDATA/LimbusGuide/**" }]
+      "allow": [{ "path": "$LOCALAPPDATA/Guida/**" }]
     },
     {
       "identifier": "fs:allow-mkdir",
-      "allow": [{ "path": "$APPDATA/LimbusGuide/**" }]
+      "allow": [{ "path": "$LOCALAPPDATA/Guida/**" }]
     },
     {
       "identifier": "fs:allow-exists",
-      "allow": [{ "path": "$APPDATA/LimbusGuide/**" }]
+      "allow": [{ "path": "$LOCALAPPDATA/Guida/**" }]
     }
   ]
 }

@@ -105,6 +105,15 @@ VALUES ('current_patch', '2.7')
 ON CONFLICT (key) DO NOTHING;
 
 -- ─────────────────────────────────────────────
+-- backups — 영지식 백업
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS backups (
+  recovery_code_hash CHAR(64) PRIMARY KEY,
+  encrypted_blob     TEXT NOT NULL,
+  uploaded_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ─────────────────────────────────────────────
 -- 기존 테이블에 컬럼을 추가할 때
 --   CREATE TABLE IF NOT EXISTS 는 이미 존재하는 테이블을 변경하지 않으므로,
 --   컬럼 추가는 아래처럼 멱등 ALTER 로 작성한다.

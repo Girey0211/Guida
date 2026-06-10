@@ -1,5 +1,6 @@
 import { Moon, RefreshCw, Copy, Check } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/appStore";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { toast } from "@/components/ui/toast";
 
 /** 앱 설정 페이지 */
 export function Settings() {
+  const navigate = useNavigate();
   const { settings, patch, online, updateSettings, bootstrap } = useAppStore();
   const [copied, setCopied] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -110,6 +112,21 @@ export function Settings() {
                 <Copy className="size-4 shrink-0 text-muted-foreground" />
               )}
             </button>
+          </CardContent>
+        </Card>
+
+        {/* 백업 및 복구 */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">계정 백업 및 복구</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              기기 초기화나 PC 포맷에 대비하여, 데이터를 영지식(Zero-Knowledge) 암호화 방식으로 안전하게 백업하거나 복구합니다.
+            </p>
+            <Button variant="outline" onClick={() => navigate("/backup")} className="w-full">
+              백업/복구 페이지로 이동
+            </Button>
           </CardContent>
         </Card>
 

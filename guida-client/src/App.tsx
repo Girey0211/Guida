@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toast";
 import { OverlayWindow } from "@/components/overlay/OverlayWindow";
 import { BaseScreen } from "@/pages/BaseScreen";
 import { PlayScreen } from "@/pages/PlayScreen";
+import { BackupScreen } from "@/pages/BackupScreen";
 import { FirstRunNotice } from "@/components/common/FirstRunNotice";
 
 export default function App() {
@@ -52,6 +53,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<BaseScreen />} />
         <Route path="/play" element={<PlayScreen />} />
+        <Route path="/backup" element={<BackupScreen />} />
       </Routes>
       <FirstRunNotice />
       <Toaster />

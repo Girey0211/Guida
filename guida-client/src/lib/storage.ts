@@ -1,7 +1,7 @@
 /**
  * 로컬 저장소 추상화 계층.
  *
- * Tauri 데스크톱에서는 Rust IPC 커맨드를 통해 `%APPDATA%/LimbusGuide/` 하위
+ * Tauri 데스크톱에서는 Rust IPC 커맨드를 통해 `%APPDATA%/Local/Guida/` 하위
  * JSON 파일을 읽고 쓴다. 일반 브라우저(Vite dev)에서는 localStorage로
  * 폴백하여 동일한 인터페이스로 동작한다 — 덕분에 Rust 없이도 전체 흐름을
  * 검증할 수 있다.
