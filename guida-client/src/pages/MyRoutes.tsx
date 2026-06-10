@@ -20,7 +20,7 @@ type EditorState = { mode: "create" } | { mode: "edit"; route: LocalRoute } | nu
 /** 내 루트 관리 페이지 */
 export function MyRoutes() {
   const navigate = useNavigate();
-  const { settings, gameData } = useAppStore();
+  const { settings, gifts, packs, dungeonMeta } = useAppStore();
   const { myRoutes, loadMyRoutes, createRoute, updateRoute, deleteRoute, shareRoute } = useRouteStore();
   const startSession = usePlayStore((s) => s.startSession);
   const [editor, setEditor] = useState<EditorState>(null);
@@ -83,8 +83,14 @@ export function MyRoutes() {
             floors: editor.route.floors,
             difficulty_tag: editor.route.difficulty_tag,
             route_type: editor.route.route_type,
-            steps: editor.route.steps,
+            difficulty_mode: editor.route.difficulty_mode,
+            difficulty_switch_floor: editor.route.difficulty_switch_floor,
             memo: editor.route.memo,
+            gift_order: editor.route.gift_order,
+            pack_order: editor.route.pack_order,
+            starting_gift: editor.route.starting_gift,
+            gahos: editor.route.gahos,
+            restrictions: editor.route.restrictions,
           }
         : undefined;
     return (
@@ -95,7 +101,9 @@ export function MyRoutes() {
             <RouteEditor
               initial={initial}
               initialSelfReported={editor.mode === "edit" ? editor.route.verified : false}
-              targetRewards={gameData?.targetRewards ?? []}
+              gifts={gifts}
+              packs={packs}
+              dungeonMeta={dungeonMeta}
               onSubmit={handleSubmit}
               onCancel={() => setEditor(null)}
             />

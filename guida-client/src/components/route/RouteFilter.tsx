@@ -1,5 +1,5 @@
 import type { RouteFilterState } from "@/types/filter";
-import type { DifficultyTag, RouteType } from "@/types/route";
+import type { DifficultyMode, DifficultyTag, RouteType } from "@/types/route";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,11 @@ interface Props {
 
 const DIFFICULTIES: DifficultyTag[] = ["쉬움", "보통", "어려움"];
 const ROUTE_TYPES: RouteType[] = ["파밍 효율 중심", "특정 목표 중심"];
+const DIFFICULTY_MODES: { value: DifficultyMode; label: string }[] = [
+  { value: "normal", label: "노말" },
+  { value: "hard", label: "하드" },
+  { value: "extreme", label: "EXTREME" },
+];
 
 /** 탐색 필터 패널 (README 섹션 6) */
 export function RouteFilter({
@@ -102,6 +107,21 @@ export function RouteFilter({
           {[1, 2, 3, 4, 5, 6, 7].map((f) => (
             <option key={f} value={f}>
               {f}층
+            </option>
+          ))}
+        </Select>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>난이도</Label>
+        <Select
+          value={filter.difficultyMode ?? ""}
+          onChange={(e) => set("difficultyMode", (e.target.value || null) as DifficultyMode | null)}
+        >
+          <option value="">전체</option>
+          {DIFFICULTY_MODES.map((m) => (
+            <option key={m.value} value={m.value}>
+              {m.label}
             </option>
           ))}
         </Select>

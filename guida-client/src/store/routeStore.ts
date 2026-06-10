@@ -113,10 +113,13 @@ export const useRouteStore = create<RouteState>((set, get) => ({
         name: route.name,
         difficulty_tag: route.difficulty_tag,
         route_type: route.route_type,
+        difficulty_mode: route.difficulty_mode,
+        difficulty_switch_floor: route.difficulty_switch_floor,
         target_rewards: route.target_rewards,
         floors: route.floors,
-        steps: route.steps,
         memo: route.memo,
+        gift_order: route.gift_order,
+        pack_order: route.pack_order,
         verified_method: route.verified_method,
       },
     });
@@ -166,8 +169,15 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       floors: shared.floors,
       difficulty_tag: shared.difficulty_tag,
       route_type: shared.route_type,
-      steps: shared.steps,
+      difficulty_mode: shared.difficulty_mode,
+      difficulty_switch_floor: shared.difficulty_switch_floor,
       memo: shared.memo,
+      gift_order: shared.gift_order,
+      pack_order: shared.pack_order,
+      // 시작 기프트 / 가호 / 제약은 로컬 전용이라 공개본에 없음 → 빈 값으로 시작
+      starting_gift: null,
+      gahos: [],
+      restrictions: {},
     };
     const next = [local, ...get().myRoutes];
     set({ myRoutes: next });

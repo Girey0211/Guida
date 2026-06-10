@@ -45,8 +45,11 @@ export function useRouteFilter(
       // 거던 층수
       if (filter.floor != null && !r.floors.includes(filter.floor)) return false;
 
-      // 난이도
+      // 난이도 태그
       if (filter.difficulty && r.difficulty_tag !== filter.difficulty) return false;
+
+      // 난이도 모드
+      if (filter.difficultyMode && r.difficulty_mode !== filter.difficultyMode) return false;
 
       // 루트 유형
       if (filter.routeType && r.route_type !== filter.routeType) return false;

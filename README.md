@@ -247,7 +247,7 @@ guida/
 
 | 필터 | 설명 |
 |---|---|
-| **목표 재화** | 특정 에고기프트 / 루심화폐 / 기타 특정 재화 |
+| **목표 재화** | 특정 에고기프트/ 기타 특정 재화 |
 | **거던 층수** | 전체 / 특정 층 집중 루트 |
 | **난이도** | 노말 / 하드 / EXTREME |
 | **난이도 태그** | 쉬움 / 보통 / 어려움 |
@@ -341,14 +341,14 @@ guida/
   "routes": [
     {
       "local_id": "route_001",
-      "name": "주간 루심화폐 파밍 루트",
+      "name": "주간 하드 5층",
       "created_at": "2025-06-01T12:00:00Z",
       "patch_version": "2.7",
       "verified": false,
       "verified_method": "self_report",
       "verified_at": null,
       "shared_code": null,
-      "target_rewards": ["루심화폐", "황금가지"],
+      "target_rewards": ["주간보상"],
       "difficulty_tag": "보통",
       "route_type": "파밍 효율 중심",
       "difficulty_mode": "hard",
@@ -478,12 +478,12 @@ guida/
 {
   "route_code": "X7R2B9",
   "patch_version": "2.7",
-  "name": "주간 루심화폐 파밍 루트",
+  "name": "주간 하드 5층",
   "difficulty_tag": "보통",
   "route_type": "파밍 효율 중심",
   "difficulty_mode": "hard",
   "difficulty_switch_floor": 3,
-  "target_rewards": ["루심화폐", "황금가지"],
+  "target_rewards": ["주간보상"],
   "floors": [1, 2, 3, 4, 5],
   "memo": "3층부터 하드 전환. 심야청소 4층 필수.",
   "gift_order": [

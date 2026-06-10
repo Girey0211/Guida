@@ -4,7 +4,6 @@
  * api/routes.ts 가 이 모듈을 통해 중앙 서버와 통신한다.
  *
  * 이 모듈은 서버 ↔ 클라이언트 사이의 표현 차이를 경계에서 흡수한다:
- *  - 서버 `difficulty`           ↔ 클라이언트 `difficulty_tag`
  *  - 서버 평탄한 likes/play_count ↔ 클라이언트 패치별 `stats` 맵
  *  - 서버 HTTP status            ↔ ApiError(code) / ServerUnavailableError
  *
@@ -12,7 +11,12 @@
  * 지원하기 위해 추천 성공 시 로컬(localStorage)에 코드를 함께 기록한다.
  */
 
-import type { RouteStep, SharedRoute, RouteStat } from "@/types/route";
+import type {
+  GiftOrderItem,
+  PackOrderItem,
+  SharedRoute,
+  RouteStat,
+} from "@/types/route";
 import { API_BASE_URL, ApiError, ServerUnavailableError } from "./client";
 
 /** 루트 업로드 요청 페이로드 */
@@ -27,11 +31,14 @@ interface ServerRoute {
   route_code: string;
   name: string;
   patch_version: string;
-  difficulty: SharedRoute["difficulty_tag"];
+  difficulty_tag: SharedRoute["difficulty_tag"];
   route_type: SharedRoute["route_type"];
+  difficulty_mode: SharedRoute["difficulty_mode"];
+  difficulty_switch_floor: number | null;
   target_rewards: string[];
   floors: number[];
-  steps?: RouteStep[];
+  gift_order?: GiftOrderItem[];
+  pack_order?: PackOrderItem[];
   memo: string | null;
   verified_method: SharedRoute["verified_method"];
   uploaded_at: string;
@@ -101,12 +108,15 @@ function toShared(r: ServerRoute): SharedRoute {
     route_code: r.route_code,
     patch_version: r.patch_version,
     name: r.name,
-    difficulty_tag: r.difficulty,
+    difficulty_tag: r.difficulty_tag,
     route_type: r.route_type,
+    difficulty_mode: r.difficulty_mode,
+    difficulty_switch_floor: r.difficulty_switch_floor ?? null,
     target_rewards: r.target_rewards ?? [],
     floors: r.floors ?? [],
-    steps: r.steps ?? [],
     memo: r.memo ?? "",
+    gift_order: r.gift_order ?? [],
+    pack_order: r.pack_order ?? [],
     verified_method: r.verified_method,
     stats,
     uploaded_at: r.uploaded_at,
@@ -140,11 +150,14 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
       body: JSON.stringify({
         uuid,
         name: route.name,
-        difficulty: route.difficulty_tag,
+        difficulty_tag: route.difficulty_tag,
         route_type: route.route_type,
+        difficulty_mode: route.difficulty_mode,
+        difficulty_switch_floor: route.difficulty_switch_floor,
         target_rewards: route.target_rewards,
         floors: route.floors,
-        steps: route.steps,
+        gift_order: route.gift_order,
+        pack_order: route.pack_order,
         memo: route.memo,
         verified_method: route.verified_method,
       }),

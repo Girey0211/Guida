@@ -4,7 +4,7 @@
  */
 
 import { create } from "zustand";
-import type { GameData, PatchInfo } from "@/types/gameData";
+import type { DungeonMeta, GameData, Gift, Pack, PatchInfo } from "@/types/gameData";
 import type { UserSettings } from "@/types/settings";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 import { ensureDeviceUuid, readJson, writeJson } from "@/lib/storage";
@@ -24,6 +24,12 @@ interface AppState {
   settings: UserSettings;
   gameData: GameData | null;
   patch: PatchInfo | null;
+  /** 시즌 메타 (시작 기프트 / 가호 / EXTREME 제약). 없으면 null */
+  dungeonMeta: DungeonMeta | null;
+  /** 에고기프트 카탈로그 (루트 작성기 gift_order / starting_gift 선택용) */
+  gifts: Gift[];
+  /** 팩 카탈로그 (루트 작성기 pack_order 선택용) */
+  packs: Pack[];
 
   /** 앱 초기 부팅: UUID 확보 → 설정 로드 → 게임 데이터 동기화 */
   bootstrap: () => Promise<void>;
@@ -39,6 +45,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   settings: { uuid: "", ...DEFAULT_SETTINGS },
   gameData: null,
   patch: null,
+  dungeonMeta: null,
+  gifts: [],
+  packs: [],
 
   bootstrap: async () => {
     try {
@@ -57,10 +66,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       let online = true;
       let gameData: GameData | null = null;
       let patch: PatchInfo | null = null;
+      let dungeonMeta: DungeonMeta | null = null;
+      let gifts: Gift[] = [];
+      let packs: Pack[] = [];
       try {
         const result = await syncGameData();
         gameData = result.gameData;
         patch = result.patch;
+        dungeonMeta = result.dungeonMeta;
+        gifts = result.gifts;
+        packs = result.packs;
         online = result.fromNetwork;
         settings.current_patch = patch.current_patch;
       } catch (e) {
@@ -72,7 +87,18 @@ export const useAppStore = create<AppState>((set, get) => ({
       // 4. 설정 영구 저장 (current_patch 갱신 반영)
       await writeJson(SETTINGS_FILE, settings);
 
-      set({ uuid, settings, gameData, patch, online, ready: true, bootError: null });
+      set({
+        uuid,
+        settings,
+        gameData,
+        patch,
+        dungeonMeta,
+        gifts,
+        packs,
+        online,
+        ready: true,
+        bootError: null,
+      });
     } catch (e) {
       set({
         ready: true,
