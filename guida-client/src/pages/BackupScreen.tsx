@@ -207,7 +207,6 @@ export function BackupScreen() {
 
       <PageHeader
         title="계정 백업 및 복구"
-        description="영지식(Zero-Knowledge) 백업 기술을 통해 기기 초기화 시에도 데이터를 안전하게 복구합니다."
       />
 
       <div className="space-y-6">

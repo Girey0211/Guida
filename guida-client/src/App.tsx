@@ -36,7 +36,6 @@ export default function App() {
     return (
       <div className="flex h-screen items-center justify-center text-muted-foreground">
         <div className="text-center">
-          <div className="mb-2 text-2xl">🧭</div>
           <p className="text-sm">Guida 초기화 중…</p>
         </div>
       </div>

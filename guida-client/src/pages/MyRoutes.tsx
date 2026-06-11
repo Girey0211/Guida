@@ -118,7 +118,6 @@ export function MyRoutes() {
     <div className="mx-auto max-w-4xl p-6">
       <PageHeader
         title="내 루트"
-        description="직접 작성한 루트를 로컬에 저장하고 공유 코드를 발급받으세요."
         action={
           <Button onClick={() => setEditor({ mode: "create" })}>
             <Plus className="size-4" />새 루트
@@ -162,7 +161,7 @@ export function MyRoutes() {
               <CardContent className="space-y-3">
                 <div className="flex flex-wrap gap-1">
                   {route.target_rewards.map((r) => (
-                    <Badge key={r} variant="outline" className="text-[11px]">🎯 {r}</Badge>
+                    <Badge key={r} variant="outline" className="text-[11px]">{r}</Badge>
                   ))}
                 </div>
                 {route.memo && <p className="text-xs text-muted-foreground">{route.memo}</p>}

@@ -34,7 +34,6 @@ export function BaseScreen() {
     <div className="flex h-screen flex-col overflow-hidden">
       {/* 브랜드 바 (Charcoal Black) */}
       <header className="flex shrink-0 items-center gap-3 border-b border-border bg-brand px-4 py-2.5">
-        <span className="text-xl">🧭</span>
         <div className="leading-none">
           <h1 className="text-sm font-bold text-brand-foreground">Guida</h1>
           <p className="text-[11px] text-muted-foreground">거울 던전 길잡이</p>

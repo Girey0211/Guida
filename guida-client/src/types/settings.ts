@@ -19,7 +19,7 @@ export interface UserSettings {
 }
 
 export const DEFAULT_SETTINGS: Omit<UserSettings, "uuid"> = {
-  app_version: "1.0.0",
+  app_version: "0.1.0",
   current_patch: "0.0",
   theme: "dark",
   overlay_opacity: 0.85,

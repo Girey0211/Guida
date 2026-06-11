@@ -57,7 +57,7 @@ export function RouteCard({
         <div className="flex flex-wrap gap-1">
           {route.target_rewards.map((r) => (
             <Badge key={r} variant="outline" className="text-[11px]">
-              🎯 {r}
+              {r}
             </Badge>
           ))}
         </div>

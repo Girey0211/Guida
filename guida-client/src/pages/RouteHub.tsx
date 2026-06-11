@@ -84,7 +84,6 @@ export function RouteHub() {
     <div className="mx-auto max-w-6xl p-6">
       <PageHeader
         title="루트 탐색"
-        description="다른 유저가 공유한 거던 파밍 루트를 찾아보세요."
         action={
           <Button variant="outline" onClick={() => void loadHub()} disabled={loadingHub}>
             <RefreshCw className={loadingHub ? "size-4 animate-spin" : "size-4"} />

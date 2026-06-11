@@ -192,9 +192,7 @@ export function RouteFilter({
         </div>
       </div>
 
-      <p className="text-[11px] text-muted-foreground">
-        ⚠️ 패치 버전 기본값은 항상 <b>현재 패치</b>로 고정됩니다. 메타가 빠르게 변하는 림버스 특성을 반영합니다.
-      </p>
+
     </div>
   );
 }

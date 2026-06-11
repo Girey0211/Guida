@@ -369,9 +369,7 @@ function GiftsTab({
         </div>
       </div>
 
-      <p className="mb-2 text-xs text-muted-foreground">
-        카드를 탭하여 획득 여부를 표시하세요. 🔒는 선행 기프트를 먼저 획득해야 하는 항목입니다.
-      </p>
+
 
       {ordered.length === 0 ? (
         <p className="py-6 text-center text-xs text-muted-foreground">
@@ -505,9 +503,7 @@ function PacksTab({
 
   return (
     <div className="space-y-2">
-      <p className="mb-3 text-xs text-muted-foreground">
-        카드를 탭하여 방문 여부를 표시하세요. 난이도가 바뀌는 지점에 구분선이 표시됩니다.
-      </p>
+
       {ordered.map((item, i) => {
         const pack = packById.get(item.pack_id);
         const visited = visitedPacks.includes(item.pack_id);
@@ -575,7 +571,7 @@ function PacksTab({
               {/* 전용 기프트 목록 표시 */}
               {exclusiveGiftsInRoute.length > 0 && (
                 <div className="mt-2 pl-5 border-t border-border/40 pt-2 w-full flex flex-col gap-1.5">
-                  <span className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1">🎯 전용 기프트 목표:</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1">전용 기프트 목표:</span>
                   <div className="flex flex-wrap gap-2">
                     {exclusiveGiftsInRoute.map((eg) => {
                       const acquired = acquiredGifts.includes(eg.id);

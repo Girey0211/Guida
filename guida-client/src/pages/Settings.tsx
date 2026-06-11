@@ -40,7 +40,7 @@ export function Settings() {
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <PageHeader title="설정" description="앱 환경과 오버레이를 설정합니다." />
+      <PageHeader title="설정" />
 
       <div className="space-y-4">
         {/* 외형 */}

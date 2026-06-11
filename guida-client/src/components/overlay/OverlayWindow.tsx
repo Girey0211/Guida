@@ -41,7 +41,7 @@ export function OverlayWindow() {
     >
       {/* 헤더 (드래그 핸들 + 컨트롤) */}
       <div data-tauri-drag-region className="flex items-center justify-between gap-2">
-        <span className="text-sm font-bold text-primary">🧭 Guida</span>
+        <span className="text-sm font-bold text-primary">Guida</span>
         <div className="flex items-center gap-1">
           <Button
             size="icon"
@@ -87,7 +87,7 @@ export function OverlayWindow() {
           <option value="">목표 없음</option>
           {gameData?.targetRewards.map((r) => (
             <option key={r} value={r}>
-              🎯 {r}
+              {r}
             </option>
           ))}
         </Select>
