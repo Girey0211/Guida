@@ -71,6 +71,9 @@ export default async function gameDataRoutes(fastify: FastifyInstance) {
     }
   });
 
+  // 인메모리 캐시 (파일명 -> 미니파이된 JSON 문자열)
+  const minifiedCache = new Map<string, string>();
+
   // gifts / packs / events / dependencies 를 각각 정적 JSON 파일 그대로 내려준다.
   fastify.get<{ Params: { resource: string } }>('/api/game/:resource', async (req, reply) => {
     const fileName = GAME_DATA_FILES[req.params.resource];
@@ -78,10 +81,26 @@ export default async function gameDataRoutes(fastify: FastifyInstance) {
       return reply.code(404).send({ error: '존재하지 않는 게임 데이터입니다.' });
     }
 
+    const isProd = process.env.NODE_ENV === 'production';
+
+    // 프로덕션 환경인 경우 캐시 확인 및 즉시 반환
+    if (isProd && minifiedCache.has(fileName)) {
+      reply.header('content-type', 'application/json; charset=utf-8');
+      return minifiedCache.get(fileName);
+    }
+
     try {
       const raw = await readFile(resolve(dataDir, fileName), 'utf-8');
+      
+      // JSON 파싱 후 공백 없이 문자열화 (Minify)
+      const minified = JSON.stringify(JSON.parse(raw));
+      
+      if (isProd) {
+        minifiedCache.set(fileName, minified);
+      }
+
       reply.header('content-type', 'application/json; charset=utf-8');
-      return raw;
+      return minified;
     } catch (err) {
       fastify.log.error({ err, resource: req.params.resource }, '게임 데이터를 불러올 수 없습니다.');
       return reply.code(500).send({ error: '게임 데이터를 불러올 수 없습니다.' });
