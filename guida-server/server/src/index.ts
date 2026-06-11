@@ -22,6 +22,7 @@ async function main() {
             },
           },
     trustProxy: true, // Nginx / Cloudflare Tunnel 뒤에서 실제 클라이언트 IP 인식
+    pluginTimeout: 60000, // 원격 DB(Tailscale 등) 연결 및 마이그레이션 시간 고려하여 플러그인 타임아웃을 60초로 상향
   });
 
   // application/json content parser to capture raw body string for signatures

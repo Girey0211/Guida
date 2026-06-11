@@ -12,6 +12,8 @@ interface Props {
   selectedIds: Set<string>;
   /** 박스를 누르면 선택/해제 토글 */
   onToggle: (id: string) => void;
+  onSelectMultiple?: (ids: string[]) => void;
+  onDeselectMultiple?: (ids: string[]) => void;
   onClose: () => void;
 }
 
@@ -25,7 +27,14 @@ function distinct<T extends string>(values: (T | null | undefined)[]): T[] {
  * 상단 필터(검색/키워드/등급/출처/하드 전용) + 박스형 목록.
  * 박스를 누르면 선택 표시로 바뀌고, 다시 누르면 해제된다.
  */
-export function GiftPickerPanel({ gifts, selectedIds, onToggle, onClose }: Props) {
+export function GiftPickerPanel({
+  gifts,
+  selectedIds,
+  onToggle,
+  onSelectMultiple,
+  onDeselectMultiple,
+  onClose,
+}: Props) {
   const [q, setQ] = useState("");
   const [keyword, setKeyword] = useState("");
   const [grade, setGrade] = useState("");
@@ -182,6 +191,41 @@ export function GiftPickerPanel({ gifts, selectedIds, onToggle, onClose }: Props
             >
               필터 초기화
             </button>
+          </div>
+        </div>
+
+        {/* 검색 결과 요약 및 전체 작업 */}
+        <div className="flex items-center justify-between border-b border-border bg-muted/20 px-4 py-2 text-xs">
+          <span className="text-muted-foreground text-[11px]">
+            필터 결과: <b className="font-semibold text-foreground">{filtered.length}</b>개
+          </span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-[11px] font-medium"
+              onClick={() => {
+                const idsToSelect = filtered.map((g) => g.id);
+                onSelectMultiple?.(idsToSelect);
+              }}
+              disabled={filtered.length === 0}
+            >
+              필터 결과 전체 선택
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-[11px] font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={() => {
+                const idsToDeselect = filtered.map((g) => g.id);
+                onDeselectMultiple?.(idsToDeselect);
+              }}
+              disabled={filtered.length === 0}
+            >
+              필터 결과 전체 해제
+            </Button>
           </div>
         </div>
 

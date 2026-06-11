@@ -159,7 +159,10 @@ export type DependencyType = "before" | "after" | "with" | "excludes";
 
 /** 의존성 한 항목 */
 export interface DependencyEdge {
-  target_gift_id: string;
+  target: {
+    gift_id: string;
+    name: string;
+  };
   type: DependencyType;
   required: boolean;
   reason: string;

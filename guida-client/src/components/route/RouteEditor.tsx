@@ -252,6 +252,47 @@ export function RouteEditor({
     );
   };
   const toggleGift = (id: string) => (giftIds.has(id) ? removeGift(id) : addGift(id));
+  const addGifts = (ids: string[]) => {
+    setDraft((dStore) => {
+      const currentIds = new Set(dStore.gift_order.map((g) => g.gift_id));
+      const nextGifts = [...dStore.gift_order];
+      let added = false;
+      ids.forEach((id) => {
+        if (!currentIds.has(id)) {
+          nextGifts.push({
+            gift_id: id,
+            priority: nextGifts.length + 1,
+            floor_target: dStore.floors[0] ?? 5,
+            difficulty: dStore.difficulty_mode,
+            required: true,
+          });
+          added = true;
+        }
+      });
+      if (!added) return dStore;
+      return {
+        ...dStore,
+        gift_order: nextGifts,
+      };
+    });
+  };
+  const removeGifts = (ids: string[]) => {
+    setDraft((dStore) => {
+      const idSet = new Set(ids);
+      const nextGifts = dStore.gift_order
+        .filter((g) => !idSet.has(g.gift_id))
+        .map((g, i) => ({ ...g, priority: i + 1 }));
+      const currentDeps = dStore.gift_dependencies ?? [];
+      const nextDeps = currentDeps.filter(
+        (d) => !idSet.has(d.first_gift_id) && !idSet.has(d.second_gift_id)
+      );
+      return {
+        ...dStore,
+        gift_order: nextGifts,
+        gift_dependencies: nextDeps,
+      };
+    });
+  };
 
   // ── 기프트 우선순위 (우선순위 페어) ─────────────────────────────
   const [firstGiftId, setFirstGiftId] = useState("");
@@ -283,17 +324,17 @@ export function RouteEditor({
       const gId = dep.gift_id;
       if (currentGiftIds.has(gId)) {
         for (const edge of dep.dependencies) {
-          if (currentGiftIds.has(edge.target_gift_id)) {
+          if (currentGiftIds.has(edge.target.gift_id)) {
             if (edge.type === "before") {
               pairs.push({
-                first_gift_id: edge.target_gift_id,
+                first_gift_id: edge.target.gift_id,
                 second_gift_id: gId,
                 reason: edge.reason,
               });
             } else if (edge.type === "after") {
               pairs.push({
                 first_gift_id: gId,
-                second_gift_id: edge.target_gift_id,
+                second_gift_id: edge.target.gift_id,
                 reason: edge.reason,
               });
             }
@@ -423,7 +464,25 @@ export function RouteEditor({
       draft.starting_gift && draft.starting_gift.gifts.length > 0 ? draft.starting_gift : null;
     // EXTREME 콘텐츠가 아니면 제약은 저장하지 않는다
     const restrictions = showExtreme ? draft.restrictions : {};
-    onSubmit({ ...draft, name: draft.name.trim(), starting_gift, restrictions }, selfReported);
+
+    // 기프트들의 목표 층 및 실제 난이도 정합성 보정
+    const actualDiff = difficultyAtFloor(targetDepth, draft.difficulty_mode, draft.difficulty_switch_floor);
+    const sanitizedGiftOrder = draft.gift_order.map((g) => ({
+      ...g,
+      floor_target: targetDepth,
+      difficulty: actualDiff,
+    }));
+
+    onSubmit(
+      {
+        ...draft,
+        name: draft.name.trim(),
+        gift_order: sanitizedGiftOrder,
+        starting_gift,
+        restrictions,
+      },
+      selfReported,
+    );
   };
 
   return (
@@ -1085,6 +1144,8 @@ export function RouteEditor({
           gifts={gifts}
           selectedIds={giftIds}
           onToggle={toggleGift}
+          onSelectMultiple={addGifts}
+          onDeselectMultiple={removeGifts}
           onClose={() => setGiftPickerOpen(false)}
         />
       )}

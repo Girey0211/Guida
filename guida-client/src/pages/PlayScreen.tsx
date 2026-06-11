@@ -8,6 +8,7 @@ import { useRouteStore } from "@/store/routeStore";
 import { usePlayStore } from "@/store/playStore";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -123,10 +124,14 @@ export function PlayScreen() {
           <div className="mx-auto max-w-3xl p-5">
             {tab === "gifts" && (
               <GiftsTab
+                gifts={gifts}
                 giftOrder={route.gift_order}
                 giftById={giftById}
                 depsByGift={depsByGift}
                 giftDependencies={route.gift_dependencies ?? []}
+                routeTargetDepth={route.floors[0] ?? 5}
+                routeMode={route.difficulty_mode}
+                routeSwitchFloor={route.difficulty_switch_floor}
               />
             )}
             {tab === "packs" && (
@@ -151,29 +156,97 @@ export function PlayScreen() {
  * gift_order 를 priority 순으로 정렬하고, 미충족 선행조건(dependencies "before")이
  * 있으면 🔒 잠금 표시한다. 정렬: 획득가능 미획득 → 잠금 → 획득 완료(어둡게/하단).
  */
+function distinct<T extends string>(values: (T | null | undefined)[]): T[] {
+  return [...new Set(values.filter((v): v is T => Boolean(v)))];
+}
+
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-2.5 py-1 text-[11px] transition-colors",
+        active
+          ? "border-primary bg-primary/20 text-primary"
+          : "border-border text-muted-foreground hover:border-primary/40",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
 function GiftsTab({
+  gifts,
   giftOrder,
   giftById,
   depsByGift,
   giftDependencies,
+  routeTargetDepth,
+  routeMode,
+  routeSwitchFloor,
 }: {
+  gifts: GiftEntity[];
   giftOrder: GiftOrderItem[];
   giftById: Map<string, GiftEntity>;
   depsByGift: Map<string, DependencyEdge[]>;
   giftDependencies: RouteDependency[];
+  routeTargetDepth: number;
+  routeMode: DifficultyMode;
+  routeSwitchFloor: number | null;
 }) {
   const { acquiredGifts, toggleGift } = usePlayStore();
 
+  const [q, setQ] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [grade, setGrade] = useState("");
+  const [source, setSource] = useState("");
+  const [hardOnly, setHardOnly] = useState(false);
+  const [craftableOnly, setCraftableOnly] = useState(false);
+  const [hideAcquired, setHideAcquired] = useState(false);
+
+  // distinct values for filters
+  const keywords = useMemo(() => distinct(gifts.map((g) => g.keyword_type)), [gifts]);
+  const grades = useMemo(
+    () => distinct(gifts.map((g) => g.grade)).sort((a, b) => a.localeCompare(b)),
+    [gifts],
+  );
+  const sources = useMemo(() => distinct(gifts.map((g) => g.source_category)), [gifts]);
+
+  const resetFilters = () => {
+    setQ("");
+    setKeyword("");
+    setGrade("");
+    setSource("");
+    setHardOnly(false);
+    setCraftableOnly(false);
+    setHideAcquired(false);
+  };
+
   /** 미충족 선행조건: type "before"(이 기프트는 대상보다 나중에 획득) 중 대상 미획득 및 사용자 지정 우선순위 */
   const unmetBefore = (giftId: string): DependencyEdge[] => {
+    const targetGiftIds = new Set(giftOrder.map((g) => g.gift_id));
+
     const globalDeps = (depsByGift.get(giftId) ?? []).filter(
-      (e) => e.type === "before" && !acquiredGifts.includes(e.target_gift_id),
+      (e) => e.type === "before" && targetGiftIds.has(e.target.gift_id) && !acquiredGifts.includes(e.target.gift_id),
     );
 
     const customDeps: DependencyEdge[] = giftDependencies
-      .filter((d) => d.second_gift_id === giftId && !acquiredGifts.includes(d.first_gift_id))
+      .filter((d) => d.second_gift_id === giftId && targetGiftIds.has(d.first_gift_id) && !acquiredGifts.includes(d.first_gift_id))
       .map((d) => ({
-        target_gift_id: d.first_gift_id,
+        target: {
+          gift_id: d.first_gift_id,
+          name: giftById.get(d.first_gift_id)?.name ?? d.first_gift_id,
+        },
         type: "before",
         required: true,
         reason: "사용자 설정 우선순위 제약",
@@ -182,14 +255,39 @@ function GiftsTab({
     return [...globalDeps, ...customDeps];
   };
 
+  const filtered = useMemo(() => {
+    const k = q.trim();
+    return giftOrder.filter((item) => {
+      const g = giftById.get(item.gift_id);
+      if (!g) return true;
+      if (k && !g.name.includes(k)) return false;
+      if (keyword && g.keyword_type !== keyword) return false;
+      if (grade && g.grade !== grade) return false;
+      if (source && g.source_category !== source) return false;
+      if (hardOnly && !g.hard_mode_only) return false;
+      if (craftableOnly && !g.is_craftable) return false;
+      if (hideAcquired && acquiredGifts.includes(item.gift_id)) return false;
+      return true;
+    });
+  }, [giftOrder, q, keyword, grade, source, hardOnly, craftableOnly, hideAcquired, acquiredGifts, giftById]);
+
   // priority 순 정렬 후 [획득가능 미획득 → 잠금 → 획득완료] 로 재배치
   const ordered = useMemo(() => {
-    const byPriority = [...giftOrder].sort((a, b) => a.priority - b.priority);
+    const byPriority = [...filtered].sort((a, b) => a.priority - b.priority);
     const rank = (g: GiftOrderItem) =>
       acquiredGifts.includes(g.gift_id) ? 2 : unmetBefore(g.gift_id).length > 0 ? 1 : 0;
     return [...byPriority].sort((a, b) => rank(a) - rank(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [giftOrder, acquiredGifts, depsByGift]);
+  }, [filtered, acquiredGifts, depsByGift, giftDependencies, giftById]);
+
+  // 실제 target depth와 difficulty 계산
+  const targetDepth = routeTargetDepth;
+  const actualDiff = (() => {
+    if (targetDepth >= 11) return "extreme";
+    if (routeMode === "hard" || routeMode === "extreme") return "hard";
+    if (routeSwitchFloor != null && targetDepth >= routeSwitchFloor) return "hard";
+    return "normal";
+  })();
 
   if (giftOrder.length === 0) {
     return (
@@ -200,81 +298,144 @@ function GiftsTab({
   }
 
   return (
-    <div className="space-y-2">
-      <p className="mb-3 text-xs text-muted-foreground">
+    <div className="space-y-4">
+      {/* 필터 영역 */}
+      <div className="space-y-2 rounded-lg border border-border bg-card p-3 shadow-sm">
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="목표 기프트 이름 검색"
+          className="h-8"
+        />
+        <div className="grid grid-cols-2 gap-2">
+          <Select value={keyword} onChange={(e) => setKeyword(e.target.value)} className="h-8 text-xs">
+            <option value="">키워드 전체</option>
+            {keywords.map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </Select>
+          <Select value={grade} onChange={(e) => setGrade(e.target.value)} className="h-8 text-xs">
+            <option value="">등급 전체</option>
+            {grades.map((g) => (
+              <option key={g} value={g}>
+                {g}등급
+              </option>
+            ))}
+          </Select>
+        </div>
+        <Select value={source} onChange={(e) => setSource(e.target.value)} className="h-8 text-xs">
+          <option value="">출처 전체</option>
+          {sources.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </Select>
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <FilterChip active={hardOnly} onClick={() => setHardOnly((v) => !v)}>
+            하드 전용
+          </FilterChip>
+          <FilterChip active={craftableOnly} onClick={() => setCraftableOnly((v) => !v)}>
+            합성 가능
+          </FilterChip>
+          <FilterChip active={hideAcquired} onClick={() => setHideAcquired((v) => !v)}>
+            미획득만 보기
+          </FilterChip>
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="ml-auto text-[11px] text-muted-foreground hover:text-foreground"
+          >
+            필터 초기화
+          </button>
+        </div>
+      </div>
+
+      <p className="mb-2 text-xs text-muted-foreground">
         카드를 탭하여 획득 여부를 표시하세요. 🔒는 선행 기프트를 먼저 획득해야 하는 항목입니다.
       </p>
-      {ordered.map((item) => {
-        const gift = giftById.get(item.gift_id);
-        const acquired = acquiredGifts.includes(item.gift_id);
-        const blockers = acquired ? [] : unmetBefore(item.gift_id);
-        const locked = blockers.length > 0;
-        const blockerNames = blockers
-          .map((e) => giftById.get(e.target_gift_id)?.name ?? e.target_gift_id)
-          .join(", ");
-        return (
-          <button
-            key={item.gift_id}
-            onClick={() => toggleGift(item.gift_id)}
-            style={
-              !acquired && !locked && gift?.keyword_color
-                ? { borderColor: `${gift.keyword_color}66` }
-                : undefined
-            }
-            className={cn(
-              "flex w-full items-center justify-between gap-2 rounded-lg border px-4 py-3 text-left text-sm transition-all",
-              acquired
-                ? "border-border bg-card/60 opacity-[0.35]"
-                : locked
-                  ? "border-dashed border-border bg-card/40 text-muted-foreground"
-                  : "border-border bg-card hover:border-primary/40",
-            )}
-          >
-            <span className="flex min-w-0 flex-col gap-1">
-              <span className="flex items-center gap-2 font-medium">
-                {locked ? <Lock className="size-3.5 shrink-0" /> : "🎯"} {gift?.name ?? item.gift_id}
-                {!item.required && (
-                  <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                    옵션
+
+      {ordered.length === 0 ? (
+        <p className="py-6 text-center text-xs text-muted-foreground">
+          조건에 맞는 목표 에고기프트가 없습니다.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {ordered.map((item) => {
+            const gift = giftById.get(item.gift_id);
+            const acquired = acquiredGifts.includes(item.gift_id);
+            const blockers = acquired ? [] : unmetBefore(item.gift_id);
+            const locked = blockers.length > 0;
+            const blockerNames = blockers
+              .map((e) => giftById.get(e.target.gift_id)?.name ?? e.target.gift_id)
+              .join(", ");
+            return (
+              <button
+                key={item.gift_id}
+                onClick={() => toggleGift(item.gift_id)}
+                style={
+                  !acquired && !locked && gift?.keyword_color
+                    ? { borderColor: `${gift.keyword_color}66` }
+                    : undefined
+                }
+                className={cn(
+                  "flex w-full items-center justify-between gap-2 rounded-lg border px-4 py-3 text-left text-sm transition-all",
+                  acquired
+                    ? "border-border bg-card/60 opacity-[0.35]"
+                    : locked
+                      ? "border-dashed border-border bg-card/40 text-muted-foreground"
+                      : "border-border bg-card hover:border-primary/40",
+                )}
+              >
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span className="flex items-center gap-2 font-medium">
+                    {locked ? <Lock className="size-3.5 shrink-0" /> : "🎯"} {gift?.name ?? item.gift_id}
+                    {!item.required && (
+                      <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                        옵션
+                      </Badge>
+                    )}
+                  </span>
+                  <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+                    {gift?.keyword_type && (
+                      <span
+                        className="rounded px-1.5 py-0.5 text-[10px] font-medium"
+                        style={{ backgroundColor: `${gift.keyword_color}22`, color: gift.keyword_color }}
+                      >
+                        {gift.keyword_type}
+                      </span>
+                    )}
+                    <Badge variant="outline" className="text-[10px]">
+                      {targetDepth}층 목표
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px]">
+                      {DIFFICULTY_LABEL[actualDiff]}
+                    </Badge>
+                    {locked && (
+                      <span className="text-[10px] text-amber-400">{blockerNames} 먼저 필요</span>
+                    )}
+                  </span>
+                </span>
+                {acquired ? (
+                  <Badge variant="success" className="shrink-0 gap-1">
+                    <Check className="size-3" /> 획득
+                  </Badge>
+                ) : locked ? (
+                  <Badge variant="outline" className="shrink-0 gap-1">
+                    <Lock className="size-3" /> 잠금
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="shrink-0">
+                    미획득
                   </Badge>
                 )}
-              </span>
-              <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-                {gift?.keyword_type && (
-                  <span
-                    className="rounded px-1.5 py-0.5 text-[10px] font-medium"
-                    style={{ backgroundColor: `${gift.keyword_color}22`, color: gift.keyword_color }}
-                  >
-                    {gift.keyword_type}
-                  </span>
-                )}
-                <Badge variant="outline" className="text-[10px]">
-                  {item.floor_target}층 목표
-                </Badge>
-                <Badge variant="outline" className="text-[10px]">
-                  {DIFFICULTY_LABEL[item.difficulty]}
-                </Badge>
-                {locked && (
-                  <span className="text-[10px] text-amber-400">{blockerNames} 먼저 필요</span>
-                )}
-              </span>
-            </span>
-            {acquired ? (
-              <Badge variant="success" className="shrink-0 gap-1">
-                <Check className="size-3" /> 획득
-              </Badge>
-            ) : locked ? (
-              <Badge variant="outline" className="shrink-0 gap-1">
-                <Lock className="size-3" /> 잠금
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="shrink-0">
-                미획득
-              </Badge>
-            )}
-          </button>
-        );
-      })}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
