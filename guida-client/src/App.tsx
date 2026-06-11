@@ -7,9 +7,10 @@ import { BaseScreen } from "@/pages/BaseScreen";
 import { PlayScreen } from "@/pages/PlayScreen";
 import { BackupScreen } from "@/pages/BackupScreen";
 import { FirstRunNotice } from "@/components/common/FirstRunNotice";
+import { UpdateGate } from "@/components/common/UpdateGate";
 
 export default function App() {
-  const { ready, bootError, bootstrap } = useAppStore();
+  const { ready, bootError, bootstrap, update } = useAppStore();
   const location = useLocation();
   const isOverlay = location.pathname === "/overlay";
 
@@ -39,6 +40,16 @@ export default function App() {
           <p className="text-sm">Guida 초기화 중…</p>
         </div>
       </div>
+    );
+  }
+
+  // 강제 업데이트가 필요하면 본화면 대신 게이트만 노출한다.
+  if (update.required) {
+    return (
+      <>
+        <UpdateGate />
+        <Toaster />
+      </>
     );
   }
 

@@ -1,5 +1,6 @@
 {
   "current_patch": "2.7",
+  "min_app_version": "0.1.0",
   "dungeon_season": 7,
   "dungeon_name": "이름과 거미의 거울",
   "updated_at": "2026-06-09"

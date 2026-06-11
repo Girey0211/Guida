@@ -9,6 +9,19 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_fs::init())
+        // 앱 자동 업데이트(서명 검증 후 설치) + 설치 후 재시작.
+        // 데스크톱 전용 플러그인이라 desktop 빌드에서만 등록한다.
+        .setup(|app| {
+            #[cfg(desktop)]
+            {
+                use tauri::Manager as _;
+                app.handle()
+                    .plugin(tauri_plugin_updater::Builder::new().build())?;
+                app.handle().plugin(tauri_plugin_process::init())?;
+            }
+            let _ = app;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             // 파일 시스템: %APPDATA%/Local/Guida/ 하위 JSON 읽기/쓰기
             gfs::read_data_file,

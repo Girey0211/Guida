@@ -26,13 +26,25 @@ export default async function gameDataRoutes(fastify: FastifyInstance) {
   const dataDir = process.env.DATA_DIR ?? resolve(process.cwd(), '../data');
 
   fastify.get('/api/game/patch', async (_req, reply) => {
+    // 최소 허용 앱 버전(강제 업데이트 비상 차단선)을 config 에서 우선 조회한다.
+    // 없으면 JSON 파일의 min_app_version 으로 폴백한다.
+    let minAppVersion: string | undefined;
+    try {
+      const { rows } = await fastify.pg.query<{ value: string }>(
+        `SELECT value FROM config WHERE key = 'min_app_version'`,
+      );
+      if (rows[0]) minAppVersion = rows[0].value;
+    } catch (err) {
+      fastify.log.warn({ err }, 'config(min_app_version) 조회 실패, JSON 파일로 폴백');
+    }
+
     // 1순위: config 테이블의 current_patch
     try {
       const { rows } = await fastify.pg.query<{ value: string }>(
         `SELECT value FROM config WHERE key = 'current_patch'`,
       );
       if (rows[0]) {
-        return { patch_version: rows[0].value };
+        return { patch_version: rows[0].value, min_app_version: minAppVersion };
       }
     } catch (err) {
       fastify.log.warn({ err }, 'config 테이블 조회 실패, JSON 파일로 폴백');
@@ -41,10 +53,16 @@ export default async function gameDataRoutes(fastify: FastifyInstance) {
     // 2순위: data/patch_version.json
     try {
       const raw = await readFile(resolve(dataDir, 'patch_version.json'), 'utf-8');
-      const parsed = JSON.parse(raw) as { patch_version?: string; current_patch?: string };
+      const parsed = JSON.parse(raw) as {
+        patch_version?: string;
+        current_patch?: string;
+        min_app_version?: string;
+      };
       const patchVersion = parsed.patch_version ?? parsed.current_patch;
+      // config 값이 없으면 JSON 의 min_app_version 사용
+      if (minAppVersion === undefined) minAppVersion = parsed.min_app_version;
       if (patchVersion) {
-        return { patch_version: patchVersion };
+        return { patch_version: patchVersion, min_app_version: minAppVersion };
       }
       throw new Error('patch_version.json 에 패치 버전 필드가 없습니다.');
     } catch (err) {

@@ -34,6 +34,12 @@ rand = "0.8"
 ed25519-dalek = { version = "2.1.1", features = ["rand_core"] }
 base64 = "0.22.1"
 
+# 앱 자동 업데이트: 서명된 설치 파일을 받아 검증 후 설치하고(updater),
+# 설치 직후 앱을 재시작한다(process). 데스크톱 전용 플러그인이며 이 앱은
+# Windows(nsis) 타깃이라 별도 타깃 게이팅 없이 추가한다.
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
+
 [profile.release]
 panic = "abort"
 codegen-units = 1

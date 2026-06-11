@@ -9,9 +9,37 @@ import type { UserSettings } from "@/types/settings";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 import { ensureDeviceUuid, readJson, writeJson } from "@/lib/storage";
 import { syncGameData } from "@/api/gameData";
+import {
+  type AppUpdateInfo,
+  checkAppUpdate,
+  getCurrentAppVersion,
+} from "@/api/appUpdate";
+import { isBelowMinVersion } from "@/lib/version";
 import { usePlayStore } from "./playStore";
 
 const SETTINGS_FILE = "user_settings.json";
+
+/**
+ * 강제 업데이트 게이트 상태.
+ * `required` 가 true 면 본화면 진입을 막고 UpdateGate 만 렌더한다.
+ */
+export interface UpdateGateState {
+  /** 강제 업데이트가 필요한가 */
+  required: boolean;
+  /** 자동 설치 가능한 앱 업데이트 핸들(있으면 버튼으로 즉시 설치) */
+  appUpdate: AppUpdateInfo | null;
+  /**
+   * 자동 설치 핸들은 없지만 강제가 걸린 사유(예: 서버 min_app_version 미달인데
+   * 릴리스 매니페스트를 못 받음 → 수동 다운로드 안내). 없으면 null.
+   */
+  manualReason: string | null;
+}
+
+const NO_UPDATE: UpdateGateState = {
+  required: false,
+  appUpdate: null,
+  manualReason: null,
+};
 
 interface AppState {
   /** 부트스트랩 완료 여부 */
@@ -33,8 +61,10 @@ interface AppState {
   packs: Pack[];
   /** 기프트 순서 의존성 (플레이화면 🔒 선행조건 판정용) */
   dependencies: GiftDependency[];
+  /** 강제 업데이트 게이트 (앱 버전 / 림버스 패치 최신성) */
+  update: UpdateGateState;
 
-  /** 앱 초기 부팅: UUID 확보 → 설정 로드 → 게임 데이터 동기화 */
+  /** 앱 초기 부팅: UUID 확보 → 설정 로드 → 게임 데이터 동기화 → 업데이트 확인 */
   bootstrap: () => Promise<void>;
   /** 설정 일부 갱신 후 저장 */
   updateSettings: (patch: Partial<UserSettings>) => Promise<void>;
@@ -52,6 +82,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   gifts: [],
   packs: [],
   dependencies: [],
+  update: NO_UPDATE,
 
   bootstrap: async () => {
     try {
@@ -90,10 +121,33 @@ export const useAppStore = create<AppState>((set, get) => ({
         online = false;
       }
 
-      // 4. 설정 영구 저장 (current_patch 갱신 반영)
+      // 4. 앱 버전 확정 + 강제 업데이트 게이트 판정
+      //    - 림버스 패치: 위 syncGameData 가 online 일 때 항상 최신으로 재동기화
+      //      하므로 별도 강제 동작 불필요(오프라인이면 캐시로 동작).
+      //    - 가이다 앱: GitHub Releases 매니페스트(Tauri updater)로 판정하고,
+      //      서버 min_app_version 을 비상 차단선으로 함께 본다.
+      const appVersion = await getCurrentAppVersion(settings.app_version);
+      settings.app_version = appVersion;
+
+      let update: UpdateGateState = NO_UPDATE;
+      const appUpdate = await checkAppUpdate();
+      if (appUpdate) {
+        // (a) 설치 가능한 새 버전이 있으면 강제 업데이트(정책상 모든 업데이트 강제)
+        update = { required: true, appUpdate, manualReason: null };
+      } else if (isBelowMinVersion(appVersion, patch?.min_app_version)) {
+        // (b) 서버가 요구하는 최소 버전 미달인데 자동 설치 핸들이 없음
+        //     (릴리스 미게시/오프라인) → 수동 다운로드 안내로 강제 차단
+        update = {
+          required: true,
+          appUpdate: null,
+          manualReason: `현재 버전 v${appVersion} 은(는) 더 이상 지원되지 않습니다. 최신 버전(v${patch?.min_app_version} 이상)으로 업데이트해 주세요.`,
+        };
+      }
+
+      // 5. 설정 영구 저장 (current_patch / app_version 갱신 반영)
       await writeJson(SETTINGS_FILE, settings);
 
-      // 5. 플레이 세션 복원
+      // 6. 플레이 세션 복원
       const session = await readJson<any>("play_session.json", null);
       if (session) {
         usePlayStore.getState().restoreSession(session);
@@ -109,6 +163,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         packs,
         dependencies,
         online,
+        update,
         ready: true,
         bootError: null,
       });
