@@ -40,7 +40,7 @@ services:
       # 게임 데이터 JSON — 패치마다 호스트에서 교체 후 server 재시작
       - ./data:/app/data:ro
     ports:
-      # Nginx 를 통해서만 노출. 호스트 127.0.0.1 에만 바인딩.
+      # 외부 직접 접근 미사용. Nginx 를 통해서만 노출되므로 127.0.0.1 바인딩 유지.
       - "127.0.0.1:${SERVER_PORT:-3000}:3000"
 
   nginx:
@@ -49,8 +49,11 @@ services:
     depends_on:
       - server
     ports:
-      - "80:80"
-      - "443:443"
+      # ISP가 80 포트를 차단하는 경우가 많아 8080 외부 포트를 사용.
+      # 공유기 포트포워딩: TCP 8080 → 192.168.0.193:8080
+      - "8080:80"
+      # HTTPS는 현재 미사용 (인증서 필요 시 활성화)
+      # - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 

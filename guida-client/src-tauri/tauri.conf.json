@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Guida",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "identifier": "com.guida.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -39,7 +39,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost https://raw.githubusercontent.com https://*.cloudflare.com data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost https://raw.githubusercontent.com https://*.cloudflare.com"
+      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost https://raw.githubusercontent.com https://*.cloudflare.com data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost https://raw.githubusercontent.com https://*.cloudflare.com http://girey0211.kro.kr:8080 http://localhost:8080 http://localhost:3000"
     }
   },
   "plugins": {
@@ -55,7 +55,7 @@
   },
   "bundle": {
     "active": true,
-    "createUpdaterArtifacts": true,
+    "createUpdaterArtifacts": false,
     "targets": [
       "nsis"
     ],
