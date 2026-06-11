@@ -1,51 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /*
- * Guida 디자인 시스템 (README §12) — Charcoal Black 다크 전용 팔레트.
- * 라이트 모드는 제공하지 않으며, 모든 토큰은 다크 기준 단일 정의다.
- * 원본 Hex → HSL 변환값을 사용한다.
+ * Guida 디자인 시스템 — Web 버전 스타일 매칭 테마 (Deep Abyss + Dawn Gold).
  */
 @layer base {
   :root {
-    /* Deep Abyss #121315 — 메인 배경 */
-    --background: 220 8% 8%;
-    /* Ash White #E1E4E6 — 본문/헤드라인 */
-    --foreground: 204 9% 89%;
+    /* Deep Abyss #0a0c10 — 메인 배경 */
+    --background: 220 24% 5%;
+    /* Ash White #f3f4f6 — 본문/헤드라인 */
+    --foreground: 220 14% 96%;
 
-    /* Card Surface #25282C — 카드/팝업/입력창 */
-    --card: 214 9% 16%;
-    --card-foreground: 204 9% 89%;
-    --popover: 214 9% 16%;
-    --popover-foreground: 204 9% 89%;
+    /* Card Surface #11141c — 카드/팝업/입력창 */
+    --card: 224 24% 9%;
+    --card-foreground: 220 14% 96%;
+    --popover: 224 24% 9%;
+    --popover-foreground: 220 14% 96%;
 
-    /* Charcoal Black #1C1E21 — 로고/네비게이션 바 */
-    --brand: 216 8% 12%;
-    --brand-foreground: 204 9% 89%;
+    /* Brand / Header #0a0c10 */
+    --brand: 220 24% 5%;
+    --brand-foreground: 220 14% 96%;
 
-    /* Flame Amber #E67E22 — 활성 상태/CTA/하이라이트 */
-    --primary: 28 80% 52%;
-    --primary-foreground: 216 10% 10%;
+    /* Dawn Gold #e6a100 — 활성 상태/CTA/하이라이트 */
+    --primary: 42 100% 45%;
+    --primary-foreground: 220 24% 5%;
 
-    /* 보조 버튼/표면 (Card Surface 계열) */
-    --secondary: 214 9% 16%;
-    --secondary-foreground: 204 9% 89%;
+    /* 보조 버튼/표면 */
+    --secondary: 224 24% 12%;
+    --secondary-foreground: 220 14% 96%;
 
-    /* Muted Slate #90969D — 힌트/부제목/비활성 */
-    --muted: 216 8% 14%;
-    --muted-foreground: 212 6% 59%;
+    /* Muted Slate */
+    --muted: 224 24% 8%;
+    --muted-foreground: 220 10% 65%;
 
-    /* 중립 호버 표면 (ghost/outline hover 등) */
-    --accent: 214 8% 22%;
-    --accent-foreground: 204 9% 89%;
+    /* 중립 호버 표면 */
+    --accent: 224 24% 15%;
+    --accent-foreground: 220 14% 96%;
 
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 215 8% 22%;
-    --input: 215 8% 24%;
-    --ring: 28 80% 52%;
+    --border: 220 10% 12%;
+    --input: 220 10% 15%;
+    --ring: 42 100% 45%;
     --radius: 0.6rem;
   }
 
@@ -55,8 +55,9 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Pretendard", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+    font-family: "Outfit", "Inter", "Noto Sans KR", system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
   /* 오버레이 창은 투명 배경 */
@@ -76,3 +77,63 @@
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* Glassmorphic Card 및 Glow Hover 전역 규칙 */
+.bg-card {
+  background-color: rgba(17, 20, 28, 0.65) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-card:hover {
+  background-color: rgba(26, 31, 42, 0.85) !important;
+  border-color: rgba(230, 161, 0, 0.3) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+}
+
+/* Dynamic Ambient Glows (웹버전 스타일 장식) */
+.ambient-glow-1 {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(230, 161, 0, 0.12) 0%, rgba(0, 0, 0, 0) 75%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ambient-glow-2 {
+  position: absolute;
+  top: 40%;
+  right: -10%;
+  width: 45vw;
+  height: 45vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.06) 0%, rgba(0, 0, 0, 0) 75%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ambient-glow-3 {
+  position: absolute;
+  bottom: -5%;
+  left: 20%;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(0, 0, 0, 0) 75%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 그라데이션 및 부가 스타일 토큰 */
+.text-gradient-dawn {
+  background: linear-gradient(120deg, #e6a100 0%, #ff4b2b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+

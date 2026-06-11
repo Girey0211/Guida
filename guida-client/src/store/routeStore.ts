@@ -37,6 +37,8 @@ interface RouteState {
   verifyRoute: (localId: string) => Promise<void>;
   /** 루트 공유 → 6자리 코드 발급받아 로컬에 반영 */
   shareRoute: (localId: string) => Promise<string>;
+  /** 가져온 루트 서버 버전 동기화 */
+  syncRoute: (localId: string) => Promise<void>;
 
   /** 허브 전체 루트 로드 */
   loadHub: () => Promise<void>;
@@ -221,5 +223,35 @@ export const useRouteStore = create<RouteState>((set, get) => ({
     set({ myRoutes: next });
     await persist(next);
     return local;
+  },
+
+  syncRoute: async (localId) => {
+    const route = get().myRoutes.find((r) => r.local_id === localId);
+    if (!route) throw new Error("루트를 찾을 수 없습니다.");
+    const code = route.imported_from;
+    if (!code) throw new Error("가져온 루트가 아닙니다.");
+
+    const shared = await routesApi.getRouteByCode(code);
+    const next = get().myRoutes.map((r) =>
+      r.local_id === localId
+        ? {
+            ...r,
+            name: shared.name,
+            patch_version: shared.patch_version,
+            difficulty_tag: shared.difficulty_tag,
+            route_type: shared.route_type,
+            difficulty_mode: shared.difficulty_mode,
+            difficulty_switch_floor: shared.difficulty_switch_floor,
+            target_rewards: shared.target_rewards,
+            floors: shared.floors,
+            memo: shared.memo,
+            gift_order: shared.gift_order,
+            pack_order: shared.pack_order,
+            verified_method: shared.verified_method,
+          }
+        : r,
+    );
+    set({ myRoutes: next });
+    await persist(next);
   },
 }));

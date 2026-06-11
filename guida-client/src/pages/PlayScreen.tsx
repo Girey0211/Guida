@@ -74,9 +74,24 @@ export function PlayScreen() {
   };
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="relative flex h-screen flex-col overflow-hidden bg-background">
+      {/* 백그라운드 앰비언트 글로우 데코 */}
+      <div className="ambient-glow-1"></div>
+      <div className="ambient-glow-2"></div>
+      <div className="ambient-glow-3"></div>
+
+      {/* SVG 그라데이션 선언 (Lucide 아이콘 적용용) */}
+      <svg width="0" height="0" style={{ position: "absolute" }}>
+        <defs>
+          <linearGradient id="dawn-grad-svg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f39c12" />
+            <stop offset="100%" stopColor="#ff4b2b" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       {/* 상단 컨트롤바 (Charcoal Black) */}
-      <header className="flex shrink-0 items-center gap-2 border-b border-border bg-brand px-3 py-2">
+      <header className="z-10 flex shrink-0 items-center gap-2 border-b border-border bg-brand/75 backdrop-blur-md px-3 py-2">
         <Button
           size="icon"
           variant="ghost"
@@ -112,7 +127,7 @@ export function PlayScreen() {
       </header>
 
       {/* 탭 네비게이션 */}
-      <nav className="flex shrink-0 gap-1 border-b border-border bg-brand/60 px-3">
+      <nav className="z-10 flex shrink-0 gap-1 border-b border-border bg-brand/40 backdrop-blur-md px-3">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -131,7 +146,7 @@ export function PlayScreen() {
       </nav>
 
       {/* 탭 콘텐츠 */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="z-10 flex-1 overflow-y-auto">
         {!route ? (
           <p className="py-12 text-center text-sm text-muted-foreground">
             활성 루트를 찾을 수 없습니다. 탐사를 종료해 주세요.
