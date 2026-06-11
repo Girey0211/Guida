@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/toast";
+import { cn, getGiftColor } from "@/lib/utils";
 
 type PlayTab = "packs" | "gifts";
 
@@ -36,7 +37,7 @@ export function PlayScreen() {
   const [tab, setTab] = useState<PlayTab>("packs");
 
   const { gifts, packs, dependencies } = useAppStore();
-  const { myRoutes, loadMyRoutes } = useRouteStore();
+  const { myRoutes, loadMyRoutes, verifyRoute } = useRouteStore();
   const { sessionId, activeRouteId, switchRoute, endSession } = usePlayStore();
 
   useEffect(() => {
@@ -58,6 +59,16 @@ export function PlayScreen() {
 
   const handleEnd = () => {
     if (!confirm("거던 탐사를 종료할까요? 진행 데이터는 초기화됩니다.")) return;
+    endSession();
+    navigate("/");
+  };
+
+  const handleComplete = async () => {
+    if (!confirm("거던 탐사를 완료하셨습니까? 이 루트를 검증(실제 플레이 완료) 상태로 표시합니다.")) return;
+    if (activeRouteId) {
+      await verifyRoute(activeRouteId);
+      toast.success("탐사가 완료되어 루트가 검증되었습니다!");
+    }
     endSession();
     navigate("/");
   };
@@ -89,7 +100,12 @@ export function PlayScreen() {
           ))}
         </Select>
 
-        <Button size="sm" variant="default" onClick={handleEnd} className="ml-auto">
+        <Button size="sm" variant="default" onClick={handleComplete} className="ml-auto">
+          <Check className="size-4" />
+          탐사 완료
+        </Button>
+
+        <Button size="sm" variant="outline" onClick={handleEnd}>
           <LogOut className="size-4" />
           탐사 종료
         </Button>
@@ -284,8 +300,8 @@ function GiftsTab({
   const targetDepth = routeTargetDepth;
   const actualDiff = (() => {
     if (targetDepth >= 11) return "extreme";
+    if (routeSwitchFloor != null) return targetDepth >= routeSwitchFloor ? "hard" : "normal";
     if (routeMode === "hard" || routeMode === "extreme") return "hard";
-    if (routeSwitchFloor != null && targetDepth >= routeSwitchFloor) return "hard";
     return "normal";
   })();
 
@@ -362,7 +378,7 @@ function GiftsTab({
           조건에 맞는 목표 에고기프트가 없습니다.
         </p>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {ordered.map((item) => {
             const gift = giftById.get(item.gift_id);
             const acquired = acquiredGifts.includes(item.gift_id);
@@ -371,66 +387,76 @@ function GiftsTab({
             const blockerNames = blockers
               .map((e) => giftById.get(e.target.gift_id)?.name ?? e.target.gift_id)
               .join(", ");
+            const attributeColor = getGiftColor(gift?.keyword_type);
             return (
               <button
                 key={item.gift_id}
                 onClick={() => toggleGift(item.gift_id)}
-                style={
-                  !acquired && !locked && gift?.keyword_color
-                    ? { borderColor: `${gift.keyword_color}66` }
-                    : undefined
-                }
+                title={gift?.effect}
                 className={cn(
-                  "flex w-full items-center justify-between gap-2 rounded-lg border px-4 py-3 text-left text-sm transition-all",
+                  "group relative flex flex-col overflow-hidden rounded-lg border transition-all text-left bg-card",
                   acquired
-                    ? "border-border bg-card/60 opacity-[0.35]"
+                    ? "border-border opacity-[0.4]"
                     : locked
-                      ? "border-dashed border-border bg-card/40 text-muted-foreground"
-                      : "border-border bg-card hover:border-primary/40",
+                      ? "border-dashed border-border text-muted-foreground bg-card/40"
+                      : "border-border hover:border-primary/40 hover:scale-[1.02]",
                 )}
               >
-                <span className="flex min-w-0 flex-col gap-1">
-                  <span className="flex items-center gap-2 font-medium">
-                    {locked ? <Lock className="size-3.5 shrink-0" /> : "🎯"} {gift?.name ?? item.gift_id}
-                    {!item.required && (
-                      <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                        옵션
+                {/* Colored Box Placeholder as Image */}
+                <div 
+                  className="h-20 w-full relative flex items-center justify-center text-xs font-bold text-white/90 shadow-inner"
+                  style={{ backgroundColor: attributeColor }}
+                >
+                  <span>{gift?.keyword_type || "일반"}</span>
+                  
+                  {/* Status Overlay Badge on the top-right corner of the image */}
+                  <div className="absolute right-1.5 top-1.5 flex gap-1">
+                    {acquired ? (
+                      <Badge variant="success" className="h-5 px-1.5 text-[9px] rounded gap-0.5">
+                        <Check className="size-2.5" /> 획득
+                      </Badge>
+                    ) : locked ? (
+                      <Badge variant="outline" className="h-5 px-1.5 text-[9px] rounded gap-0.5 bg-black/65 text-white border-none">
+                        <Lock className="size-2.5" /> 잠금
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="h-5 px-1.5 text-[9px] rounded bg-black/45 text-white border-none">
+                        미획득
                       </Badge>
                     )}
+                  </div>
+                </div>
+
+                {/* Info Container below */}
+                <div className="flex-1 flex flex-col p-2.5 justify-between min-h-[78px] gap-1 w-full">
+                  <span className="font-semibold text-xs line-clamp-2 leading-tight text-foreground" title={gift?.name ?? item.gift_id}>
+                    {gift?.name ?? item.gift_id}
                   </span>
-                  <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-                    {gift?.keyword_type && (
-                      <span
-                        className="rounded px-1.5 py-0.5 text-[10px] font-medium"
-                        style={{ backgroundColor: `${gift.keyword_color}22`, color: gift.keyword_color }}
-                      >
-                        {gift.keyword_type}
+                  
+                  <div className="flex flex-col gap-1 mt-auto w-full">
+                    {/* Optional or required badge */}
+                    <div className="flex flex-wrap gap-1 items-center">
+                      {!item.required && (
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                          옵션
+                        </span>
+                      )}
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                        {targetDepth}층 목표
+                      </span>
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                        {DIFFICULTY_LABEL[actualDiff]}
+                      </span>
+                    </div>
+
+                    {/* Blocker text if locked */}
+                    {locked && (
+                      <span className="text-[9px] leading-tight text-amber-500 line-clamp-1" title={`${blockerNames} 먼저 필요`}>
+                        🔒 {blockerNames} 필요
                       </span>
                     )}
-                    <Badge variant="outline" className="text-[10px]">
-                      {targetDepth}층 목표
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px]">
-                      {DIFFICULTY_LABEL[actualDiff]}
-                    </Badge>
-                    {locked && (
-                      <span className="text-[10px] text-amber-400">{blockerNames} 먼저 필요</span>
-                    )}
-                  </span>
-                </span>
-                {acquired ? (
-                  <Badge variant="success" className="shrink-0 gap-1">
-                    <Check className="size-3" /> 획득
-                  </Badge>
-                ) : locked ? (
-                  <Badge variant="outline" className="shrink-0 gap-1">
-                    <Lock className="size-3" /> 잠금
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="shrink-0">
-                    미획득
-                  </Badge>
-                )}
+                  </div>
+                </div>
               </button>
             );
           })}
@@ -548,33 +574,47 @@ function PacksTab({
               )}
               {/* 전용 기프트 목록 표시 */}
               {exclusiveGiftsInRoute.length > 0 && (
-                <div className="mt-2 space-y-1.5 pl-5 border-t border-border/40 pt-2 w-full">
-                  {exclusiveGiftsInRoute.map((eg) => {
-                    const acquired = acquiredGifts.includes(eg.id);
-                    return (
-                      <div key={eg.id} className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <span>🎯 전용 기프트:</span>
-                        <span
-                          className="rounded px-1 py-0.25 text-[9px] font-medium text-white"
-                          style={{ backgroundColor: eg.keyword_color }}
+                <div className="mt-2 pl-5 border-t border-border/40 pt-2 w-full flex flex-col gap-1.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1">🎯 전용 기프트 목표:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {exclusiveGiftsInRoute.map((eg) => {
+                      const acquired = acquiredGifts.includes(eg.id);
+                      const attributeColor = getGiftColor(eg.keyword_type);
+                      return (
+                        <div
+                          key={eg.id}
+                          className={cn(
+                            "relative flex flex-col overflow-hidden rounded border text-left bg-card w-16 h-20 transition-all",
+                            acquired
+                              ? "border-border opacity-[0.4]"
+                              : "border-border"
+                          )}
                         >
-                          {eg.keyword_type}
-                        </span>
-                        <span className={cn("font-medium text-foreground", acquired && "text-muted-foreground/60 line-through")}>
-                          {eg.name}
-                        </span>
-                        {acquired ? (
-                          <Badge variant="success" className="h-4 px-1 text-[8px] rounded gap-0.5">
-                            <Check className="size-2" /> 획득
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="h-4 px-1 text-[8px] rounded border-amber-500/50 text-amber-500 bg-amber-500/5">
-                            미획득
-                          </Badge>
-                        )}
-                      </div>
-                    );
-                  })}
+                          {/* Mini Colored Box Placeholder */}
+                          <div 
+                            className="h-8 w-full relative flex items-center justify-center text-[8px] font-bold text-white/90 shadow-inner"
+                            style={{ backgroundColor: attributeColor }}
+                          >
+                            <span>{eg.keyword_type || "일반"}</span>
+                            
+                            {/* Checkmark overlay if acquired */}
+                            {acquired && (
+                              <div className="absolute right-0.5 top-0.5 bg-success/80 text-success-foreground rounded p-0.5 flex items-center justify-center">
+                                <Check className="size-2" />
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Name section */}
+                          <div className="flex-1 flex flex-col p-1 justify-between min-h-[36px] gap-0.5 bg-background/20">
+                            <span className="font-medium text-[9px] line-clamp-2 leading-none text-foreground" title={eg.name}>
+                              {eg.name}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </button>

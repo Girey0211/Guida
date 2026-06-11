@@ -108,3 +108,18 @@ export async function ensureDeviceUuid(): Promise<string> {
   localStorage.setItem(UUID_SIG_KEY, signUuid(uuid));
   return uuid;
 }
+
+/**
+ * 디바이스 UUID를 강제로 재발급하고 저장한다.
+ */
+export async function resetDeviceUuid(): Promise<string> {
+  if (isTauri()) {
+    return invoke<string>("reset_device_uuid");
+  }
+
+  const uuid = generateUuid();
+  localStorage.setItem(UUID_KEY, uuid);
+  localStorage.setItem(UUID_SIG_KEY, signUuid(uuid));
+  return uuid;
+}
+

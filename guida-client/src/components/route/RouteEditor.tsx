@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Plus, Save, X, Check } from "lucide-react";
+import { Plus, Save, X, Check, ChevronDown, ChevronUp } from "lucide-react";
 import type {
   DifficultyMode,
   DifficultyTag,
@@ -17,7 +17,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GiftPickerPanel } from "@/components/route/GiftPickerPanel";
-import { cn } from "@/lib/utils";
+import { cn, getGiftColor } from "@/lib/utils";
 
 interface Props {
   /** 편집 시 초기값 (없으면 새 루트) */
@@ -165,6 +165,7 @@ export function RouteEditor({
   const [selfReported, setSelfReported] = useState(initialSelfReported);
   const [error, setError] = useState<string | null>(null);
   const [giftPickerOpen, setGiftPickerOpen] = useState(false);
+  const [giftsCardOpen, setGiftsCardOpen] = useState(true);
   const [openPackBucket, setOpenPackBucket] = useState<string | null>(null);
 
   const { dependencies } = useAppStore();
@@ -644,33 +645,83 @@ export function RouteEditor({
       </div>
 
       {/* 목표 에고기프트 (순서 무관) */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>목표 에고기프트</Label>
-          <Button type="button" variant="outline" size="sm" onClick={() => setGiftPickerOpen(true)}>
-            <Plus className="size-3.5" />
-            기프트 추가
-          </Button>
+      <div className="rounded-lg border border-border bg-card shadow-sm">
+        <div 
+          className="flex cursor-pointer items-center justify-between p-4"
+          onClick={() => setGiftsCardOpen(!giftsCardOpen)}
+        >
+          <div className="flex items-center gap-2">
+            <Label className="text-sm font-semibold cursor-pointer">목표 에고기프트</Label>
+            {draft.gift_order.length > 0 && (
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                선택 {draft.gift_order.length}개
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            <Button type="button" variant="outline" size="sm" onClick={() => setGiftPickerOpen(true)}>
+              <Plus className="size-3.5" />
+              기프트 추가
+            </Button>
+            <button
+              type="button"
+              className="p-1 hover:bg-muted rounded text-muted-foreground flex items-center justify-center transition-colors"
+              onClick={() => setGiftsCardOpen(!giftsCardOpen)}
+            >
+              {giftsCardOpen ? (
+                <ChevronUp className="size-4" />
+              ) : (
+                <ChevronDown className="size-4" />
+              )}
+            </button>
+          </div>
         </div>
-        {draft.gift_order.length === 0 ? (
-          <p className="text-xs text-muted-foreground">획득을 목표로 하는 기프트를 추가하세요 (순서 무관).</p>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {draft.gift_order.map((g) => {
-              const gift = giftById.get(g.gift_id);
-              return (
-                <span
-                  key={g.gift_id}
-                  className="flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs"
-                  style={gift?.keyword_color ? { borderColor: `${gift.keyword_color}66` } : undefined}
-                >
-                  {gift?.name ?? g.gift_id}
-                  <button type="button" onClick={() => removeGift(g.gift_id)} title="제거">
-                    <X className="size-3 text-muted-foreground hover:text-destructive" />
-                  </button>
-                </span>
-              );
-            })}
+        {giftsCardOpen && (
+          <div className="border-t border-border p-4">
+            {draft.gift_order.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-2">획득을 목표로 하는 기프트를 추가하세요 (순서 무관).</p>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                {draft.gift_order.map((g) => {
+                  const gift = giftById.get(g.gift_id);
+                  const attributeColor = getGiftColor(gift?.keyword_type);
+                  return (
+                    <div
+                      key={g.gift_id}
+                      className="group relative flex flex-col overflow-hidden rounded-md border border-border bg-muted/20 hover:border-primary/40 transition-colors"
+                    >
+                      {/* Placeholder Image (Solid Box of attribute color) */}
+                      <div 
+                        className="h-16 w-full flex items-center justify-center text-[10px] font-bold text-white/90 shadow-inner"
+                        style={{ backgroundColor: attributeColor }}
+                      >
+                        {gift?.keyword_type || "일반"}
+                      </div>
+                      {/* Gift name & grade */}
+                      <div className="flex flex-col p-1.5 min-h-[48px] justify-between">
+                        <span className="text-[11px] font-medium line-clamp-2 leading-tight text-foreground" title={gift?.name ?? g.gift_id}>
+                          {gift?.name ?? g.gift_id}
+                        </span>
+                        {gift?.grade && (
+                          <span className="text-[9px] text-muted-foreground mt-0.5">
+                            {gift.grade}등급
+                          </span>
+                        )}
+                      </div>
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={() => removeGift(g.gift_id)}
+                        title="제거"
+                        className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 hover:bg-destructive hover:scale-105 transition-all"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>

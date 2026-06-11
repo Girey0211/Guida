@@ -174,3 +174,26 @@ fn ensure_uuid_file_only(
     write_settings_uuid(&app, &mut settings, &new_uuid)?;
     Ok(new_uuid)
 }
+
+/// 디바이스 UUID를 강제로 새로 발급하고 보호 저장소 및 user_settings.json에 동기화한다.
+#[tauri::command]
+pub fn reset_device_uuid(app: tauri::AppHandle) -> Result<String, String> {
+    let new_uuid = uuid::Uuid::new_v4().to_string();
+    let existing = read_data_file(app.clone(), SETTINGS_FILE.into())?;
+
+    let mut settings: Value = match existing {
+        Some(raw) if !raw.trim().is_empty() => {
+            serde_json::from_str(&raw).unwrap_or_else(|_| Value::Object(Default::default()))
+        }
+        _ => Value::Object(Default::default()),
+    };
+
+    // OS 보호 저장소 덮어쓰기 (best-effort)
+    keychain_write(&new_uuid);
+
+    // user_settings.json 파일에 서명과 함께 기록
+    write_settings_uuid(&app, &mut settings, &new_uuid)?;
+
+    Ok(new_uuid)
+}
+

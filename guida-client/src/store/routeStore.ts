@@ -33,6 +33,8 @@ interface RouteState {
   updateRoute: (localId: string, draft: RouteDraft, selfReported: boolean) => Promise<void>;
   /** 루트 삭제 */
   deleteRoute: (localId: string) => Promise<void>;
+  /** 루트 검증 (탐사 완료 시 호출) */
+  verifyRoute: (localId: string) => Promise<void>;
   /** 루트 공유 → 6자리 코드 발급받아 로컬에 반영 */
   shareRoute: (localId: string) => Promise<string>;
 
@@ -94,6 +96,21 @@ export const useRouteStore = create<RouteState>((set, get) => ({
 
   deleteRoute: async (localId) => {
     const next = get().myRoutes.filter((r) => r.local_id !== localId);
+    set({ myRoutes: next });
+    await persist(next);
+  },
+
+  verifyRoute: async (localId) => {
+    const now = new Date().toISOString();
+    const next = get().myRoutes.map((r) =>
+      r.local_id === localId
+        ? {
+            ...r,
+            verified: true,
+            verified_at: r.verified_at ?? now,
+          }
+        : r,
+    );
     set({ myRoutes: next });
     await persist(next);
   },

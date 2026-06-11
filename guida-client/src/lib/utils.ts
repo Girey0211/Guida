@@ -51,3 +51,26 @@ export function patchDiff(a: string, b: string): number {
   // 0.1 단위 패치를 정수 거리로 환산
   return Math.round((pa - pb) * 10);
 }
+
+/** 에고 기프트 속성별 상징색 매핑 */
+export function getGiftColor(keyword: string | null | undefined): string {
+  switch (keyword) {
+    case "화상":
+      return "#cd594b";
+    case "출혈":
+      return "#CE7E4A";
+    case "진동":
+      return "#FFA31A";
+    case "파열":
+      return "#9CC751";
+    case "침잠":
+      return "#61A9B7";
+    case "호흡":
+      return "#3E96DB";
+    case "충전":
+      return "#9A6BAE";
+    default:
+      return "#90969D"; // 범용 색상
+  }
+}
+

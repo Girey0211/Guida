@@ -1,20 +1,28 @@
-import { Moon, RefreshCw, Copy, Check } from "lucide-react";
+import { Moon, RefreshCw, Copy, Check, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/appStore";
+import { usePlayStore } from "@/store/playStore";
+import { useRouteStore } from "@/store/routeStore";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
+import { resetDeviceUuid, writeJson } from "@/lib/storage";
+import { DEFAULT_SETTINGS } from "@/types/settings";
 
 /** 앱 설정 페이지 */
 export function Settings() {
   const navigate = useNavigate();
   const { settings, patch, online, updateSettings, bootstrap } = useAppStore();
+  const endSession = usePlayStore((s) => s.endSession);
+  const loadMyRoutes = useRouteStore((s) => s.loadMyRoutes);
   const [copied, setCopied] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const copyUuid = async () => {
     await navigator.clipboard.writeText(settings.uuid);
@@ -112,8 +120,110 @@ export function Settings() {
                 <Copy className="size-4 shrink-0 text-muted-foreground" />
               )}
             </button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={resetting}
+              onClick={() => setResetModalOpen(true)}
+              className="mt-2 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive w-full gap-1.5"
+            >
+              <RotateCcw className="size-4" />
+              디바이스 초기화
+            </Button>
           </CardContent>
         </Card>
+
+      {/* 초기화 확인 모달 */}
+      {resetModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <Card className="w-full max-w-md border border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                ⚠️ 디바이스 초기화 경고
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <p className="text-muted-foreground">
+                원하는 초기화 방식을 선택해 주세요.
+              </p>
+              <div className="rounded border border-destructive/20 bg-destructive/5 p-3 text-xs text-destructive-foreground space-y-1.5">
+                <p>
+                  <b>• UUID만 초기화:</b> 디바이스 UUID를 새로 발급합니다. 기존에 작성하거나 추천(좋아요)했던 루트의 소유권 연결이 끊어질 수 있습니다. (변조 시도 후 기능 차단 시 해제용)
+                </p>
+                <p>
+                  <b>• 전체 초기화:</b> 디바이스 UUID를 새로 발급하고, 저장된 모든 내 루트 목록 및 설정을 삭제하여 최초 설치 상태로 되돌립니다.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  disabled={resetting}
+                  onClick={async () => {
+                    setResetting(true);
+                    try {
+                      await resetDeviceUuid();
+                      await bootstrap();
+                      toast.success("디바이스 UUID를 초기화했습니다.");
+                      setResetModalOpen(false);
+                    } catch (e) {
+                      toast.error("UUID 초기화에 실패했습니다.");
+                    } finally {
+                      setResetting(false);
+                    }
+                  }}
+                >
+                  UUID만 초기화
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={resetting}
+                  onClick={async () => {
+                    setResetting(true);
+                    try {
+                      const nextUuid = await resetDeviceUuid();
+
+                      // 1. 내 루트 초기화
+                      await writeJson("my_routes.json", { routes: [] });
+
+                      // 2. 플레이 세션 초기화
+                      await writeJson("play_session.json", null);
+                      endSession();
+
+                      // 3. 설정 초기화
+                      const defaultSettings = {
+                        uuid: nextUuid,
+                        ...DEFAULT_SETTINGS,
+                      };
+                      await writeJson("user_settings.json", defaultSettings);
+
+                      // 4. 앱 부트스트랩 및 데이터 갱신
+                      await bootstrap();
+                      await loadMyRoutes();
+
+                      toast.success("모든 데이터를 초기화했습니다.");
+                      setResetModalOpen(false);
+                    } catch (e) {
+                      toast.error("데이터 전체 초기화에 실패했습니다.");
+                    } finally {
+                      setResetting(false);
+                    }
+                  }}
+                >
+                  전체 초기화 (UUID + 내 루트 + 설정)
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={resetting}
+                  onClick={() => setResetModalOpen(false)}
+                >
+                  취소
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
         {/* 백업 및 복구 */}
         <Card>

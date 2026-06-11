@@ -9,6 +9,7 @@ import type { UserSettings } from "@/types/settings";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 import { ensureDeviceUuid, readJson, writeJson } from "@/lib/storage";
 import { syncGameData } from "@/api/gameData";
+import { usePlayStore } from "./playStore";
 
 const SETTINGS_FILE = "user_settings.json";
 
@@ -91,6 +92,12 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       // 4. 설정 영구 저장 (current_patch 갱신 반영)
       await writeJson(SETTINGS_FILE, settings);
+
+      // 5. 플레이 세션 복원
+      const session = await readJson<any>("play_session.json", null);
+      if (session) {
+        usePlayStore.getState().restoreSession(session);
+      }
 
       set({
         uuid,

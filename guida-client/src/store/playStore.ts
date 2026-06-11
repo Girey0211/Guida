@@ -7,6 +7,7 @@
  */
 
 import { create } from "zustand";
+import { writeJson } from "@/lib/storage";
 
 /** 세션 ID 생성 (sess_YYYYMMDD_랜덤) */
 function newSessionId(): string {
@@ -32,13 +33,15 @@ interface PlayState {
   /** 플레이 중 루트를 변경한 시점의 층 (변경 없으면 null) */
   routeSwitchedAtFloor: number | null;
 
+  /** 세션 복원 (앱 구동 시 파일로부터 수신) */
+  restoreSession: (session: Partial<PlayState>) => void;
   /** 탐사 시작: 새 세션 생성 후 진행 데이터 초기화 */
   startSession: (routeId: string) => void;
   /** 탐사 종료: 세션/진행 데이터 모두 초기화 */
   endSession: () => void;
   /**
    * 플레이 중 루트 변경 (§11.4).
-   * 획득/방문 완료 데이터는 보존하고 변경 시점 층만 기록한다.
+   * 획득/방문 데이터는 보존하고 변경 시점 층만 기록한다.
    */
   switchRoute: (routeId: string) => void;
   /** 현재 층 설정 */
@@ -47,6 +50,29 @@ interface PlayState {
   toggleGift: (giftId: string) => void;
   /** 팩 방문 여부 토글 (pack_id) */
   togglePack: (packId: string) => void;
+}
+
+function saveSession(state: {
+  sessionId: string | null;
+  activeRouteId: string | null;
+  startedAt: string | null;
+  currentFloor: number;
+  acquiredGifts: string[];
+  visitedPacks: string[];
+  routeSwitchedAtFloor: number | null;
+}) {
+  const data = state.sessionId
+    ? {
+        sessionId: state.sessionId,
+        activeRouteId: state.activeRouteId,
+        startedAt: state.startedAt,
+        currentFloor: state.currentFloor,
+        acquiredGifts: state.acquiredGifts,
+        visitedPacks: state.visitedPacks,
+        routeSwitchedAtFloor: state.routeSwitchedAtFloor,
+      }
+    : null;
+  void writeJson("play_session.json", data);
 }
 
 export const usePlayStore = create<PlayState>((set) => ({
@@ -58,8 +84,19 @@ export const usePlayStore = create<PlayState>((set) => ({
   visitedPacks: [],
   routeSwitchedAtFloor: null,
 
-  startSession: (routeId) =>
+  restoreSession: (session) =>
     set({
+      sessionId: session.sessionId ?? null,
+      activeRouteId: session.activeRouteId ?? null,
+      startedAt: session.startedAt ?? null,
+      currentFloor: session.currentFloor ?? 1,
+      acquiredGifts: session.acquiredGifts ?? [],
+      visitedPacks: session.visitedPacks ?? [],
+      routeSwitchedAtFloor: session.routeSwitchedAtFloor ?? null,
+    }),
+
+  startSession: (routeId) => {
+    const next = {
       sessionId: newSessionId(),
       activeRouteId: routeId,
       startedAt: new Date().toISOString(),
@@ -67,10 +104,13 @@ export const usePlayStore = create<PlayState>((set) => ({
       acquiredGifts: [],
       visitedPacks: [],
       routeSwitchedAtFloor: null,
-    }),
+    };
+    set(next);
+    saveSession(next);
+  },
 
-  endSession: () =>
-    set({
+  endSession: () => {
+    const next = {
       sessionId: null,
       activeRouteId: null,
       startedAt: null,
@@ -78,28 +118,49 @@ export const usePlayStore = create<PlayState>((set) => ({
       acquiredGifts: [],
       visitedPacks: [],
       routeSwitchedAtFloor: null,
-    }),
+    };
+    set(next);
+    saveSession(next);
+  },
 
   switchRoute: (routeId) =>
-    set((s) => ({
-      activeRouteId: routeId,
-      // 획득/방문 데이터는 그대로 보존, 변경 시점 층만 기록
-      routeSwitchedAtFloor: s.currentFloor,
-    })),
+    set((s) => {
+      const next = {
+        ...s,
+        activeRouteId: routeId,
+        routeSwitchedAtFloor: s.currentFloor,
+      };
+      saveSession(next);
+      return {
+        activeRouteId: routeId,
+        routeSwitchedAtFloor: s.currentFloor,
+      };
+    }),
 
-  setFloor: (currentFloor) => set({ currentFloor }),
+  setFloor: (currentFloor) =>
+    set((s) => {
+      const next = { ...s, currentFloor };
+      saveSession(next);
+      return { currentFloor };
+    }),
 
   toggleGift: (giftId) =>
-    set((s) => ({
-      acquiredGifts: s.acquiredGifts.includes(giftId)
+    set((s) => {
+      const acquiredGifts = s.acquiredGifts.includes(giftId)
         ? s.acquiredGifts.filter((g) => g !== giftId)
-        : [...s.acquiredGifts, giftId],
-    })),
+        : [...s.acquiredGifts, giftId];
+      const next = { ...s, acquiredGifts };
+      saveSession(next);
+      return { acquiredGifts };
+    }),
 
   togglePack: (packId) =>
-    set((s) => ({
-      visitedPacks: s.visitedPacks.includes(packId)
+    set((s) => {
+      const visitedPacks = s.visitedPacks.includes(packId)
         ? s.visitedPacks.filter((p) => p !== packId)
-        : [...s.visitedPacks, packId],
-    })),
+        : [...s.visitedPacks, packId];
+      const next = { ...s, visitedPacks };
+      saveSession(next);
+      return { visitedPacks };
+    }),
 }));
