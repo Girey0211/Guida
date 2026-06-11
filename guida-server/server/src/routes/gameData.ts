@@ -19,6 +19,8 @@ const GAME_DATA_FILES: Record<string, string> = {
   dependencies: 'dependencies.json',
   // 시즌 메타: 시작 기프트 / 별의 가호 / EXTREME 제약 (README §8.5)
   dungeon_meta: 'dungeon_meta.json',
+  // 수감자 편성 데이터 (README §8.5)
+  prisoners: 'prisoners.json',
 };
 
 export default async function gameDataRoutes(fastify: FastifyInstance) {

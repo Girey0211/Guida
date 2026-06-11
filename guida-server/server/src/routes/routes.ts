@@ -123,6 +123,7 @@ const ROUTE_SELECT = `
     r.pack_order,
     r.memo,
     r.verified_method,
+    r.deck_code,
     r.uploaded_at,
     COALESCE(rs.likes, 0)      AS likes,
     COALESCE(rs.play_count, 0) AS play_count
@@ -238,6 +239,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       pack_order = [],
       memo = null,
       verified_method,
+      deck_code = null,
     } = body;
 
     // 필수 필드 검증
@@ -252,7 +254,8 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       !Array.isArray(floors) ||
       !Array.isArray(gift_order) ||
       !Array.isArray(pack_order) ||
-      !VALID_VERIFIED.includes(verified_method)
+      !VALID_VERIFIED.includes(verified_method) ||
+      (deck_code !== undefined && deck_code !== null && typeof deck_code !== 'string')
     ) {
       return reply.code(400).send({ error: '필수 필드가 누락되었거나 형식이 올바르지 않습니다.' });
     }
@@ -281,8 +284,8 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
             `INSERT INTO routes
                (route_code, name, patch_version, difficulty_tag, route_type,
                 difficulty_mode, difficulty_switch_floor, target_rewards, floors,
-                gift_order, pack_order, memo, verified_method, uploader_uuid)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+                gift_order, pack_order, memo, verified_method, uploader_uuid, deck_code)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
             [
               code,
               name,
@@ -298,6 +301,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
               memo,
               verified_method,
               uploaderUuid,
+              deck_code,
             ],
           );
           // 초기 통계 행 생성
@@ -355,6 +359,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         pack_order = [],
         memo = null,
         verified_method,
+        deck_code = null,
       } = body;
 
       // 필수 필드 검증 (업로드와 동일 규칙)
@@ -369,7 +374,8 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         !Array.isArray(floors) ||
         !Array.isArray(gift_order) ||
         !Array.isArray(pack_order) ||
-        !VALID_VERIFIED.includes(verified_method)
+        !VALID_VERIFIED.includes(verified_method) ||
+        (deck_code !== undefined && deck_code !== null && typeof deck_code !== 'string')
       ) {
         return reply.code(400).send({ error: '필수 필드가 누락되었거나 형식이 올바르지 않습니다.' });
       }
@@ -407,6 +413,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
            pack_order = $10,
            memo = $11,
            verified_method = $12,
+           deck_code = $13,
            uploaded_at = now()
          WHERE route_code = $1
          RETURNING route_code`,
@@ -423,6 +430,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
           JSON.stringify(pack_order),
           memo,
           verified_method,
+          deck_code,
         ],
       );
       if (!rows[0]) {

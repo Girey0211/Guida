@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS routes (
   pack_order              JSONB        NOT NULL DEFAULT '[]', -- 팩 방문 순서 [{ pack_id, floor, difficulty, priority, memo }]
   memo                    TEXT,                              -- 작성자 메모
   verified_method         VARCHAR(20)  NOT NULL,             -- self_report | ocr
+  deck_code               TEXT,                              -- 덱 공유 코드
   uploader_uuid           UUID         NOT NULL,             -- 업로드한 디바이스 UUID
   uploaded_at             TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
@@ -54,6 +55,7 @@ ALTER TABLE routes ADD COLUMN IF NOT EXISTS floors                  INT[]       
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS gift_order              JSONB        NOT NULL DEFAULT '[]';
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS pack_order              JSONB        NOT NULL DEFAULT '[]';
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS verified_method         VARCHAR(20)  NOT NULL DEFAULT 'self_report';
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS deck_code               TEXT;
 ALTER TABLE routes DROP COLUMN IF EXISTS steps;
 
 CREATE INDEX IF NOT EXISTS idx_routes_patch           ON routes (patch_version);

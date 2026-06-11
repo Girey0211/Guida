@@ -44,6 +44,7 @@ export interface Route {
   pack_order: PackOrderItem[];
   memo: string | null;
   verified_method: VerifiedMethod;
+  deck_code: string | null;
   uploaded_at: string;
   likes: number;
   play_count: number;
@@ -71,6 +72,7 @@ export interface UploadBody {
   pack_order?: PackOrderItem[];
   memo?: string;
   verified_method: VerifiedMethod;
+  deck_code?: string | null;
 }
 
 /** POST /api/routes/:code/like 요청 바디 */

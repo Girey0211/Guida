@@ -19,6 +19,7 @@ import type {
   GiftDependency,
   Pack,
   PatchInfo,
+  Sinner,
 } from "@/types/gameData";
 import { readJson, writeJson } from "@/lib/storage";
 
@@ -32,6 +33,7 @@ const DUNGEON_META_CACHE = "dungeon_meta.cache.json";
 const GIFTS_CACHE = "gifts.cache.json";
 const PACKS_CACHE = "packs.cache.json";
 const DEPENDENCIES_CACHE = "dependencies.cache.json";
+const PRISONERS_CACHE = "prisoners.cache.json";
 
 async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(`${DATA_BASE}/${path}`, { cache: "no-cache" });
@@ -61,6 +63,8 @@ export interface SyncResult {
   packs: Pack[];
   /** 기프트 순서 의존성 (플레이화면 🔒 선행조건 판정용, 없으면 빈 배열) */
   dependencies: GiftDependency[];
+  /** 수감자 편성 데이터 */
+  prisoners: Sinner[];
   /** 서버에서 새로 받았는지(true) 캐시 폴백인지(false) */
   fromNetwork: boolean;
 }
@@ -72,7 +76,7 @@ export interface SyncResult {
  */
 export async function syncGameData(): Promise<SyncResult> {
   try {
-    const [gameData, patch, dungeonMeta, gifts, packs, dependencies] = await Promise.all([
+    const [gameData, patch, dungeonMeta, gifts, packs, dependencies, prisoners] = await Promise.all([
       // 이벤트/선택지 가이드 데이터는 아직 미배포 → 없으면 null 로 폴백 (앱 부팅 비차단)
       fetchOptional<GameData | null>("game_data.json", null),
       fetchJson<PatchInfo>("patch_version.json"),
@@ -80,6 +84,7 @@ export async function syncGameData(): Promise<SyncResult> {
       fetchOptional<Gift[]>("gifts.json", []),
       fetchOptional<Pack[]>("packs.json", []),
       fetchOptional<GiftDependency[]>("dependencies.json", []),
+      fetchOptional<Sinner[]>("prisoners.json", []),
     ]);
     // 캐시 갱신
     await Promise.all([
@@ -89,8 +94,9 @@ export async function syncGameData(): Promise<SyncResult> {
       writeJson(GIFTS_CACHE, gifts),
       writeJson(PACKS_CACHE, packs),
       writeJson(DEPENDENCIES_CACHE, dependencies),
+      writeJson(PRISONERS_CACHE, prisoners),
     ]);
-    return { gameData, patch, dungeonMeta, gifts, packs, dependencies, fromNetwork: true };
+    return { gameData, patch, dungeonMeta, gifts, packs, dependencies, prisoners, fromNetwork: true };
   } catch (err) {
     console.warn("[gameData] 네트워크 동기화 실패 — 로컬 캐시 폴백 시도", err);
     const gameData = await readJson<GameData | null>(GAME_DATA_CACHE, null);
@@ -99,9 +105,10 @@ export async function syncGameData(): Promise<SyncResult> {
     const gifts = await readJson<Gift[]>(GIFTS_CACHE, []);
     const packs = await readJson<Pack[]>(PACKS_CACHE, []);
     const dependencies = await readJson<GiftDependency[]>(DEPENDENCIES_CACHE, []);
+    const prisoners = await readJson<Sinner[]>(PRISONERS_CACHE, []);
     // 패치 정보만 있으면 부팅 가능 (gameData 는 선택적)
     if (patch) {
-      return { gameData, patch, dungeonMeta, gifts, packs, dependencies, fromNetwork: false };
+      return { gameData, patch, dungeonMeta, gifts, packs, dependencies, prisoners, fromNetwork: false };
     }
     throw new Error("게임 데이터를 불러올 수 없습니다 (네트워크 실패 + 캐시 없음).");
   }

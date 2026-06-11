@@ -164,7 +164,7 @@ export function MyRoutes() {
           }
         : undefined;
     return (
-      <div className="mx-auto max-w-2xl p-6">
+      <div className="mx-auto max-w-4xl p-6">
         <PageHeader title={editor.mode === "edit" ? "루트 편집" : "새 루트 작성"} />
         <Card className="no-hover">
           <CardContent className="p-5">

@@ -233,3 +233,54 @@ export interface DungeonMeta {
   /** 층("11"~"15") → 선택 가능한 제약 목록 */
   restrictions_by_floor: Record<string, FloorRestriction[]>;
 }
+
+/** 인격(identity) 필드 */
+export interface Identity {
+  identity_id: string;
+  name: string;
+  sinner: string;
+  rarity: "0" | "00" | "000";
+  release_date: string;
+  code_index: number;
+  page_order: number;
+  trait_keywords: string[];
+  resists: {
+    참격: "취약" | "보통" | "내성";
+    관통: "취약" | "보통" | "내성";
+    타격: "취약" | "보통" | "내성";
+  };
+  attack_types: ("참격" | "관통" | "타격")[];
+  sin_affinities: string[];
+  keyword_types: KeywordType[];
+  skills: {
+    attack_type: "참격" | "관통" | "타격";
+    sin: string;
+  }[];
+}
+
+/** 에고(ego) 필드 */
+export interface Ego {
+  ego_id: string;
+  name: string;
+  sinner: string;
+  grade: "ZAYIN" | "TETH" | "HE" | "WAW" | "ALEPH";
+  release_date: string;
+  code_index: number;
+  page_order: number;
+  resists: Record<string, string> | null;
+  sin_affinities: string[];
+  resource_sins: Record<string, number> | null;
+  keyword_types: KeywordType[] | null;
+}
+
+/** 수감자(sinner) 객체 */
+export interface Sinner {
+  sinner_id: string;
+  name: string;
+  slot_index: number;
+  identity_count: number;
+  ego_count: number;
+  identities: Identity[];
+  egos: Ego[];
+}
+

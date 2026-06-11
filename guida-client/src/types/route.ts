@@ -121,6 +121,8 @@ export interface LocalRoute {
   shared_code?: string;
   /** 허브에서 가져온(import) 루트의 원본 코드. 내가 발행한 게 아니라 출처 표시용. */
   imported_from?: string;
+  /** 덱 공유 코드 */
+  deck_code?: string | null;
   /** 목표 재화 목록 */
   target_rewards: string[];
   /** 난이도 태그 */
@@ -174,6 +176,8 @@ export interface SharedRoute {
   gift_order: GiftOrderItem[];
   pack_order: PackOrderItem[];
   verified_method: VerifiedMethod;
+  /** 덱 공유 코드 */
+  deck_code?: string | null;
   /** 패치 버전을 키로 하는 통계 맵 (예: { "2.7": { likes, play_count } }) */
   stats: Record<string, RouteStat>;
   uploaded_at: string;
@@ -195,4 +199,5 @@ export interface RouteDraft {
   gahos: RouteGaho[];
   restrictions: RouteRestrictions;
   gift_dependencies?: RouteDependency[];
+  deck_code?: string | null;
 }

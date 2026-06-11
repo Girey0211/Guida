@@ -4,7 +4,7 @@
  */
 
 import { create } from "zustand";
-import type { DungeonMeta, GameData, Gift, GiftDependency, Pack, PatchInfo } from "@/types/gameData";
+import type { DungeonMeta, GameData, Gift, GiftDependency, Pack, PatchInfo, Sinner } from "@/types/gameData";
 import type { UserSettings } from "@/types/settings";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 import { ensureDeviceUuid, readJson, writeJson } from "@/lib/storage";
@@ -61,6 +61,8 @@ interface AppState {
   packs: Pack[];
   /** 기프트 순서 의존성 (플레이화면 🔒 선행조건 판정용) */
   dependencies: GiftDependency[];
+  /** 수감자 편성 데이터 */
+  prisoners: Sinner[];
   /** 강제 업데이트 게이트 (앱 버전 / 림버스 패치 최신성) */
   update: UpdateGateState;
 
@@ -82,6 +84,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   gifts: [],
   packs: [],
   dependencies: [],
+  prisoners: [],
   update: NO_UPDATE,
 
   bootstrap: async () => {
@@ -105,6 +108,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       let gifts: Gift[] = [];
       let packs: Pack[] = [];
       let dependencies: GiftDependency[] = [];
+      let prisoners: Sinner[] = [];
       try {
         const result = await syncGameData();
         gameData = result.gameData;
@@ -113,6 +117,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         gifts = result.gifts;
         packs = result.packs;
         dependencies = result.dependencies;
+        prisoners = result.prisoners;
         online = result.fromNetwork;
         settings.current_patch = patch.current_patch;
       } catch (e) {
@@ -162,6 +167,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         gifts,
         packs,
         dependencies,
+        prisoners,
         online,
         update,
         ready: true,
