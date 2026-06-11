@@ -9,7 +9,9 @@
     "core:window:allow-hide",
     "core:window:allow-set-ignore-cursor-events",
     "core:window:allow-set-always-on-top",
+    "core:window:allow-start-dragging",
     "os:allow-platform",
+    "global-shortcut:default",
     "updater:default",
     "process:allow-restart",
     {

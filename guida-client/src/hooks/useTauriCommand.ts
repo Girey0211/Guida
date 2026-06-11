@@ -21,6 +21,8 @@ export function useOverlayControl() {
     const overlay = await WebviewWindow.getByLabel("overlay");
     await overlay?.show();
     await overlay?.setAlwaysOnTop(true);
+    const { emit } = await import("@tauri-apps/api/event");
+    await emit("overlay-status-changed", { visible: true });
   }, []);
 
   /** 오버레이 창 숨김 */
@@ -29,6 +31,8 @@ export function useOverlayControl() {
     const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
     const overlay = await WebviewWindow.getByLabel("overlay");
     await overlay?.hide();
+    const { emit } = await import("@tauri-apps/api/event");
+    await emit("overlay-status-changed", { visible: false });
   }, []);
 
   /** 클릭 관통 토글 (true면 마우스 이벤트가 게임으로 통과) */
@@ -36,7 +40,16 @@ export function useOverlayControl() {
     if (!isTauri()) return;
     const { getCurrentWebviewWindow } = await import("@tauri-apps/api/webviewWindow");
     await getCurrentWebviewWindow().setIgnoreCursorEvents(ignore);
+    const { emit } = await import("@tauri-apps/api/event");
+    await emit("overlay-click-through-state", { clickThrough: ignore });
   }, []);
 
-  return { showOverlay, hideOverlay, setClickThrough, isDesktop: isTauri() };
+  /** 메인 창 등 외부에서 오버레이 창의 클릭 관통 상태를 제어하기 위한 함수 */
+  const setOverlayClickThrough = useCallback(async (ignore: boolean) => {
+    if (!isTauri()) return;
+    const { emit } = await import("@tauri-apps/api/event");
+    await emit("set-overlay-click-through", ignore);
+  }, []);
+
+  return { showOverlay, hideOverlay, setClickThrough, setOverlayClickThrough, isDesktop: isTauri() };
 }

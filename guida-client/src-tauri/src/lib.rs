@@ -3,6 +3,8 @@ mod utils;
 
 use commands::{fs as gfs, settings, crypto};
 
+use tauri::{Manager, Emitter};
+
 /// Tauri 앱 진입점. JS에서 호출 가능한 IPC 커맨드를 등록한다.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -17,6 +19,20 @@ pub fn run() {
                 app.handle()
                     .plugin(tauri_plugin_updater::Builder::new().build())?;
                 app.handle().plugin(tauri_plugin_process::init())?;
+                app.handle().plugin(
+                    tauri_plugin_global_shortcut::Builder::new()
+                        .with_shortcuts(["f9"])?
+                        .with_handler(|app, _shortcut, event| {
+                            if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                                if let Some(overlay) = app.get_webview_window("overlay") {
+                                    if let Ok(true) = overlay.is_visible() {
+                                        let _ = app.emit("toggle-overlay-click-through", ());
+                                    }
+                                }
+                            }
+                        })
+                        .build(),
+                )?;
             }
             let _ = app;
             Ok(())

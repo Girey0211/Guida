@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FolderHeart, Map, Settings as SettingsIcon, MonitorPlay, WifiOff, ChevronRight } from "lucide-react";
+import { FolderHeart, Map, Settings as SettingsIcon, MonitorPlay, WifiOff, ChevronRight, MousePointerClick, MousePointer2 } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { usePlayStore } from "@/store/playStore";
 import { useOverlayControl } from "@/hooks/useTauriCommand";
@@ -28,7 +28,53 @@ export function BaseScreen() {
   const [tab, setTab] = useState<TabId>("routes");
   const { patch, online } = useAppStore();
   const sessionActive = usePlayStore((s) => s.sessionId != null);
-  const { showOverlay } = useOverlayControl();
+  const { showOverlay, hideOverlay, setOverlayClickThrough, isDesktop } = useOverlayControl();
+
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const [overlayClickThrough, setOverlayClickThroughState] = useState(false);
+
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    // 초기 상태 확인
+    const checkInitialState = async () => {
+      try {
+        const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+        const overlay = await WebviewWindow.getByLabel("overlay");
+        if (overlay) {
+          const visible = await overlay.isVisible();
+          setOverlayOpen(visible);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    void checkInitialState();
+
+    let unlistenStatus: (() => void) | null = null;
+    let unlistenClickThrough: (() => void) | null = null;
+
+    const setupListeners = async () => {
+      const { listen } = await import("@tauri-apps/api/event");
+
+      const uStatus = await listen<{ visible: boolean }>("overlay-status-changed", (e) => {
+        setOverlayOpen(e.payload.visible);
+      });
+      unlistenStatus = uStatus;
+
+      const uClickThrough = await listen<{ clickThrough: boolean }>("overlay-click-through-state", (e) => {
+        setOverlayClickThroughState(e.payload.clickThrough);
+      });
+      unlistenClickThrough = uClickThrough;
+    };
+
+    void setupListeners();
+
+    return () => {
+      if (unlistenStatus) unlistenStatus();
+      if (unlistenClickThrough) unlistenClickThrough();
+    };
+  }, [isDesktop]);
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-background">
@@ -57,7 +103,7 @@ export function BaseScreen() {
         <div className="ml-auto flex items-center gap-2">
           {patch && (
             <span className="hidden text-[11px] text-muted-foreground sm:inline">
-              현재 패치 v{patch.current_patch}
+               현재 패치 v{patch.current_patch}
             </span>
           )}
           {!online && (
@@ -65,10 +111,46 @@ export function BaseScreen() {
               <WifiOff className="size-3" /> 오프라인
             </span>
           )}
-          <Button size="sm" variant="outline" onClick={() => void showOverlay()}>
-            <MonitorPlay className="size-4" />
-            오버레이
-          </Button>
+          {isDesktop && overlayOpen ? (
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-2 py-1">
+              <span className="text-[11px] text-muted-foreground flex items-center gap-1 mr-1">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                오버레이
+              </span>
+              <Button
+                size="sm"
+                variant={overlayClickThrough ? "destructive" : "outline"}
+                onClick={() => void setOverlayClickThrough(!overlayClickThrough)}
+                className="h-7 px-2 text-xs gap-1 font-medium"
+                title={overlayClickThrough ? "마우스 클릭이 관통되는 고정 상태를 해제합니다. (단축키 F9)" : "마우스 클릭이 통과되도록 오버레이를 화면에 고정합니다. (단축키 F9)"}
+              >
+                {overlayClickThrough ? (
+                  <>
+                    <MousePointerClick className="size-3" />
+                    고정 해제
+                  </>
+                ) : (
+                  <>
+                    <MousePointer2 className="size-3" />
+                    화면 고정
+                  </>
+                )}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => void hideOverlay()}
+                className="h-7 px-2 text-xs font-medium hover:bg-destructive/10 hover:text-destructive"
+              >
+                닫기
+              </Button>
+            </div>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => void showOverlay()} className="gap-1.5">
+              <MonitorPlay className="size-4" />
+              오버레이
+            </Button>
+          )}
         </div>
       </header>
 

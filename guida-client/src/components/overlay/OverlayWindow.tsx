@@ -22,8 +22,62 @@ export function OverlayWindow() {
   useEffect(() => {
     document.body.classList.add("overlay-mode");
     if (!ready) void bootstrap();
-    return () => document.body.classList.remove("overlay-mode");
-  }, [ready, bootstrap]);
+
+    // 마운트 시 상태 동기화 알림
+    if (isDesktop) {
+      const initOverlayStatus = async () => {
+        const { emit } = await import("@tauri-apps/api/event");
+        await emit("overlay-status-changed", { visible: true });
+        await emit("overlay-click-through-state", { clickThrough: false });
+      };
+      void initOverlayStatus();
+    }
+
+    return () => {
+      document.body.classList.remove("overlay-mode");
+      // 언마운트 시 상태 동기화 알림
+      if (isDesktop) {
+        const clearOverlayStatus = async () => {
+          const { emit } = await import("@tauri-apps/api/event");
+          await emit("overlay-status-changed", { visible: false });
+        };
+        void clearOverlayStatus();
+      }
+    };
+  }, [ready, bootstrap, isDesktop]);
+
+  // 단축키(F9) 및 메인 창의 고정 해제 명령 수신 대기
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    let unlistenToggle: (() => void) | null = null;
+    let unlistenSet: (() => void) | null = null;
+
+    const setupListeners = async () => {
+      const { listen } = await import("@tauri-apps/api/event");
+
+      unlistenToggle = await listen("toggle-overlay-click-through", () => {
+        setCT((prev) => {
+          const next = !prev;
+          void setClickThrough(next);
+          return next;
+        });
+      });
+
+      unlistenSet = await listen<boolean>("set-overlay-click-through", (e) => {
+        const next = e.payload;
+        setCT(next);
+        void setClickThrough(next);
+      });
+    };
+
+    void setupListeners();
+
+    return () => {
+      if (unlistenToggle) unlistenToggle();
+      if (unlistenSet) unlistenSet();
+    };
+  }, [isDesktop, setClickThrough]);
 
   const toggleClickThrough = async () => {
     const next = !clickThrough;
