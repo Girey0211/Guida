@@ -63,7 +63,7 @@ export function BaseScreen() {
           onClick={() => navigate("/play")}
           className="flex shrink-0 items-center justify-center gap-2 bg-primary/15 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/25"
         >
-          🗺️ 거던 탐사 진행 중 — 복귀하기
+          거던 탐사 진행 중 — 복귀하기
           <ChevronRight className="size-4" />
         </button>
       )}
