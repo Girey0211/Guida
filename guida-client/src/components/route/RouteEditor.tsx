@@ -80,8 +80,11 @@ function difficultyAtFloor(
   switchFloor: number | null,
 ): DifficultyMode {
   if (floor >= 11) return "extreme";
+  if (switchFloor != null) {
+    if (floor >= switchFloor) return "hard";
+    return "normal";
+  }
   if (mode === "hard" || mode === "extreme") return "hard";
-  if (switchFloor != null && floor >= switchFloor) return "hard";
   return "normal";
 }
 
@@ -165,7 +168,7 @@ export function RouteEditor({
   const [selfReported, setSelfReported] = useState(initialSelfReported);
   const [error, setError] = useState<string | null>(null);
   const [giftPickerOpen, setGiftPickerOpen] = useState(false);
-  const [giftsCardOpen, setGiftsCardOpen] = useState(true);
+  const [giftsCardOpen, setGiftsCardOpen] = useState(false);
   const [openPackBucket, setOpenPackBucket] = useState<string | null>(null);
 
   const { dependencies } = useAppStore();
@@ -192,19 +195,15 @@ export function RouteEditor({
         ...dStore,
         floors: [d],
         difficulty_mode: nextMode,
-        difficulty_switch_floor: nextMode === "normal" ? dStore.difficulty_switch_floor : null,
       };
     });
   };
 
   // ── 난이도 모드 / 하드 전환 층 ──────────────────────────────────
-  const switchEnabled = draft.difficulty_mode === "normal";
   const setMode = (mode: DifficultyMode) =>
     setDraft((d) => ({
       ...d,
       difficulty_mode: mode,
-      // 노말이 아니면 하드 전환 개념이 없으므로 초기화
-      difficulty_switch_floor: mode === "normal" ? d.difficulty_switch_floor : null,
     }));
   const toggleSwitchFloor = (f: number) =>
     set("difficulty_switch_floor", draft.difficulty_switch_floor === f ? null : f);
@@ -560,24 +559,21 @@ export function RouteEditor({
         </Select>
       </div>
 
-      {/* 하드 전환 층 (노말 모드에서만 활성) */}
+      {/* 하드 전환 층 */}
       <div className="space-y-1.5">
-        <Label className={cn(!switchEnabled && "text-muted-foreground/50")}>
-          하드 전환 층 {switchEnabled ? "" : "(노말 모드에서만 선택 가능)"}
-        </Label>
+        <Label>하드 전환 층</Label>
         <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
-            disabled={!switchEnabled}
             onClick={() => set("difficulty_switch_floor", null)}
             className={cn(
-              "h-9 rounded-md border px-3 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+              "h-9 rounded-md border px-3 text-sm transition-colors",
               draft.difficulty_switch_floor === null
                 ? "border-primary bg-primary/20 text-primary"
                 : "border-border text-muted-foreground hover:border-primary/40",
             )}
           >
-            단일 난이도
+            {draft.difficulty_mode === "normal" ? "단일 난이도" : "전체 하드"}
           </button>
           {SWITCH_FLOORS.map((f) => {
             const active = draft.difficulty_switch_floor === f;
@@ -585,10 +581,9 @@ export function RouteEditor({
               <button
                 key={f}
                 type="button"
-                disabled={!switchEnabled}
                 onClick={() => toggleSwitchFloor(f)}
                 className={cn(
-                  "h-9 w-11 rounded-md border text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+                  "h-9 w-11 rounded-md border text-sm transition-colors",
                   active
                     ? "border-primary bg-primary/20 text-primary"
                     : "border-border text-muted-foreground hover:border-primary/40",

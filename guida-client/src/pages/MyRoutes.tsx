@@ -166,7 +166,7 @@ export function MyRoutes() {
     return (
       <div className="mx-auto max-w-2xl p-6">
         <PageHeader title={editor.mode === "edit" ? "루트 편집" : "새 루트 작성"} />
-        <Card>
+        <Card className="no-hover">
           <CardContent className="p-5">
             <RouteEditor
               initial={initial}

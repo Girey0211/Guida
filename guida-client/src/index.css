@@ -43,8 +43,8 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 10% 12%;
-    --input: 220 10% 15%;
+    --border: 220 12% 22%;
+    --input: 220 12% 26%;
     --ring: 42 100% 45%;
     --radius: 0.6rem;
   }
@@ -91,6 +91,12 @@
   background-color: rgba(26, 31, 42, 0.85) !important;
   border-color: rgba(230, 161, 0, 0.3) !important;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+}
+
+.bg-card.no-hover:hover {
+  background-color: rgba(17, 20, 28, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: none !important;
 }
 
 /* Dynamic Ambient Glows (웹버전 스타일 장식) */
