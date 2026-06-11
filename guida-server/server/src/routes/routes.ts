@@ -50,11 +50,16 @@ function verifyRequestSignature(req: any, action: string): string {
   const message = `${action}:${timestampStr}:${bodyHash}`;
 
   try {
+    // 32바이트 raw Ed25519 공개키에 12바이트 SPKI DER 헤더를 접두사로 추가하여 DER 포맷 키 객체를 재구성합니다.
+    const rawKeyBuffer = Buffer.from(pubkey, 'hex');
+    const derHeader = Buffer.from('302a300506032b6570032100', 'hex');
+    const publicKeyDer = Buffer.concat([derHeader, rawKeyBuffer]);
+
     const publicKeyObject = crypto.createPublicKey({
-      key: Buffer.from(pubkey, 'hex'),
-      format: 'raw',
+      key: publicKeyDer,
+      format: 'der',
       type: 'spki'
-    } as any);
+    });
 
     const isValid = crypto.verify(
       null,
