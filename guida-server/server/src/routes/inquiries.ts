@@ -11,8 +11,20 @@ interface InquiryBody {
  * /api/inquiries — 문의사항 등록 (버그 제보 및 건의)
  */
 export default async function inquiriesRoutes(fastify: FastifyInstance) {
-  fastify.post<{ Body: InquiryBody }>('/api/inquiries', async (req, reply) => {
+  fastify.post<{ Body: InquiryBody }>('/api/inquiries', {
+    config: {
+      rateLimit: {
+        max: 5,
+        timeWindow: '1 minute',
+        errorResponseBuilder: (_req, context) => ({
+          error: `문의사항은 1분에 최대 5회만 제출할 수 있습니다. ${context.after} 후에 다시 시도하세요.`,
+        }),
+      },
+
+    },
+  }, async (req, reply) => {
     const { category, title, content, contact } = req.body;
+
 
     // 필수 필드 유효성 검증
     if (!category || !title || !content) {

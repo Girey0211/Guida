@@ -213,7 +213,17 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   // ──────────────────────────────────────────────
   // POST /api/routes/upload — 루트 업로드 및 코드 발급
   // ──────────────────────────────────────────────
-  fastify.post<{ Body: UploadBody }>('/api/routes/upload', async (req, reply) => {
+  fastify.post<{ Body: UploadBody }>('/api/routes/upload', {
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: '1 minute',
+        errorResponseBuilder: (_req, context) => ({
+          error: `루트 업로드는 1분에 최대 10회만 가능합니다. ${context.after} 후에 다시 시도하세요.`,
+        }),
+      },
+    },
+  }, async (req, reply) => {
     const body = req.body ?? ({} as UploadBody);
     const {
       uuid,
@@ -318,6 +328,17 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   // ──────────────────────────────────────────────
   fastify.put<{ Params: { code: string }; Body: UploadBody }>(
     '/api/routes/:code',
+    {
+      config: {
+        rateLimit: {
+          max: 15,
+          timeWindow: '1 minute',
+          errorResponseBuilder: (_req, context) => ({
+            error: `루트 수정은 1분에 최대 15회만 가능합니다. ${context.after} 후에 다시 시도하세요.`,
+          }),
+        },
+      },
+    },
     async (req, reply) => {
       const code = req.params.code.toUpperCase();
       const body = req.body ?? ({} as UploadBody);
@@ -422,6 +443,17 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   // ──────────────────────────────────────────────
   fastify.post<{ Params: { code: string }; Body: LikeBody }>(
     '/api/routes/:code/like',
+    {
+      config: {
+        rateLimit: {
+          max: 15,
+          timeWindow: '1 minute',
+          errorResponseBuilder: (_req, context) => ({
+            error: `추천은 1분에 최대 15회만 가능합니다. ${context.after} 후에 다시 시도하세요.`,
+          }),
+        },
+      },
+    },
     async (req, reply) => {
       const code = req.params.code.toUpperCase();
       const { uuid, patch_version } = req.body ?? ({} as LikeBody);
@@ -518,6 +550,17 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   // ──────────────────────────────────────────────
   fastify.post<{ Body: { recovery_code_hash: string; encrypted_blob: string } }>(
     '/api/backup',
+    {
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: '1 minute',
+          errorResponseBuilder: (_req, context) => ({
+            error: `백업 저장은 1분에 최대 10회만 가능합니다. ${context.after} 후에 다시 시도하세요.`,
+          }),
+        },
+      },
+    },
     async (req, reply) => {
       const { recovery_code_hash, encrypted_blob } = req.body ?? {};
       if (!recovery_code_hash || !encrypted_blob) {
@@ -541,6 +584,17 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   // ──────────────────────────────────────────────
   fastify.post<{ Body: { recovery_code_hash: string } }>(
     '/api/backup/restore',
+    {
+      config: {
+        rateLimit: {
+          max: 20,
+          timeWindow: '1 minute',
+          errorResponseBuilder: (_req, context) => ({
+            error: `백업 복구는 1분에 최대 20회만 가능합니다. ${context.after} 후에 다시 시도하세요.`,
+          }),
+        },
+      },
+    },
     async (req, reply) => {
       const { recovery_code_hash } = req.body ?? {};
       if (!recovery_code_hash) {
