@@ -23,6 +23,7 @@ interface ReleaseInfo {
 export default function App() {
   const [release, setRelease] = useState<ReleaseInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [view, setView] = useState<'landing' | 'inquiry'>('landing');
 
   useEffect(() => {
     // Girey0211/Guida 레포지토리의 최신 Releases 정보를 가져옵니다.
@@ -99,14 +100,18 @@ export default function App() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <a href="#hero" className="logo-group">
+          <a href="#hero" className="logo-group" onClick={() => setView('landing')}>
             <Compass className="logo-icon" />
             <span>Guida</span>
           </a>
           
           <nav className="nav-links">
-            <a href="#features" className="nav-link">주요 기능</a>
-            <a href="#guide" className="nav-link">설치 가이드</a>
+            <a href="#features" className="nav-link" onClick={() => setView('landing')}>주요 기능</a>
+            <a href="#guide" className="nav-link" onClick={() => setView('landing')}>설치 가이드</a>
+            <button onClick={() => setView('inquiry')} className="inquiry-header-btn">
+              <AlertTriangle size={14} />
+              버그 제보 및 건의
+            </button>
             <a 
               href="https://github.com/Girey0211/Guida" 
               target="_blank" 
@@ -122,8 +127,9 @@ export default function App() {
 
       {/* Main Content */}
       <main className="main-content">
-        
-        {/* Hero Section */}
+        {view === 'landing' ? (
+          <>
+            {/* Hero Section */}
         <section id="hero" className="hero">
           <div className="hero-tag">
             <Sparkles size={14} style={{ marginRight: '4px' }} />
@@ -131,15 +137,10 @@ export default function App() {
           </div>
           
           <h1 className="hero-title">
-            림버스 컴퍼니 거던 플레이의<br />
-            가장 스마트한 안내자, <span>Guida</span>
+            거울 던전 편의성 개선 앱<br />
+            <span>Guida</span>
           </h1>
           
-          <p className="hero-subtitle">
-            거울 던전 선택지 보상 DB 기반 오버레이 가이드부터 나만의 커스텀 파밍 경로 작성 및 공유까지.
-            안전하고 투명한 로컬 중심 아키텍처 위에서 거던 피로도를 완전히 해소하세요.
-          </p>
-
           <div className="hero-actions">
             {loading ? (
               <div className="btn-primary" style={{ opacity: 0.8, cursor: 'default' }}>
@@ -150,9 +151,6 @@ export default function App() {
                 <a href={release?.msiUrl} className="btn-primary">
                   <Download size={20} />
                   윈도우 전용 설치파일 다운로드 ({release?.version})
-                </a>
-                <a href={release?.zipUrl} className="btn-secondary">
-                  포터블 ZIP 다운로드
                 </a>
               </>
             )}
@@ -181,7 +179,7 @@ export default function App() {
         <section style={{ marginBottom: '6rem' }}>
           <h2 className="section-title">Guida의 개발 기조</h2>
           <p className="section-subtitle">
-            오픈소스의 투명성과 유저 계정의 안전을 최우선으로 생각하며 설계되었습니다.
+            클라이언트와 서버를 분리하여 투명하고 안전한 구조로 설계되었습니다.
           </p>
           
           <div className="philosophies">
@@ -363,8 +361,8 @@ export default function App() {
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>획득한 상자</span>
-                        <span>별빛 상자 x 15</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>획득한 별빛</span>
+                        <span>별빛 x 312</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>소요된 시간</span>
@@ -395,7 +393,7 @@ export default function App() {
               <div className="step-content">
                 <h3 className="step-title">설치 프로그램 다운로드</h3>
                 <p className="step-desc">
-                  상단의 다운로드 버튼을 눌러 가장 최신의 <code>.msi</code> 설치 파일을 다운로드합니다.
+                  상단의 다운로드 버튼을 눌러 가장 최신 설치 파일을 다운로드합니다.
                 </p>
               </div>
             </div>
@@ -405,7 +403,7 @@ export default function App() {
               <div className="step-content">
                 <h3 className="step-title">셋업 실행 및 설치</h3>
                 <p className="step-desc">
-                  다운로드한 파일을 실행해 셋업 마법사를 실행합니다. 지정한 경로로 순식간에 설치가 진행됩니다.
+                  다운로드한 파일을 실행해 셋업 마법사를 실행합니다. 지정한 경로로 설치가 진행됩니다.
                 </p>
               </div>
             </div>
@@ -432,7 +430,10 @@ export default function App() {
             </div>
           </div>
         </section>
-
+        </>
+      ) : (
+        <InquiryForm setView={setView} />
+      )}
       </main>
 
       {/* Footer */}
@@ -462,3 +463,176 @@ export default function App() {
     </div>
   );
 }
+
+function InquiryForm({ setView }: { setView: (v: 'landing' | 'inquiry') => void }) {
+  const [category, setCategory] = useState<'bug' | 'suggestion' | 'other'>('bug');
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [contact, setContact] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!title.trim() || !content.trim()) {
+      setError('제목과 내용은 필수 입력 항목입니다.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const apiBase = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:3000';
+      const res = await fetch(`${apiBase}/api/inquiries`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category,
+          title,
+          content,
+          contact: contact || undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || '문의사항 등록 중 오류가 발생했습니다.');
+      }
+
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || '서버와의 통신이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="inquiry-container">
+        <div className="inquiry-card success-container">
+          <div className="success-icon-wrapper">
+            <CheckCircle2 size={36} />
+          </div>
+          <h2 className="success-title">소중한 의견 감사합니다!</h2>
+          <p className="success-desc">
+            제출해주신 건의 및 제보 내용은 개발팀에 소중하게 기록되었습니다.<br />
+            더 좋은 안내자가 되도록 최선을 다하겠습니다.
+          </p>
+          <button onClick={() => setView('landing')} className="btn-primary" style={{ marginTop: '1rem' }}>
+            홈으로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="inquiry-container">
+      <div className="inquiry-card">
+        <h2 className="inquiry-title">버그 제보 및 건의</h2>
+        <p className="inquiry-subtitle">
+          가이다(Guida) 사용 중 발견하신 문제점이나 개선이 필요한 점을 남겨주시면 성심껏 반영하겠습니다.
+        </p>
+
+        {error && (
+          <div className="error-message">
+            <AlertTriangle size={18} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label" htmlFor="category">문의 구분</label>
+            <select 
+              id="category"
+              className="form-select"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as any)}
+            >
+              <option value="bug">버그 제보</option>
+              <option value="suggestion">기능 건의</option>
+              <option value="other">기타 문의</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="title">
+              <span>제목</span>
+              <span className="character-count">{title.length}/200</span>
+            </label>
+            <input 
+              type="text" 
+              id="title"
+              className="form-input"
+              placeholder="요약된 제목을 입력해주세요"
+              maxLength={200}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="content">
+              <span>상세 내용</span>
+              <span className="character-count">{content.length}/10000</span>
+            </label>
+            <textarea 
+              id="content"
+              className="form-textarea"
+              placeholder="버그의 경우 발생 조건, 재현 단계, 사용 환경(Windows 빌드 등)을 상세히 기재해주시면 큰 도움이 됩니다."
+              maxLength={10000}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="contact">
+              <span>연락처 (선택)</span>
+              <span className="character-count">{contact.length}/100</span>
+            </label>
+            <input 
+              type="text" 
+              id="contact"
+              className="form-input"
+              placeholder="이메일 주소, 디스코드 ID 등 피드백을 수신받으실 수 있는 연락처"
+              maxLength={100}
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+            />
+          </div>
+
+          <div className="form-actions">
+            <button 
+              type="button" 
+              className="btn-secondary" 
+              onClick={() => setView('landing')}
+              disabled={submitting}
+            >
+              취소
+            </button>
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              disabled={submitting}
+            >
+              {submitting ? '제출 중...' : '제출하기'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+

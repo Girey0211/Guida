@@ -6,6 +6,7 @@ import rateLimitPlugin from './plugins/rateLimit.js';
 import healthRoutes from './routes/health.js';
 import gameDataRoutes from './routes/gameData.js';
 import routeHubRoutes from './routes/routes.js';
+import inquiriesRoutes from './routes/inquiries.js';
 
 const PORT = Number(process.env.SERVER_PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
@@ -46,6 +47,7 @@ async function main() {
   await fastify.register(healthRoutes);
   await fastify.register(gameDataRoutes);
   await fastify.register(routeHubRoutes);
+  await fastify.register(inquiriesRoutes);
 
   try {
     // 127.0.0.1 외부 직접 접근 차단은 docker-compose 포트 바인딩에서 처리.

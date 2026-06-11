@@ -127,3 +127,19 @@ CREATE TABLE IF NOT EXISTS backups (
 --      ALTER TABLE routes ADD COLUMN IF NOT EXISTS pack_order JSONB NOT NULL DEFAULT '[]';
 --      ALTER TABLE routes DROP COLUMN IF EXISTS steps;
 -- ─────────────────────────────────────────────
+
+-- ─────────────────────────────────────────────
+-- inquiries — 버그 제보 및 건의 사항 수집
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS inquiries (
+  id          SERIAL PRIMARY KEY,
+  category    VARCHAR(20)  NOT NULL,             -- bug | suggestion | other
+  title       VARCHAR(200) NOT NULL,
+  content     TEXT         NOT NULL,
+  contact     VARCHAR(100),                      -- 연락처 (이메일, 디스코드 등)
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON inquiries (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inquiries_category ON inquiries (category);
+
