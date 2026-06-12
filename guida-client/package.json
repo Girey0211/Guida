@@ -1,7 +1,7 @@
 {
   "name": "guida",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.2.6",
   "type": "module",
   "description": "림버스 컴퍼니 거울 던전 가이드 및 루트 공유 데스크톱 앱",
   "scripts": {
@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "bump": "node scripts/bump-version.js"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",

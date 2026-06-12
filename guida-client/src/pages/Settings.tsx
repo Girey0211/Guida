@@ -1,4 +1,4 @@
-import { Moon, RefreshCw, Copy, Check, RotateCcw } from "lucide-react";
+import { Moon, RefreshCw, Copy, Check, RotateCcw, FolderOpen, Trash2, FileText } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/appStore";
@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
-import { resetDeviceUuid, writeJson } from "@/lib/storage";
+import { resetDeviceUuid, writeJson, readFile } from "@/lib/storage";
 import { DEFAULT_SETTINGS } from "@/types/settings";
+import { IS_LOGGING_ENABLED } from "@/lib/logger";
+import { isTauri } from "@/lib/env";
 
 /** 앱 설정 페이지 */
 export function Settings() {
@@ -23,6 +25,81 @@ export function Settings() {
   const [syncing, setSyncing] = useState(false);
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
+
+  const [copyingLogs, setCopyingLogs] = useState(false);
+  const [clearingLogs, setClearingLogs] = useState(false);
+  const [logsCopied, setLogsCopied] = useState(false);
+
+  const openLogFolder = async () => {
+    if (!isTauri()) {
+      toast.error("웹 브라우저 환경에서는 로컬 폴더를 열 수 없습니다.");
+      return;
+    }
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      await invoke("open_log_dir");
+      toast.success("로그 디렉토리를 열었습니다.");
+    } catch (e) {
+      toast.error("로그 디렉토리를 여는데 실패했습니다.");
+    }
+  };
+
+  const copyLogs = async () => {
+    setCopyingLogs(true);
+    try {
+      let logContent = "";
+      if (isTauri()) {
+        const currentLogs = await readFile("requests.log");
+        const oldLogs = await readFile("requests.log.old");
+        if (oldLogs) {
+          logContent += `=== OLD LOGS ===\n${oldLogs}\n\n`;
+        }
+        if (currentLogs) {
+          logContent += `=== CURRENT LOGS ===\n${currentLogs}`;
+        }
+      } else {
+        const browserLogs = localStorage.getItem("guida:logs") ?? "[]";
+        try {
+          const parsed = JSON.parse(browserLogs) as string[];
+          logContent = parsed.join("\n");
+        } catch {
+          logContent = browserLogs;
+        }
+      }
+
+      if (!logContent.trim()) {
+        toast.info("기록된 로그가 없습니다.");
+        return;
+      }
+
+      await navigator.clipboard.writeText(logContent);
+      setLogsCopied(true);
+      toast.success("로그를 클립보드에 복사했습니다.");
+      setTimeout(() => setLogsCopied(false), 1500);
+    } catch (e) {
+      toast.error("로그 복사에 실패했습니다.");
+    } finally {
+      setCopyingLogs(false);
+    }
+  };
+
+  const clearLogs = async () => {
+    setClearingLogs(true);
+    try {
+      if (isTauri()) {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("write_data_file", { name: "requests.log", content: "" });
+        await invoke("write_data_file", { name: "requests.log.old", content: "" });
+      } else {
+        localStorage.removeItem("guida:logs");
+      }
+      toast.success("로그 기록을 비웠습니다.");
+    } catch (e) {
+      toast.error("로그 초기화에 실패했습니다.");
+    } finally {
+      setClearingLogs(false);
+    }
+  };
 
   const copyUuid = async () => {
     await navigator.clipboard.writeText(settings.uuid);
@@ -239,6 +316,38 @@ export function Settings() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* 로그 관리 (VITE_ENABLE_LOGGING이 true일 때만 노출) */}
+        {IS_LOGGING_ENABLED && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-1.5">
+                <FileText className="size-4" /> 로그 관리 (Alpha)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                API 요청 및 시스템 동작 상태 로그를 확인하고 관리합니다. 오늘 찍힌 로그가 아니면 앱 실행 시 자동으로 비워집니다.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" size="sm" onClick={copyLogs} disabled={copyingLogs} className="gap-1.5">
+                  {logsCopied ? <Check className="size-4 text-emerald-400" /> : <Copy className="size-4" />}
+                  로그 복사
+                </Button>
+                <Button variant="outline" size="sm" onClick={clearLogs} disabled={clearingLogs} className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive gap-1.5">
+                  <Trash2 className="size-4" />
+                  로그 비우기
+                </Button>
+              </div>
+              {isTauri() && (
+                <Button variant="outline" size="sm" onClick={openLogFolder} className="w-full gap-1.5">
+                  <FolderOpen className="size-4" />
+                  로그 저장 폴더 열기
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* 정보 */}
         <Card>

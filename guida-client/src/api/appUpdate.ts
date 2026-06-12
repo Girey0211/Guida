@@ -11,6 +11,7 @@
  */
 
 import { isTauri } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 export interface AppUpdateInfo {
   /** 다운로드 가능한 최신 버전 */
@@ -48,10 +49,15 @@ export async function getCurrentAppVersion(fallback: string): Promise<string> {
  */
 export async function checkAppUpdate(): Promise<AppUpdateInfo | null> {
   if (!isTauri()) return null;
+  await logger.info("Update", "Checking for app updates...");
   try {
     const { check } = await import("@tauri-apps/plugin-updater");
     const update = await check();
-    if (!update) return null;
+    if (!update) {
+      await logger.info("Update", "Checked for app updates: Already up-to-date");
+      return null;
+    }
+    await logger.info("Update", `New app update available: ${update.currentVersion} -> ${update.version}`);
     return {
       version: update.version,
       currentVersion: update.currentVersion,
@@ -61,7 +67,7 @@ export async function checkAppUpdate(): Promise<AppUpdateInfo | null> {
     };
   } catch (e) {
     // 릴리스 미게시(404)·오프라인 등은 "업데이트 없음"으로 폴백한다.
-    console.warn("[appUpdate] 업데이트 확인 실패 — 업데이트 없음으로 처리", e);
+    await logger.warn("Update", "Failed to check for app updates (falling back to no updates)", e);
     return null;
   }
 }
@@ -80,11 +86,14 @@ export async function downloadAndInstallUpdate(
   let downloaded = 0;
   let total: number | null = null;
 
+  await logger.info("Update", `Starting update download: ${info.currentVersion} -> ${info.version}`);
+
   await update.downloadAndInstall((event) => {
     switch (event.event) {
       case "Started":
         total = event.data.contentLength ?? null;
         onProgress?.({ phase: "downloading", downloaded: 0, total });
+        void logger.info("Update", `Download started. Total size: ${total ?? "unknown"} bytes`);
         break;
       case "Progress":
         downloaded += event.data.chunkLength;
@@ -92,11 +101,13 @@ export async function downloadAndInstallUpdate(
         break;
       case "Finished":
         onProgress?.({ phase: "installing" });
+        void logger.info("Update", "Download finished. Installing update...");
         break;
     }
   });
 
   onProgress?.({ phase: "done" });
+  await logger.info("Update", "Update installed successfully. Relaunching application...");
   const { relaunch } = await import("@tauri-apps/plugin-process");
   await relaunch();
 }

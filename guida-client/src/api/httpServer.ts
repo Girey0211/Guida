@@ -19,6 +19,7 @@ import type {
 } from "@/types/route";
 import { isTauri } from "@/lib/env";
 import { API_BASE_URL, ApiError, ServerUnavailableError } from "./client";
+import { logger } from "@/lib/logger";
 
 /** 루트 업로드 요청 페이로드 */
 export interface UploadPayload {
@@ -69,6 +70,11 @@ function url(path: string): string {
  * - 그 외 5xx → ServerUnavailableError
  */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const method = init?.method ?? "GET";
+  const startTime = Date.now();
+
+  await logger.info("HTTP", `Sending request: ${method} ${path}`);
+
   let res: Response;
   try {
     res = await fetch(url(path), {
@@ -78,23 +84,37 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
         ...(init?.headers ?? {}),
       },
     });
-  } catch {
-    // fetch 자체가 throw → 서버에 도달 불가
+  } catch (err) {
+    const elapsed = Date.now() - startTime;
+    await logger.error("HTTP", `Request failed: ${method} ${path} (${elapsed}ms) - Network Error`, err);
     throw new ServerUnavailableError();
   }
 
+  const elapsed = Date.now() - startTime;
   if (!res.ok) {
     let message = `서버 오류가 발생했습니다 (HTTP ${res.status}).`;
+    let errorDetail = "";
     try {
       const body = (await res.json()) as { error?: string };
-      if (body?.error) message = body.error;
+      if (body?.error) {
+        message = body.error;
+        errorDetail = body.error;
+      }
     } catch {
       /* 본문이 JSON 이 아니면 기본 메시지 사용 */
     }
     const code = STATUS_TO_CODE[res.status];
+
+    await logger.warn("HTTP", `Request unsuccessful: ${method} ${path} - Status ${res.status} (${elapsed}ms)`, {
+      code,
+      message: errorDetail || message
+    });
+
     if (code) throw new ApiError(message, code);
     throw new ServerUnavailableError(message);
   }
+
+  await logger.info("HTTP", `Request success: ${method} ${path} - Status ${res.status} (${elapsed}ms)`);
 
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;

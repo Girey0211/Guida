@@ -16,6 +16,8 @@ import {
 } from "@/api/appUpdate";
 import { isBelowMinVersion } from "@/lib/version";
 import { usePlayStore } from "./playStore";
+import { logger, IS_LOGGING_ENABLED } from "@/lib/logger";
+import { isTauri } from "@/lib/env";
 
 const SETTINGS_FILE = "user_settings.json";
 
@@ -89,8 +91,31 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   bootstrap: async () => {
     try {
+      // 0. 로그 기능 활성화 상태라면 날짜 검사 후 로그 초기화
+      if (IS_LOGGING_ENABLED) {
+        try {
+          const todayStr = new Date().toISOString().split("T")[0];
+          const lastLogDate = await readJson<string>("last_log_date.json", "");
+          if (lastLogDate !== todayStr) {
+            if (isTauri()) {
+              const { invoke } = await import("@tauri-apps/api/core");
+              await invoke("write_data_file", { name: "requests.log", content: "" });
+              await invoke("write_data_file", { name: "requests.log.old", content: "" });
+            } else {
+              localStorage.removeItem("guida:logs");
+            }
+            await writeJson("last_log_date.json", todayStr);
+          }
+        } catch (e) {
+          console.error("Failed to clean up yesterday's logs on boot:", e);
+        }
+      }
+
+      await logger.info("System", "Starting application boot sequence...");
+
       // 1. 디바이스 UUID 확보 (없으면 생성)
       const uuid = await ensureDeviceUuid();
+      await logger.info("System", `Device UUID verified: ${uuid}`);
 
       // 2. 설정 로드 (없으면 기본값)
       const stored = await readJson<Partial<UserSettings>>(SETTINGS_FILE, {});
@@ -99,6 +124,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         ...stored,
         uuid,
       };
+      await logger.info("System", "Settings loaded successfully");
 
       // 3. 게임 데이터 + 패치 동기화 (오프라인 시 캐시 폴백)
       let online = true;
@@ -120,9 +146,10 @@ export const useAppStore = create<AppState>((set, get) => ({
         prisoners = result.prisoners;
         online = result.fromNetwork;
         settings.current_patch = patch.current_patch;
+        await logger.info("System", `Game data synced. Network: ${online}, Patch version: ${patch.current_patch}`);
       } catch (e) {
         // 게임 데이터를 전혀 못 받은 경우에도 앱은 떠야 한다.
-        console.error("[bootstrap] 게임 데이터 로드 실패", e);
+        await logger.error("System", "Game data loading failed during boot", e);
         online = false;
       }
 
@@ -139,6 +166,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       if (appUpdate) {
         // (a) 설치 가능한 새 버전이 있으면 강제 업데이트(정책상 모든 업데이트 강제)
         update = { required: true, appUpdate, manualReason: null };
+        await logger.warn("System", `Force update required: v${appVersion} -> v${appUpdate.version}`);
       } else if (isBelowMinVersion(appVersion, patch?.min_app_version)) {
         // (b) 서버가 요구하는 최소 버전 미달인데 자동 설치 핸들이 없음
         //     (릴리스 미게시/오프라인) → 수동 다운로드 안내로 강제 차단
@@ -147,6 +175,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           appUpdate: null,
           manualReason: `현재 버전 v${appVersion} 은(는) 더 이상 지원되지 않습니다. 최신 버전(v${patch?.min_app_version} 이상)으로 업데이트해 주세요.`,
         };
+        await logger.error("System", `Force update required (manual instructions): v${appVersion} < min v${patch?.min_app_version}`);
+      } else {
+        await logger.info("System", `App version v${appVersion} meets current minimum requirements`);
       }
 
       // 5. 설정 영구 저장 (current_patch / app_version 갱신 반영)
@@ -156,7 +187,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       const session = await readJson<any>("play_session.json", null);
       if (session) {
         usePlayStore.getState().restoreSession(session);
+        await logger.info("System", "Play session restored successfully");
       }
+
+      await logger.info("System", "Boot sequence completed successfully. Ready to run.");
 
       set({
         uuid,
@@ -174,6 +208,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         bootError: null,
       });
     } catch (e) {
+      await logger.error("System", "Boot sequence crashed with critical error", e);
       set({
         ready: true,
         bootError: e instanceof Error ? e.message : "초기화 중 알 수 없는 오류",

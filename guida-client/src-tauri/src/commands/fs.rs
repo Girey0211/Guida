@@ -151,3 +151,66 @@ pub fn write_data_file(app: tauri::AppHandle, name: String, content: String) -> 
     fs::write(&path, encrypted).map_err(|e| format!("파일 쓰기 실패({name}): {e}"))
 }
 
+/// 특정 로그 파일에 텍스트 라인을 추가 기입한다.
+/// 파일 크기가 2MB를 초과하는 경우, `.old` 파일로 교체하고 새 파일을 시작한다.
+#[tauri::command]
+pub fn append_log_file(app: tauri::AppHandle, name: String, line: String) -> Result<(), String> {
+    use std::fs::OpenOptions;
+    use std::io::Write;
+
+    // 로그 파일명의 이탈 시도를 막는다
+    let dir = ensure_data_dir(&app)?;
+    let path = safe_join(dir, &name)?;
+
+    // 2MB 용량 검사 및 로테이션
+    if path.exists() {
+        if let Ok(metadata) = fs::metadata(&path) {
+            if metadata.len() > 2 * 1024 * 1024 {
+                let mut old_path = path.clone();
+                old_path.set_extension("log.old");
+                let _ = fs::rename(&path, &old_path);
+            }
+        }
+    }
+
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)
+        .map_err(|e| format!("로그 파일 열기 실패: {e}"))?;
+
+    writeln!(file, "{}", line).map_err(|e| format!("로그 파일 쓰기 실패: {e}"))?;
+    Ok(())
+}
+
+/// 로그가 저장된 로컬 데이터 디렉토리를 OS 기본 탐색기/파인더로 연다.
+#[tauri::command]
+pub fn open_log_dir(app: tauri::AppHandle) -> Result<(), String> {
+    let dir = ensure_data_dir(&app)?;
+    
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("explorer")
+            .arg(&dir)
+            .spawn()
+            .map_err(|e| format!("탐색기 실행 실패: {e}"))?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg(&dir)
+            .spawn()
+            .map_err(|e| format!("Finder 실행 실패: {e}"))?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(&dir)
+            .spawn()
+            .map_err(|e| format!("디렉토리 열기 실패: {e}"))?;
+    }
+    
+    Ok(())
+}
+
+

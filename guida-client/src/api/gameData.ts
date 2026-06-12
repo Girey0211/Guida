@@ -22,6 +22,7 @@ import type {
   Sinner,
 } from "@/types/gameData";
 import { readJson, writeJson } from "@/lib/storage";
+import { logger } from "@/lib/logger";
 
 /** 추후 GitHub Raw / Cloudflare 로 교체될 데이터 베이스 경로 */
 const DATA_BASE =
@@ -36,9 +37,22 @@ const DEPENDENCIES_CACHE = "dependencies.cache.json";
 const PRISONERS_CACHE = "prisoners.cache.json";
 
 async function fetchJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${DATA_BASE}/${path}`, { cache: "no-cache" });
-  if (!res.ok) throw new Error(`HTTP ${res.status} — ${path}`);
-  return (await res.json()) as T;
+  const startTime = Date.now();
+  await logger.info("CDN", `Fetching game data: ${path}`);
+  try {
+    const res = await fetch(`${DATA_BASE}/${path}`, { cache: "no-cache" });
+    const elapsed = Date.now() - startTime;
+    if (!res.ok) {
+      await logger.error("CDN", `Fetch game data failed: ${path} - Status ${res.status} (${elapsed}ms)`);
+      throw new Error(`HTTP ${res.status} — ${path}`);
+    }
+    await logger.info("CDN", `Fetch game data success: ${path} - Status ${res.status} (${elapsed}ms)`);
+    return (await res.json()) as T;
+  } catch (err) {
+    const elapsed = Date.now() - startTime;
+    await logger.error("CDN", `Fetch game data failed: ${path} (${elapsed}ms)`, err);
+    throw err;
+  }
 }
 
 /** 부가 데이터 fetch — 실패해도 전체 동기화를 막지 않고 폴백값을 반환한다. */
@@ -98,7 +112,7 @@ export async function syncGameData(): Promise<SyncResult> {
     ]);
     return { gameData, patch, dungeonMeta, gifts, packs, dependencies, prisoners, fromNetwork: true };
   } catch (err) {
-    console.warn("[gameData] 네트워크 동기화 실패 — 로컬 캐시 폴백 시도", err);
+    await logger.warn("CDN", "Network synchronization failed - attempting local cache fallback", err);
     const gameData = await readJson<GameData | null>(GAME_DATA_CACHE, null);
     const patch = await readJson<PatchInfo | null>(PATCH_CACHE, null);
     const dungeonMeta = await readJson<DungeonMeta | null>(DUNGEON_META_CACHE, null);

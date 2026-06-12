@@ -42,6 +42,8 @@ pub fn run() {
             gfs::read_data_file,
             gfs::write_data_file,
             gfs::data_dir_path,
+            gfs::append_log_file,
+            gfs::open_log_dir,
             // 설정 및 디바이스 UUID 관리
             settings::load_settings,
             settings::save_settings,
