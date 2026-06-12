@@ -7,6 +7,7 @@ import { BaseScreen } from "@/pages/BaseScreen";
 import { PlayScreen } from "@/pages/PlayScreen";
 import { BackupScreen } from "@/pages/BackupScreen";
 import { FirstRunNotice } from "@/components/common/FirstRunNotice";
+import { ServerUnavailableNotice } from "@/components/common/ServerUnavailableNotice";
 import { UpdateGate } from "@/components/common/UpdateGate";
 
 export default function App() {
@@ -66,6 +67,7 @@ export default function App() {
         <Route path="/backup" element={<BackupScreen />} />
       </Routes>
       <FirstRunNotice />
+      <ServerUnavailableNotice />
       <Toaster />
     </>
   );

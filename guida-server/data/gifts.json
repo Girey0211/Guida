@@ -50,7 +50,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "추가피해",
+      "디버프"
     ]
   },
   {
@@ -77,7 +79,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -104,7 +107,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -131,7 +135,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -158,7 +166,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -185,7 +195,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "합위력증가",
+      "에고자원",
+      "키워드부여"
     ]
   },
   {
@@ -212,7 +226,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -239,7 +256,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -266,7 +284,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -293,7 +312,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -320,7 +340,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -347,7 +369,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -374,7 +398,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -401,7 +427,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -428,7 +458,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "합위력증가",
+      "키워드부여",
+      "조건"
     ]
   },
   {
@@ -455,7 +488,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -482,7 +517,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -509,7 +545,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -536,7 +574,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -563,7 +602,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "디버프"
     ]
   },
   {
@@ -590,7 +630,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -617,7 +658,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -644,7 +687,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -671,7 +715,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가"
     ]
   },
   {
@@ -698,7 +743,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여",
+      "디버프",
+      "조건"
     ]
   },
   {
@@ -725,7 +773,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -752,7 +804,12 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -779,7 +836,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -806,7 +865,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -833,7 +896,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -860,7 +925,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "유지력"
     ]
   },
   {
@@ -887,7 +953,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -941,7 +1009,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "에고자원",
+      "키워드부여"
     ]
   },
   {
@@ -968,7 +1040,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가"
     ]
   },
   {
@@ -995,7 +1068,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1022,7 +1098,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -1049,7 +1126,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -1076,7 +1154,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -1103,7 +1182,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1130,7 +1212,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -1157,7 +1241,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1211,7 +1298,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1238,7 +1328,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1265,7 +1357,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -1292,7 +1385,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -1319,7 +1413,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "에고자원",
+      "키워드부여"
     ]
   },
   {
@@ -1346,7 +1444,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -1400,7 +1500,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -1427,7 +1529,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -1454,7 +1557,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -1481,7 +1585,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1508,7 +1616,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "합위력증가"
     ]
   },
   {
@@ -1535,7 +1644,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1562,7 +1674,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -1589,7 +1702,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -1616,7 +1731,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여",
+      "조건"
     ]
   },
   {
@@ -1643,7 +1760,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여",
+      "조건"
     ]
   },
   {
@@ -1670,7 +1789,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -1697,7 +1817,12 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -1724,7 +1849,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -1751,7 +1877,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "에고자원",
+      "키워드부여"
     ]
   },
   {
@@ -1778,7 +1908,12 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -1805,7 +1940,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1832,7 +1969,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -1859,7 +1997,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -1886,7 +2025,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -1913,7 +2056,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -1940,7 +2084,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -1994,7 +2139,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -2021,7 +2169,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -2048,7 +2198,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -2075,7 +2226,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "유지력"
     ]
   },
   {
@@ -2129,7 +2282,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -2156,7 +2310,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -2183,7 +2338,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -2237,7 +2394,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "합위력증가",
+      "에고자원",
+      "키워드부여"
     ]
   },
   {
@@ -2264,7 +2425,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -2291,7 +2455,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -2318,7 +2485,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -2345,7 +2513,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -2372,7 +2543,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -2399,7 +2572,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가"
     ]
   },
   {
@@ -2426,7 +2600,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "유지력"
     ]
   },
   {
@@ -2453,7 +2628,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -2480,7 +2657,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -2507,7 +2685,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -2534,7 +2714,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -2561,7 +2743,12 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "합위력증가",
+      "유지력",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -2588,7 +2775,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -2615,7 +2803,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -2642,7 +2833,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "디버프",
+      "조건"
     ]
   },
   {
@@ -2669,7 +2862,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -2696,7 +2890,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "합위력증가",
+      "에고자원",
+      "키워드부여"
     ]
   },
   {
@@ -2723,7 +2921,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -2750,7 +2950,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -2777,7 +2979,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -2804,7 +3007,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -2831,7 +3035,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -2858,7 +3066,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -2885,7 +3095,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -2912,7 +3125,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -2939,7 +3153,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -2966,7 +3181,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -3020,7 +3239,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -3047,7 +3268,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -3074,7 +3296,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -3101,7 +3325,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -3128,7 +3353,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -3155,7 +3384,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -3182,7 +3413,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "키워드부여"
     ]
   },
   {
@@ -3209,7 +3441,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -3236,7 +3471,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -3263,7 +3501,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -3290,7 +3531,10 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -3317,7 +3561,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "키워드부여"
     ]
   },
   {
@@ -3344,7 +3589,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "키워드부여"
     ]
   },
   {
@@ -3398,7 +3644,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "유지력"
     ]
   },
   {
@@ -3425,7 +3672,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "합위력증가",
+      "에고자원",
+      "키워드부여"
     ]
   },
   {
@@ -3452,7 +3703,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -3506,7 +3759,9 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -3533,7 +3788,11 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -3560,7 +3819,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "조건"
     ]
   },
   {
@@ -3614,7 +3874,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "조건"
     ]
   },
   {
@@ -3641,7 +3902,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -3668,7 +3931,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -3695,7 +3960,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "합위력증가",
+      "키워드부여",
+      "디버프",
+      "조건"
     ]
   },
   {
@@ -3722,7 +3991,10 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -3749,7 +4021,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "합위력증가",
+      "디버프",
+      "조건"
     ]
   },
   {
@@ -3776,7 +4052,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -3803,7 +4083,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -3830,7 +4114,10 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -3857,7 +4144,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "합위력증가"
     ]
   },
   {
@@ -3884,7 +4172,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -3911,7 +4201,10 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -3938,7 +4231,10 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -3965,7 +4261,10 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -3992,7 +4291,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -4019,7 +4320,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -4046,7 +4349,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "디버프"
     ]
   },
   {
@@ -4073,7 +4377,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -4100,7 +4406,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "합위력증가"
     ]
   },
   {
@@ -4127,7 +4435,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "합위력증가"
     ]
   },
   {
@@ -4154,7 +4463,10 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -4181,7 +4493,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -4208,7 +4522,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -4235,7 +4551,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -4262,7 +4580,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -4289,7 +4609,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "합위력증가"
     ]
   },
   {
@@ -4316,7 +4637,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가"
     ]
   },
   {
@@ -4343,7 +4665,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가"
     ]
   },
   {
@@ -4370,7 +4693,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -4397,7 +4722,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "디버프",
+      "조건"
     ]
   },
   {
@@ -4424,7 +4751,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가"
     ]
   },
   {
@@ -4451,7 +4779,10 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -4478,7 +4809,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -4505,7 +4840,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -4532,7 +4869,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -4559,7 +4897,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -4640,7 +4979,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -4667,7 +5007,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -4721,7 +5062,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -4802,7 +5144,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -4829,7 +5172,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -4856,7 +5200,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가"
     ]
   },
   {
@@ -4910,7 +5255,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가"
     ]
   },
   {
@@ -4991,7 +5337,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -5018,7 +5365,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -5045,7 +5393,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -5126,7 +5475,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -5234,7 +5584,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력"
     ]
   },
   {
@@ -5261,7 +5613,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력"
     ]
   },
   {
@@ -5288,7 +5642,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -5315,7 +5670,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -5342,7 +5698,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -5369,7 +5726,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -5477,7 +5835,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -5531,7 +5890,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "디버프"
     ]
   },
   {
@@ -5558,7 +5918,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -5639,7 +6000,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "조건"
     ]
   },
   {
@@ -5720,7 +6082,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "디버프"
     ]
   },
   {
@@ -5747,7 +6110,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가",
+      "디버프"
     ]
   },
   {
@@ -5801,7 +6166,9 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -5828,7 +6195,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -5855,7 +6223,8 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -5882,7 +6251,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -5909,7 +6282,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여",
+      "조건"
     ]
   },
   {
@@ -5936,7 +6313,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -5963,7 +6344,11 @@
     "source_category": "기본_7키워드_외",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -6179,7 +6564,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가"
     ]
   },
   {
@@ -6206,7 +6592,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -6233,7 +6621,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "추가피해",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6260,7 +6653,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력",
+      "디버프"
     ]
   },
   {
@@ -6287,7 +6682,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -6314,7 +6710,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -6341,7 +6739,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6368,7 +6769,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -6395,7 +6797,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -6422,7 +6825,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6449,7 +6855,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6476,7 +6884,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가",
+      "유지력",
+      "디버프"
     ]
   },
   {
@@ -6503,7 +6914,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -6530,7 +6943,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여",
+      "조건"
     ]
   },
   {
@@ -6557,7 +6974,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -6584,7 +7003,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가"
     ]
   },
   {
@@ -6611,7 +7031,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6638,7 +7063,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가"
     ]
   },
   {
@@ -6665,7 +7091,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6692,7 +7123,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -6719,7 +7152,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6746,7 +7183,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -6773,7 +7212,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6800,7 +7243,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -6827,7 +7273,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -6854,7 +7301,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -6881,7 +7331,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -6908,7 +7360,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력",
+      "디버프"
     ]
   },
   {
@@ -6935,7 +7390,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -6962,7 +7418,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력",
+      "디버프"
     ]
   },
   {
@@ -6989,7 +7447,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -7016,7 +7476,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -7043,7 +7504,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -7070,7 +7535,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -7097,7 +7563,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -7124,7 +7592,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -7178,7 +7648,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -7205,7 +7677,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -7232,7 +7707,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -7259,7 +7736,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -7286,7 +7766,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -7313,7 +7796,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -7340,7 +7828,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -7367,7 +7856,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "조건"
     ]
   },
   {
@@ -7394,7 +7884,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "유지력"
     ]
   },
   {
@@ -7421,7 +7912,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -7475,7 +7969,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -7502,7 +7999,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "디버프"
     ]
   },
   {
@@ -7529,7 +8027,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -7556,7 +8056,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -7583,7 +8084,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -7610,7 +8115,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -7637,7 +8144,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -7664,7 +8172,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -7691,7 +8200,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "추가피해"
     ]
   },
   {
@@ -7745,7 +8255,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -7772,7 +8283,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -7799,7 +8312,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -7826,7 +8342,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -7853,7 +8370,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -7880,7 +8400,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -7907,7 +8428,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "유지력",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -7934,7 +8459,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "조건"
     ]
   },
   {
@@ -7961,7 +8487,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -7988,7 +8515,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "키워드부여"
     ]
   },
   {
@@ -8015,7 +8543,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -8042,7 +8572,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "키워드부여"
     ]
   },
   {
@@ -8069,7 +8600,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "디버프",
+      "조건"
     ]
   },
   {
@@ -8096,7 +8629,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력",
+      "디버프"
     ]
   },
   {
@@ -8123,7 +8659,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "디버프"
     ]
   },
   {
@@ -8150,7 +8687,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -8177,7 +8716,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -8204,7 +8745,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -8231,7 +8775,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -8258,7 +8807,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -8285,7 +8837,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -8312,7 +8866,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원",
+      "조건"
     ]
   },
   {
@@ -8339,7 +8895,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "합위력증가",
+      "유지력"
     ]
   },
   {
@@ -8366,7 +8925,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -8393,7 +8954,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "추가피해",
+      "조건"
     ]
   },
   {
@@ -8420,7 +8983,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "추가피해",
+      "조건"
     ]
   },
   {
@@ -8447,7 +9013,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "추가피해",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -8474,7 +9044,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -8501,7 +9073,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "디버프"
     ]
   },
   {
@@ -8555,7 +9129,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -8582,7 +9158,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -8636,7 +9217,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -8663,7 +9246,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -8690,7 +9278,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -8717,7 +9307,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -8744,7 +9336,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -8771,7 +9367,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -8798,7 +9397,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력",
+      "디버프",
+      "조건"
     ]
   },
   {
@@ -8825,7 +9428,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -8852,7 +9458,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -8879,7 +9486,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -8906,7 +9517,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "유지력"
     ]
   },
   {
@@ -8933,7 +9545,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "조건"
     ]
   },
   {
@@ -8960,7 +9573,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "키워드부여"
     ]
   },
   {
@@ -8987,7 +9601,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9014,7 +9630,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -9041,7 +9658,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9095,7 +9715,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9122,7 +9747,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9149,7 +9778,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -9176,7 +9809,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "합위력증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9203,7 +9841,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "추가피해",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9230,7 +9873,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9257,7 +9903,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "디버프"
     ]
   },
   {
@@ -9284,7 +9931,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9311,7 +9960,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9338,7 +9992,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "키워드부여"
     ]
   },
   {
@@ -9365,7 +10020,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -9392,7 +10050,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "에고자원",
+      "조건"
     ]
   },
   {
@@ -9419,7 +10080,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -9446,7 +10110,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -9473,7 +10138,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "피해량증가",
+      "키워드부여",
+      "디버프"
     ]
   },
   {
@@ -9500,7 +10168,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -9527,7 +10197,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여"
     ]
   },
   {
@@ -9554,7 +10227,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -9581,7 +10256,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -9608,7 +10284,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -9635,7 +10313,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "키워드부여"
     ]
   },
   {
@@ -9662,7 +10341,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -9689,7 +10369,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "키워드부여"
     ]
   },
   {
@@ -9716,7 +10397,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -9743,7 +10425,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -9770,7 +10454,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -9797,7 +10483,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여",
+      "조건"
     ]
   },
   {
@@ -9824,7 +10514,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -9851,7 +10544,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -9878,7 +10573,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -9905,7 +10603,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "합위력증가"
     ]
   },
   {
@@ -9932,7 +10631,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "키워드부여"
     ]
   },
   {
@@ -9959,7 +10659,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -9986,7 +10689,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "유지력"
     ]
   },
   {
@@ -10013,7 +10717,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -10040,7 +10747,12 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10067,7 +10779,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10094,7 +10809,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10121,7 +10838,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -10148,7 +10867,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10175,7 +10897,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10202,7 +10926,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10229,7 +10956,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "참격"
+      "참격",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -10256,7 +10985,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10283,7 +11015,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -10310,7 +11043,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10337,7 +11073,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "디버프",
+      "조건"
     ]
   },
   {
@@ -10364,7 +11103,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10391,7 +11134,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10418,7 +11165,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "디버프"
     ]
   },
   {
@@ -10445,7 +11193,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -10472,7 +11222,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -10499,7 +11251,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -10526,7 +11280,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -10553,7 +11308,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -10580,7 +11336,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "합위력증가",
+      "유지력"
     ]
   },
   {
@@ -10607,7 +11365,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력"
     ]
   },
   {
@@ -10634,7 +11393,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가"
     ]
   },
   {
@@ -10661,7 +11421,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가"
     ]
   },
   {
@@ -10688,7 +11449,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -10715,7 +11478,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -10742,7 +11508,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "디버프"
     ]
   },
   {
@@ -10796,7 +11563,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "디버프",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -10823,7 +11594,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력"
     ]
   },
   {
@@ -10850,7 +11623,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "피해량증가",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -10877,7 +11653,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "유지력",
+      "키워드부여"
     ]
   },
   {
@@ -10904,7 +11682,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원",
+      "유지력"
     ]
   },
   {
@@ -10958,7 +11738,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "추가피해"
     ]
   },
   {
@@ -10985,7 +11766,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "조건"
     ]
   },
   {
@@ -11012,7 +11794,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -11039,7 +11823,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -11066,7 +11852,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -11093,7 +11881,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -11120,7 +11910,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -11147,7 +11939,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "키워드부여"
     ]
   },
   {
@@ -11174,7 +11968,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "관통"
+      "관통",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -11201,7 +11998,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "키워드부여"
     ]
   },
   {
@@ -11228,7 +12026,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "디버프",
+      "키워드부여"
     ]
   },
   {
@@ -11255,7 +12056,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -11336,7 +12139,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력"
     ]
   },
   {
@@ -11390,7 +12195,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "조건"
     ]
   },
   {
@@ -11417,7 +12224,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "화상"
+      "화상",
+      "유지력"
     ]
   },
   {
@@ -11444,7 +12252,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "합위력증가",
+      "에고자원",
+      "유지력"
     ]
   },
   {
@@ -11471,7 +12283,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "디버프"
     ]
   },
   {
@@ -11498,7 +12311,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "키워드부여"
     ]
   },
   {
@@ -11552,7 +12366,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -11606,7 +12423,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "합위력증가",
+      "조건"
     ]
   },
   {
@@ -11633,7 +12453,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -11660,7 +12484,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "키워드부여",
+      "조건"
     ]
   },
   {
@@ -11687,7 +12515,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "출혈"
+      "출혈",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -11714,7 +12546,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가"
     ]
   },
   {
@@ -11768,7 +12601,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "조건"
     ]
   },
   {
@@ -11795,7 +12629,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "키워드부여"
     ]
   },
   {
@@ -11822,7 +12657,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "타격"
+      "타격",
+      "피해량증가",
+      "합위력증가",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -11849,7 +12688,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력",
+      "조건"
     ]
   },
   {
@@ -11876,7 +12718,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   },
   {
@@ -11903,7 +12746,11 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "합위력증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -11930,7 +12777,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "진동"
+      "진동",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -11957,7 +12807,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "에고자원"
     ]
   },
   {
@@ -11984,7 +12835,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "파열"
+      "파열",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -12011,7 +12865,9 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가",
+      "유지력"
     ]
   },
   {
@@ -12038,7 +12894,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "침잠"
+      "침잠",
+      "피해량증가",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -12065,7 +12924,10 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "호흡"
+      "호흡",
+      "유지력",
+      "조건",
+      "키워드부여"
     ]
   },
   {
@@ -12092,7 +12954,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "디버프"
     ]
   },
   {
@@ -12119,7 +12982,8 @@
     "source_category": "테마팩_전용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "피해량증가"
     ]
   }
 ]

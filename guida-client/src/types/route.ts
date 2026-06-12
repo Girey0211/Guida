@@ -123,6 +123,8 @@ export interface LocalRoute {
   imported_from?: string;
   /** 덱 공유 코드 */
   deck_code?: string | null;
+  /** 플레이 횟수 */
+  play_count?: number;
   /** 목표 재화 목록 */
   target_rewards: string[];
   /** 난이도 태그 */

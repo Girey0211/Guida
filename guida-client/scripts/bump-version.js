@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 const packageJsonPath = path.resolve(__dirname, '../package.json');
 const tauriConfPath = path.resolve(__dirname, '../src-tauri/tauri.conf.json');
 const cargoTomlPath = path.resolve(__dirname, '../src-tauri/Cargo.toml');
+const cargoLockPath = path.resolve(__dirname, '../src-tauri/Cargo.lock');
 
 // Function to read and parse version
 function getCurrentVersion() {
@@ -90,6 +91,22 @@ function main() {
     const newCargoContent = cargoContent.replace(/(^version\s*=\s*")[^"]*(")/m, `$1${newVersion}$2`);
     fs.writeFileSync(cargoTomlPath, newCargoContent, 'utf8');
     console.log(`Updated Cargo.toml -> ${newVersion}`);
+  }
+
+  // 4. Update Cargo.lock (only the [[package]] entry for "guida")
+  if (fs.existsSync(cargoLockPath)) {
+    const lockContent = fs.readFileSync(cargoLockPath, 'utf8');
+    // Match the guida package block and replace its version line only
+    const newLockContent = lockContent.replace(
+      /(\[\[package\]\]\r?\nname = "guida"\r?\nversion = ")[^"]*(")/,
+      `$1${newVersion}$2`
+    );
+    if (newLockContent !== lockContent) {
+      fs.writeFileSync(cargoLockPath, newLockContent, 'utf8');
+      console.log(`Updated Cargo.lock -> ${newVersion}`);
+    } else {
+      console.warn('Warning: could not find "guida" package entry in Cargo.lock; skipped.');
+    }
   }
 
   console.log('Successfully updated all version fields!');

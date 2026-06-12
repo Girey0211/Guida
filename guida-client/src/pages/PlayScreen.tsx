@@ -7,6 +7,7 @@ import { useAppStore } from "@/store/appStore";
 import { useRouteStore } from "@/store/routeStore";
 import { usePlayStore } from "@/store/playStore";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,8 @@ const DIFFICULTY_LABEL: Record<DifficultyMode, string> = {
 export function PlayScreen() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<PlayTab>("packs");
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
 
   const { gifts, packs, dependencies } = useAppStore();
   const { myRoutes, loadMyRoutes, verifyRoute } = useRouteStore();
@@ -58,13 +61,11 @@ export function PlayScreen() {
   if (!sessionId) return <Navigate to="/" replace />;
 
   const handleEnd = () => {
-    if (!confirm("거던 탐사를 종료할까요? 진행 데이터는 초기화됩니다.")) return;
     endSession();
     navigate("/");
   };
 
   const handleComplete = async () => {
-    if (!confirm("거던 탐사를 완료하셨습니까? 이 루트를 검증(실제 플레이 완료) 상태로 표시합니다.")) return;
     if (activeRouteId) {
       await verifyRoute(activeRouteId);
       toast.success("탐사가 완료되어 루트가 검증되었습니다!");
@@ -115,12 +116,12 @@ export function PlayScreen() {
           ))}
         </Select>
 
-        <Button size="sm" variant="default" onClick={handleComplete} className="ml-auto">
+        <Button size="sm" variant="default" onClick={() => setShowCompleteConfirm(true)} className="ml-auto">
           <Check className="size-4" />
           탐사 완료
         </Button>
 
-        <Button size="sm" variant="outline" onClick={handleEnd}>
+        <Button size="sm" variant="outline" onClick={() => setShowEndConfirm(true)}>
           <LogOut className="size-4" />
           탐사 종료
         </Button>
@@ -176,6 +177,58 @@ export function PlayScreen() {
           </div>
         )}
       </main>
+
+      {showEndConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">⚠️ 탐사 종료</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <p>
+                거던 탐사를 종료할까요?
+              </p>
+              <p>
+                탐사를 종료하면 <b className="text-foreground">진행 데이터는 초기화</b>됩니다. 정말로 종료하시겠습니까?
+              </p>
+              <div className="flex justify-end gap-2 pt-1">
+                <Button variant="outline" onClick={() => setShowEndConfirm(false)}>
+                  취소
+                </Button>
+                <Button variant="destructive" onClick={handleEnd}>
+                  탐사 종료
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {showCompleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">✨ 탐사 완료</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <p>
+                거던 탐사를 완료하셨습니까?
+              </p>
+              <p>
+                이 루트를 <b className="text-foreground">검증(실제 플레이 완료) 상태</b>로 표시하고 탐사를 종료합니다.
+              </p>
+              <div className="flex justify-end gap-2 pt-1">
+                <Button variant="outline" onClick={() => setShowCompleteConfirm(false)}>
+                  취소
+                </Button>
+                <Button variant="default" onClick={handleComplete}>
+                  탐사 완료
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
@@ -283,7 +336,16 @@ function GiftsTab({
         reason: "사용자 설정 우선순위 제약",
       }));
 
-    return [...globalDeps, ...customDeps];
+    const combined = [...globalDeps, ...customDeps];
+    const unique: DependencyEdge[] = [];
+    const seen = new Set<string>();
+    for (const dep of combined) {
+      if (!seen.has(dep.target.gift_id)) {
+        seen.add(dep.target.gift_id);
+        unique.push(dep);
+      }
+    }
+    return unique;
   };
 
   const filtered = useMemo(() => {
@@ -445,6 +507,27 @@ function GiftsTab({
                   <span className="font-semibold text-xs line-clamp-2 leading-tight text-foreground" title={gift?.name ?? item.gift_id}>
                     {gift?.name ?? item.gift_id}
                   </span>
+
+                  {/* Tag list */}
+                  {(gift?.tags || gift?.pack_exclusive) && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {gift?.tags
+                        ?.filter((t) => t !== gift?.keyword_type && t !== "범용")
+                        .map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary animate-fade-in"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      {gift?.pack_exclusive && (
+                        <span className="rounded bg-amber-500/10 text-amber-600 border border-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold animate-fade-in">
+                          테마팩한정
+                        </span>
+                      )}
+                    </div>
+                  )}
                   
                   <div className="flex flex-col gap-1 mt-auto w-full">
                     {/* Optional or required badge */}

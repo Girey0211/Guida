@@ -39,6 +39,8 @@ interface Props {
   /** 편집 모드일 때 기존 검증 여부 */
   initialSelfReported?: boolean;
   submitting?: boolean;
+  /** 상세 보기 모드 여부 */
+  readOnly?: boolean;
 }
 
 const DIFFICULTIES: DifficultyTag[] = ["쉬움", "보통", "어려움"];
@@ -169,6 +171,7 @@ export function RouteEditor({
   onCancel,
   initialSelfReported = false,
   submitting,
+  readOnly = false,
 }: Props) {
   const [draft, setDraft] = useState<RouteDraft>(initial ?? EMPTY);
   const [selfReported, setSelfReported] = useState(initialSelfReported);
@@ -580,6 +583,7 @@ export function RouteEditor({
           placeholder="예: 혈귀덱 15층 풀제약"
           onChange={(e) => set("name", e.target.value)}
           maxLength={40}
+          disabled={readOnly}
         />
       </div>
 
@@ -594,11 +598,13 @@ export function RouteEditor({
                 key={f}
                 type="button"
                 onClick={() => setDepth(f)}
+                disabled={readOnly}
                 className={cn(
                   "h-9 rounded-md border px-4 text-sm transition-colors",
                   active
                     ? "border-primary bg-primary/20 text-primary"
                     : "border-border text-muted-foreground hover:border-primary/40",
+                  readOnly && "cursor-default opacity-80"
                 )}
               >
                 {f}층
@@ -612,7 +618,7 @@ export function RouteEditor({
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label>난이도 태그</Label>
-          <Select value={draft.difficulty_tag} onChange={(e) => set("difficulty_tag", e.target.value as DifficultyTag)}>
+          <Select value={draft.difficulty_tag} onChange={(e) => set("difficulty_tag", e.target.value as DifficultyTag)} disabled={readOnly}>
             {DIFFICULTIES.map((d) => (
               <option key={d} value={d}>
                 {d}
@@ -622,7 +628,7 @@ export function RouteEditor({
         </div>
         <div className="space-y-1.5">
           <Label>루트 유형</Label>
-          <Select value={draft.route_type} onChange={(e) => set("route_type", e.target.value as RouteType)}>
+          <Select value={draft.route_type} onChange={(e) => set("route_type", e.target.value as RouteType)} disabled={readOnly}>
             {ROUTE_TYPES.map((t) => (
               <option key={t} value={t}>
                 {t}
@@ -635,7 +641,7 @@ export function RouteEditor({
       {/* 난이도 모드 */}
       <div className="space-y-1.5">
         <Label>난이도 모드</Label>
-        <Select value={draft.difficulty_mode} onChange={(e) => setMode(e.target.value as DifficultyMode)}>
+        <Select value={draft.difficulty_mode} onChange={(e) => setMode(e.target.value as DifficultyMode)} disabled={readOnly}>
           {DIFFICULTY_MODES.map((m) => (
             <option key={m} value={m}>
               {DIFFICULTY_MODE_LABEL[m]}
@@ -651,11 +657,13 @@ export function RouteEditor({
           <button
             type="button"
             onClick={() => set("difficulty_switch_floor", null)}
+            disabled={readOnly}
             className={cn(
               "h-9 rounded-md border px-3 text-sm transition-colors",
               draft.difficulty_switch_floor === null
                 ? "border-primary bg-primary/20 text-primary"
                 : "border-border text-muted-foreground hover:border-primary/40",
+              readOnly && "cursor-default opacity-80"
             )}
           >
             {draft.difficulty_mode === "normal" ? "단일 난이도" : "전체 하드"}
@@ -667,11 +675,13 @@ export function RouteEditor({
                 key={f}
                 type="button"
                 onClick={() => toggleSwitchFloor(f)}
+                disabled={readOnly}
                 className={cn(
                   "h-9 w-11 rounded-md border text-sm transition-colors",
                   active
                     ? "border-primary bg-primary/20 text-primary"
                     : "border-border text-muted-foreground hover:border-primary/40",
+                  readOnly && "cursor-default opacity-80"
                 )}
                 title={`${f}층부터 하드`}
               >
@@ -688,20 +698,22 @@ export function RouteEditor({
           <div className="flex flex-col gap-0.5">
             <Label className="text-sm font-semibold">수감자 전투 편성 (덱 코드)</Label>
             <span className="text-[11px] text-muted-foreground">
-              좌클릭: 상세 편집 / 우클릭: 편성 토글
+              {readOnly ? "좌클릭: 상세 정보" : "좌클릭: 상세 편집 / 우클릭: 편성 토글"}
             </span>
           </div>
           <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleResetAllAssignments}
-              className="h-8 text-xs gap-1"
-            >
-              <RotateCcw className="size-3" />
-              편성 초기화
-            </Button>
+            {!readOnly && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleResetAllAssignments}
+                className="h-8 text-xs gap-1"
+              >
+                <RotateCcw className="size-3" />
+                편성 초기화
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"
@@ -717,23 +729,25 @@ export function RouteEditor({
         </div>
 
         {/* 덱 코드 텍스트 및 불러오기 버튼 */}
-        <div className="flex gap-2">
-          <Input
-            value={deckInputCode}
-            onChange={(e) => setDeckInputCode(e.target.value)}
-            placeholder="림버스 컴퍼니 덱 코드를 여기에 입력하세요 (예: H4sIAAAA...)"
-            className="h-8 text-xs font-mono"
-          />
-          <Button
-            type="button"
-            variant="default"
-            size="sm"
-            onClick={() => handleImportDeckCode(deckInputCode)}
-            className="h-8 text-xs"
-          >
-            불러오기
-          </Button>
-        </div>
+        {!readOnly && (
+          <div className="flex gap-2">
+            <Input
+              value={deckInputCode}
+              onChange={(e) => setDeckInputCode(e.target.value)}
+              placeholder="림버스 컴퍼니 덱 코드를 여기에 입력하세요 (예: H4sIAAAA...)"
+              className="h-8 text-xs font-mono"
+            />
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={() => handleImportDeckCode(deckInputCode)}
+              className="h-8 text-xs"
+            >
+              불러오기
+            </Button>
+          </div>
+        )}
 
         {/* 12인 수감자 2x6 그리드 */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -774,8 +788,8 @@ export function RouteEditor({
               <div
                 key={state.sinnerId}
                 onClick={() => setActiveSinnerId(state.sinnerId)}
-                onContextMenu={(e) => handleSinnerContextMenu(e, state.sinnerId)}
-                title={`${activeEgoNames.length > 0 ? `장착 에고:\n- ${activeEgoNames.join("\n- ")}` : "장착된 에고 없음"}\n\n우클릭: ${state.order > 0 ? "편성 취소" : "편성 추가"}`}
+                onContextMenu={readOnly ? (e) => e.preventDefault() : (e) => handleSinnerContextMenu(e, state.sinnerId)}
+                title={readOnly ? `${activeEgoNames.length > 0 ? `장착 에고:\n- ${activeEgoNames.join("\n- ")}` : "장착된 에고 없음"}` : `${activeEgoNames.length > 0 ? `장착 에고:\n- ${activeEgoNames.join("\n- ")}` : "장착된 에고 없음"}\n\n우클릭: ${state.order > 0 ? "편성 취소" : "편성 추가"}`}
                 className={cn(
                   "relative flex flex-col justify-between overflow-hidden rounded-md border p-2.5 cursor-pointer transition-all hover:bg-primary/5 hover:border-primary/40 min-h-[105px]",
                   state.order > 0
@@ -896,7 +910,7 @@ export function RouteEditor({
               <div className="flex items-center justify-between border-b border-border p-4">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                    <span>{sinnerMeta.name} 편성 설정</span>
+                    <span>{sinnerMeta.name} {readOnly ? "상세 정보" : "편성 설정"}</span>
                     {sinnerState.order > 0 && (
                       <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
                         {sinnerState.order}번 편성
@@ -904,7 +918,7 @@ export function RouteEditor({
                     )}
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    인격과 등급별 E.G.O 장착 상태를 우측 패널에서 간편하게 구성합니다.
+                    {readOnly ? "선택된 인격과 등급별 E.G.O 장착 정보를 조회합니다." : "인격과 등급별 E.G.O 장착 상태를 우측 패널에서 간편하게 구성합니다."}
                   </p>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setActiveSinnerId(null)} className="h-8 gap-1 text-xs">
@@ -946,6 +960,7 @@ export function RouteEditor({
                   <Select
                     value={sinnerState.order}
                     onChange={(e) => updateSinnerState({ ...sinnerState, order: Number(e.target.value) })}
+                    disabled={readOnly}
                     className="h-8 text-xs text-foreground bg-background"
                   >
                     <option value={0}>미편성 (대기)</option>
@@ -967,12 +982,15 @@ export function RouteEditor({
                         <button
                           key={iden.identity_id}
                           type="button"
-                          onClick={() => updateSinnerState({ ...sinnerState, identityCodeIndex: iden.code_index })}
+                          onClick={readOnly ? undefined : () => updateSinnerState({ ...sinnerState, identityCodeIndex: iden.code_index })}
+                          disabled={readOnly}
                           className={cn(
                             "relative flex flex-col rounded-md border p-2 text-left transition-all text-xs select-none",
                             active
                               ? "border-primary bg-primary/10 text-primary shadow-inner font-semibold"
-                              : "border-border hover:bg-muted/40 text-foreground"
+                              : "border-border hover:bg-muted/40 text-foreground",
+                            readOnly && active && "opacity-90",
+                            readOnly && !active && "opacity-50 cursor-default hover:bg-transparent"
                           )}
                         >
                           <div className="flex items-center justify-between gap-1 w-full">
@@ -1009,12 +1027,15 @@ export function RouteEditor({
                           <button
                             key={ego.ego_id}
                             type="button"
-                            onClick={() => updateSinnerState({ ...sinnerState, egoZayinCodeIndex: ego.code_index })}
+                            onClick={readOnly ? undefined : () => updateSinnerState({ ...sinnerState, egoZayinCodeIndex: ego.code_index })}
+                            disabled={readOnly}
                             className={cn(
                               "flex items-center justify-between rounded-md border p-2 text-left text-xs",
                               active
                                 ? "border-primary bg-primary/10 text-primary font-semibold"
-                                : "border-border hover:bg-muted/40 text-foreground"
+                                : "border-border hover:bg-muted/40 text-foreground",
+                              readOnly && active && "opacity-90",
+                              readOnly && !active && "opacity-50 cursor-default hover:bg-transparent"
                             )}
                           >
                             <span>{ego.name}</span>
@@ -1031,12 +1052,15 @@ export function RouteEditor({
                     <div className="flex flex-col gap-1">
                       <button
                         type="button"
-                        onClick={() => updateSinnerState({ ...sinnerState, egoTethCodeIndex: 0 })}
+                        onClick={readOnly ? undefined : () => updateSinnerState({ ...sinnerState, egoTethCodeIndex: 0 })}
+                        disabled={readOnly}
                         className={cn(
                           "flex items-center justify-between rounded-md border p-2 text-left text-xs",
                           sinnerState.egoTethCodeIndex === 0
                             ? "border-primary bg-primary/10 text-primary font-semibold"
-                            : "border-border hover:bg-muted/40 text-foreground"
+                            : "border-border hover:bg-muted/40 text-foreground",
+                          readOnly && sinnerState.egoTethCodeIndex === 0 && "opacity-90",
+                          readOnly && sinnerState.egoTethCodeIndex !== 0 && "opacity-50 cursor-default hover:bg-transparent"
                         )}
                       >
                         <span className="text-muted-foreground">미장착 (없음)</span>
@@ -1048,12 +1072,15 @@ export function RouteEditor({
                           <button
                             key={ego.ego_id}
                             type="button"
-                            onClick={() => updateSinnerState({ ...sinnerState, egoTethCodeIndex: ego.code_index })}
+                            onClick={readOnly ? undefined : () => updateSinnerState({ ...sinnerState, egoTethCodeIndex: ego.code_index })}
+                            disabled={readOnly}
                             className={cn(
                               "flex items-center justify-between rounded-md border p-2 text-left text-xs",
                               active
                                 ? "border-primary bg-primary/10 text-primary font-semibold"
-                                : "border-border hover:bg-muted/40 text-foreground"
+                                : "border-border hover:bg-muted/40 text-foreground",
+                              readOnly && active && "opacity-90",
+                              readOnly && !active && "opacity-50 cursor-default hover:bg-transparent"
                             )}
                           >
                             <span>{ego.name}</span>
@@ -1070,12 +1097,15 @@ export function RouteEditor({
                     <div className="flex flex-col gap-1">
                       <button
                         type="button"
-                        onClick={() => updateSinnerState({ ...sinnerState, egoHeCodeIndex: 0 })}
+                        onClick={readOnly ? undefined : () => updateSinnerState({ ...sinnerState, egoHeCodeIndex: 0 })}
+                        disabled={readOnly}
                         className={cn(
                           "flex items-center justify-between rounded-md border p-2 text-left text-xs",
                           sinnerState.egoHeCodeIndex === 0
                             ? "border-primary bg-primary/10 text-primary font-semibold"
-                            : "border-border hover:bg-muted/40 text-foreground"
+                            : "border-border hover:bg-muted/40 text-foreground",
+                          readOnly && sinnerState.egoHeCodeIndex === 0 && "opacity-90",
+                          readOnly && sinnerState.egoHeCodeIndex !== 0 && "opacity-50 cursor-default hover:bg-transparent"
                         )}
                       >
                         <span className="text-muted-foreground">미장착 (없음)</span>
@@ -1087,12 +1117,15 @@ export function RouteEditor({
                           <button
                             key={ego.ego_id}
                             type="button"
-                            onClick={() => updateSinnerState({ ...sinnerState, egoHeCodeIndex: ego.code_index })}
+                            onClick={readOnly ? undefined : () => updateSinnerState({ ...sinnerState, egoHeCodeIndex: ego.code_index })}
+                            disabled={readOnly}
                             className={cn(
                               "flex items-center justify-between rounded-md border p-2 text-left text-xs",
                               active
                                 ? "border-primary bg-primary/10 text-primary font-semibold"
-                                : "border-border hover:bg-muted/40 text-foreground"
+                                : "border-border hover:bg-muted/40 text-foreground",
+                              readOnly && active && "opacity-90",
+                              readOnly && !active && "opacity-50 cursor-default hover:bg-transparent"
                             )}
                           >
                             <span>{ego.name}</span>
@@ -1109,12 +1142,15 @@ export function RouteEditor({
                     <div className="flex flex-col gap-1">
                       <button
                         type="button"
-                        onClick={() => updateSinnerState({ ...sinnerState, egoWawCodeIndex: 0 })}
+                        onClick={readOnly ? undefined : () => updateSinnerState({ ...sinnerState, egoWawCodeIndex: 0 })}
+                        disabled={readOnly}
                         className={cn(
                           "flex items-center justify-between rounded-md border p-2 text-left text-xs",
                           sinnerState.egoWawCodeIndex === 0
                             ? "border-primary bg-primary/10 text-primary font-semibold"
-                            : "border-border hover:bg-muted/40 text-foreground"
+                            : "border-border hover:bg-muted/40 text-foreground",
+                          readOnly && sinnerState.egoWawCodeIndex === 0 && "opacity-90",
+                          readOnly && sinnerState.egoWawCodeIndex !== 0 && "opacity-50 cursor-default hover:bg-transparent"
                         )}
                       >
                         <span className="text-muted-foreground">미장착 (없음)</span>
@@ -1126,12 +1162,15 @@ export function RouteEditor({
                           <button
                             key={ego.ego_id}
                             type="button"
-                            onClick={() => updateSinnerState({ ...sinnerState, egoWawCodeIndex: ego.code_index })}
+                            onClick={readOnly ? undefined : () => updateSinnerState({ ...sinnerState, egoWawCodeIndex: ego.code_index })}
+                            disabled={readOnly}
                             className={cn(
                               "flex items-center justify-between rounded-md border p-2 text-left text-xs",
                               active
                                 ? "border-primary bg-primary/10 text-primary font-semibold"
-                                : "border-border hover:bg-muted/40 text-foreground"
+                                : "border-border hover:bg-muted/40 text-foreground",
+                              readOnly && active && "opacity-90",
+                              readOnly && !active && "opacity-50 cursor-default hover:bg-transparent"
                             )}
                           >
                             <span>{ego.name}</span>
@@ -1155,7 +1194,7 @@ export function RouteEditor({
           <p className="text-xs text-muted-foreground">시즌 메타(dungeon_meta)를 불러오지 못해 선택할 수 없습니다.</p>
         ) : (
           <div className="space-y-2">
-            <Select value={startingKeyword} onChange={(e) => setStartingKeyword(e.target.value)}>
+            <Select value={startingKeyword} onChange={(e) => setStartingKeyword(e.target.value)} disabled={readOnly}>
               <option value="">키워드 선택 (없음)</option>
               {startingGroups.map((g) => (
                 <option key={g.keyword_type} value={g.keyword_type}>
@@ -1171,12 +1210,15 @@ export function RouteEditor({
                     <button
                       key={g.gift_id}
                       type="button"
-                      onClick={() => toggleStartingGift(g)}
+                      onClick={readOnly ? undefined : () => toggleStartingGift(g)}
+                      disabled={readOnly}
                       className={cn(
                         "rounded-full border px-3 py-1.5 text-xs transition-colors",
                         active
                           ? "border-primary bg-primary/20 text-primary"
                           : "border-border text-muted-foreground hover:border-primary/40",
+                        readOnly && active && "opacity-90",
+                        readOnly && !active && "opacity-50 cursor-default hover:bg-transparent"
                       )}
                     >
                       {active && <Check className="mr-1 inline size-3" />}
@@ -1205,10 +1247,12 @@ export function RouteEditor({
             )}
           </div>
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            <Button type="button" variant="outline" size="sm" onClick={() => setGiftPickerOpen(true)}>
-              <Plus className="size-3.5" />
-              기프트 추가
-            </Button>
+            {!readOnly && (
+              <Button type="button" variant="outline" size="sm" onClick={() => setGiftPickerOpen(true)}>
+                <Plus className="size-3.5" />
+                기프트 추가
+              </Button>
+            )}
             <button
               type="button"
               className="p-1 hover:bg-muted rounded text-muted-foreground flex items-center justify-center transition-colors"
@@ -1255,14 +1299,16 @@ export function RouteEditor({
                         )}
                       </div>
                       {/* Remove Button */}
-                      <button
-                        type="button"
-                        onClick={() => removeGift(g.gift_id)}
-                        title="제거"
-                        className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 hover:bg-destructive hover:scale-105 transition-all"
-                      >
-                        <X className="size-3" />
-                      </button>
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          onClick={() => removeGift(g.gift_id)}
+                          title="제거"
+                          className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 hover:bg-destructive hover:scale-105 transition-all"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -1309,13 +1355,15 @@ export function RouteEditor({
                     </span>
                     <span className="font-semibold">{secondGift?.name || dep.second_gift_id}</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => removeDependencyPair(dep.first_gift_id, dep.second_gift_id)}
-                    className="text-muted-foreground hover:text-destructive transition-colors"
-                  >
-                    <X className="size-3.5" />
-                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => removeDependencyPair(dep.first_gift_id, dep.second_gift_id)}
+                      className="text-muted-foreground hover:text-destructive transition-colors"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -1323,41 +1371,19 @@ export function RouteEditor({
         )}
 
         {/* 새 우선순위 페어 추가 */}
-        {draft.gift_order.length >= 2 ? (
-          <div className="space-y-2 border-t border-border/50 pt-2.5">
-            <div className="flex items-end gap-2">
-              <div className="flex-1 space-y-1">
-                <span className="text-[10px] text-muted-foreground font-medium">먼저 획득할 기프트</span>
-                <Select
-                  value={firstGiftId}
-                  onChange={(e) => setFirstGiftId(e.target.value)}
-                  className="h-8 text-xs"
-                >
-                  <option value="">선택하세요</option>
-                  {draft.gift_order.map((g) => {
-                    const gift = giftById.get(g.gift_id);
-                    return (
-                      <option key={g.gift_id} value={g.gift_id}>
-                        {gift?.name || g.gift_id}
-                      </option>
-                    );
-                  })}
-                </Select>
-              </div>
-
-              <div className="flex-none text-muted-foreground font-medium pb-2">➔</div>
-
-              <div className="flex-1 space-y-1">
-                <span className="text-[10px] text-muted-foreground font-medium">나중에 획득할 기프트</span>
-                <Select
-                  value={secondGiftId}
-                  onChange={(e) => setSecondGiftId(e.target.value)}
-                  className="h-8 text-xs"
-                >
-                  <option value="">선택하세요</option>
-                  {draft.gift_order
-                    .filter((g) => g.gift_id !== firstGiftId)
-                    .map((g) => {
+        {!readOnly && (
+          draft.gift_order.length >= 2 ? (
+            <div className="space-y-2 border-t border-border/50 pt-2.5">
+              <div className="flex items-end gap-2">
+                <div className="flex-1 space-y-1">
+                  <span className="text-[10px] text-muted-foreground font-medium">먼저 획득할 기프트</span>
+                  <Select
+                    value={firstGiftId}
+                    onChange={(e) => setFirstGiftId(e.target.value)}
+                    className="h-8 text-xs"
+                  >
+                    <option value="">선택하세요</option>
+                    {draft.gift_order.map((g) => {
                       const gift = giftById.get(g.gift_id);
                       return (
                         <option key={g.gift_id} value={g.gift_id}>
@@ -1365,29 +1391,53 @@ export function RouteEditor({
                         </option>
                       );
                     })}
-                </Select>
-              </div>
+                  </Select>
+                </div>
 
-              <Button
-                type="button"
-                variant="default"
-                size="sm"
-                onClick={() => addDependencyPair(firstGiftId, secondGiftId)}
-                disabled={!firstGiftId || !secondGiftId || firstGiftId === secondGiftId}
-                className="h-8 shrink-0"
-              >
-                페어 추가
-              </Button>
+                <div className="flex-none text-muted-foreground font-medium pb-2">➔</div>
+
+                <div className="flex-1 space-y-1">
+                  <span className="text-[10px] text-muted-foreground font-medium">나중에 획득할 기프트</span>
+                  <Select
+                    value={secondGiftId}
+                    onChange={(e) => setSecondGiftId(e.target.value)}
+                    className="h-8 text-xs"
+                  >
+                    <option value="">선택하세요</option>
+                    {draft.gift_order
+                      .filter((g) => g.gift_id !== firstGiftId)
+                      .map((g) => {
+                        const gift = giftById.get(g.gift_id);
+                        return (
+                          <option key={g.gift_id} value={g.gift_id}>
+                            {gift?.name || g.gift_id}
+                          </option>
+                        );
+                      })}
+                  </Select>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  onClick={() => addDependencyPair(firstGiftId, secondGiftId)}
+                  disabled={!firstGiftId || !secondGiftId || firstGiftId === secondGiftId}
+                  className="h-8 shrink-0"
+                >
+                  페어 추가
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground py-2 text-center">
-            우선순위를 설정하려면 먼저 2개 이상의 에고기프트를 추가하세요.
-          </p>
+          ) : (
+            <p className="text-xs text-muted-foreground py-2 text-center">
+              우선순위를 설정하려면 먼저 2개 이상의 에고기프트를 추가하세요.
+            </p>
+          )
         )}
 
         {/* dependencies.json 기반 추천 페어 노출 */}
-        {recommendedPairs.length > 0 && (
+        {!readOnly && recommendedPairs.length > 0 && (
           <div className="space-y-1.5 border-t border-border/50 pt-2.5">
             <span className="text-[10px] font-bold text-amber-500 block">💡 추천 우선순위 페어 (dependencies.json 기반)</span>
             <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
@@ -1452,14 +1502,16 @@ export function RouteEditor({
                       <span className="ml-1.5 font-normal text-primary/80">· {DIFFICULTY_MODE_LABEL[diff]}</span>
                     )}
                   </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setOpenPackBucket(open ? null : bucket.key)}
-                  >
-                    <Plus className="size-3.5" />팩
-                  </Button>
+                  {!readOnly && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setOpenPackBucket(open ? null : bucket.key)}
+                    >
+                      <Plus className="size-3.5" />팩
+                    </Button>
+                  )}
                 </div>
                 {open && (
                   <div className="mt-2">
@@ -1496,13 +1548,15 @@ export function RouteEditor({
                             )}
                             <button
                               type="button"
-                              onClick={() => togglePackAlt(p.pack_id, p.floor)}
+                              onClick={readOnly ? undefined : () => togglePackAlt(p.pack_id, p.floor)}
+                              disabled={readOnly}
                               title={p.alternative ? "대체 팩 → 주력으로" : "주력 팩 → 대체로"}
                               className={cn(
                                 "rounded px-1.5 py-0.5 text-[10px] transition-colors",
                                 p.alternative
                                   ? "bg-muted text-muted-foreground hover:bg-muted/70"
                                   : "bg-primary/15 text-primary hover:bg-primary/25",
+                                readOnly && "cursor-default opacity-80"
                               )}
                             >
                               {p.alternative ? "대체" : "주력"}
@@ -1510,9 +1564,11 @@ export function RouteEditor({
                             <span className={cn("flex-1", incompatible && "text-destructive")}>
                               {pack?.name ?? p.pack_id}
                             </span>
-                            <button type="button" onClick={() => removePack(p.pack_id, p.floor)} title="제거">
-                              <X className="size-3 text-muted-foreground hover:text-destructive" />
-                            </button>
+                            {!readOnly && (
+                              <button type="button" onClick={() => removePack(p.pack_id, p.floor)} title="제거">
+                                <X className="size-3 text-muted-foreground hover:text-destructive" />
+                              </button>
+                            )}
                           </div>
                           {p.alternative && (
                             <Input
@@ -1520,6 +1576,7 @@ export function RouteEditor({
                               onChange={(e) => setPackMemo(p.pack_id, p.floor, e.target.value)}
                               placeholder="대체 조건 (예: 한겨울 밤의 악몽 기프트가 없으면 선택)"
                               className="mt-1.5 h-7 text-[11px]"
+                              disabled={readOnly}
                             />
                           )}
                         </div>
@@ -1544,7 +1601,7 @@ export function RouteEditor({
               </span>
             )}
           </div>
-          {metaGahos.length > 0 && (
+          {!readOnly && metaGahos.length > 0 && (
             <div className="flex gap-1.5">
               <Button type="button" variant="outline" size="sm" onClick={toggleAllGahos}>
                 {allGahosSelected ? "전체 해제" : "전체 선택"}
@@ -1576,10 +1633,13 @@ export function RouteEditor({
                   <div className="flex items-start gap-2">
                     <button
                       type="button"
-                      onClick={() => toggleGaho(meta)}
+                      onClick={readOnly ? undefined : () => toggleGaho(meta)}
+                      disabled={readOnly}
                       className={cn(
                         "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
                         selected ? "border-primary bg-primary text-primary-foreground" : "border-border",
+                        readOnly && selected && "opacity-90",
+                        readOnly && !selected && "opacity-50 cursor-default"
                       )}
                       title={selected ? "선택 해제" : "선택"}
                     >
@@ -1601,12 +1661,15 @@ export function RouteEditor({
                             <button
                               key={s}
                               type="button"
-                              onClick={() => setGahoStage(meta.id, s)}
+                              onClick={readOnly ? undefined : () => setGahoStage(meta.id, s)}
+                              disabled={readOnly}
                               className={cn(
                                 "h-6 min-w-9 rounded border px-2 text-xs transition-colors",
                                 stage === s
                                   ? "border-primary bg-primary/20 text-primary"
                                   : "border-border text-muted-foreground hover:border-primary/40",
+                                readOnly && stage === s && "opacity-90",
+                                readOnly && stage !== s && "opacity-50 cursor-default"
                               )}
                             >
                               {label}
@@ -1630,12 +1693,16 @@ export function RouteEditor({
             <Label>EXTREME 제약 (11~15층)</Label>
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-muted-foreground mr-1">선택 점수 합계: {restrictionScore}</span>
-              <Button type="button" variant="outline" size="sm" onClick={selectAllRestrictions} className="h-7 px-2 text-[11px]">
-                전체 선택
-              </Button>
-              <Button type="button" variant="outline" size="sm" onClick={clearAllRestrictions} className="h-7 px-2 text-[11px]">
-                전체 해제
-              </Button>
+              {!readOnly && (
+                <>
+                  <Button type="button" variant="outline" size="sm" onClick={selectAllRestrictions} className="h-7 px-2 text-[11px]">
+                    전체 선택
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={clearAllRestrictions} className="h-7 px-2 text-[11px]">
+                    전체 해제
+                  </Button>
+                </>
+              )}
             </div>
           </div>
           {Object.keys(restrictionsByFloor).length === 0 ? (
@@ -1650,40 +1717,43 @@ export function RouteEditor({
                   <div key={floor} className="rounded-md border border-border p-2">
                     <div className="mb-1.5 flex items-center justify-between">
                       <p className="text-xs font-semibold text-muted-foreground">{floor}층</p>
-                      <div className="flex gap-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const options = restrictionsByFloor[floor] ?? [];
-                            set("restrictions", {
-                              ...draft.restrictions,
-                              [floor]: options.map((opt) => ({ name: opt.name, score: opt.score })),
-                            });
-                          }}
-                          className="rounded px-1.5 py-0.5 text-[10px] bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors font-medium"
-                        >
-                          전체 선택
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            set("restrictions", {
-                              ...draft.restrictions,
-                              [floor]: [],
-                            });
-                          }}
-                          className="rounded px-1.5 py-0.5 text-[10px] bg-muted hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors font-medium"
-                        >
-                          전체 해제
-                        </button>
-                      </div>
+                      {!readOnly && (
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const options = restrictionsByFloor[floor] ?? [];
+                              set("restrictions", {
+                                ...draft.restrictions,
+                                [floor]: options.map((opt) => ({ name: opt.name, score: opt.score })),
+                              });
+                            }}
+                            className="rounded px-1.5 py-0.5 text-[10px] bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors font-medium"
+                          >
+                            전체 선택
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              set("restrictions", {
+                                ...draft.restrictions,
+                                [floor]: [],
+                              });
+                            }}
+                            className="rounded px-1.5 py-0.5 text-[10px] bg-muted hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors font-medium"
+                          >
+                            전체 해제
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-1">
                       {options.map((opt) => (
                         <label key={opt.name} className="flex items-start gap-2 text-xs" title={opt.effect}>
                           <Checkbox
                             checked={selected.some((r) => r.name === opt.name)}
-                            onChange={() => toggleRestriction(floor, opt.name, opt.score)}
+                            onChange={readOnly ? undefined : () => toggleRestriction(floor, opt.name, opt.score)}
+                            disabled={readOnly}
                             className="mt-0.5"
                           />
                           <span>
@@ -1708,12 +1778,13 @@ export function RouteEditor({
           value={draft.memo}
           placeholder="예: 3층부터 하드 전환. 심야청소 4층 필수."
           onChange={(e) => set("memo", e.target.value)}
+          disabled={readOnly}
         />
       </div>
 
       {/* 자기 신고 (Phase 1 검증) */}
       <label className="flex items-start gap-2.5 rounded-md border border-border bg-muted/30 p-3">
-        <Checkbox checked={selfReported} onChange={(e) => setSelfReported(e.target.checked)} className="mt-0.5" />
+        <Checkbox checked={selfReported} onChange={readOnly ? undefined : (e) => setSelfReported(e.target.checked)} disabled={readOnly} className="mt-0.5" />
         <span className="text-sm">
           <b>실제로 이 루트로 플레이했습니다.</b>
           <span className="block text-xs text-muted-foreground">
@@ -1725,14 +1796,23 @@ export function RouteEditor({
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={onCancel}>
-          <X className="size-4" />
-          취소
-        </Button>
-        <Button onClick={handleSubmit} disabled={submitting}>
-          <Save className="size-4" />
-          저장
-        </Button>
+        {readOnly ? (
+          <Button onClick={onCancel}>
+            <Check className="size-4" />
+            닫기
+          </Button>
+        ) : (
+          <>
+            <Button variant="ghost" onClick={onCancel}>
+              <X className="size-4" />
+              취소
+            </Button>
+            <Button onClick={handleSubmit} disabled={submitting}>
+              <Save className="size-4" />
+              저장
+            </Button>
+          </>
+        )}
       </div>
 
       {/* 목표 에고기프트 추가 드로어 */}

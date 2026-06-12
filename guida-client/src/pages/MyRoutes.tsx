@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Pencil, Trash2, Share2, Copy, Check, ShieldCheck, ShieldAlert, Play, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash2, Share2, Copy, Check, ShieldCheck, ShieldAlert, Play, RefreshCw, Eye } from "lucide-react";
 import type { LocalRoute, RouteDraft, SharedRoute } from "@/types/route";
 import { useAppStore } from "@/store/appStore";
 import { useRouteStore } from "@/store/routeStore";
@@ -16,7 +16,7 @@ import { ServerUnavailableError } from "@/api/client";
 import { formatDate } from "@/lib/utils";
 import * as routesApi from "@/api/routes";
 
-type EditorState = { mode: "create" } | { mode: "edit"; route: LocalRoute } | null;
+type EditorState = { mode: "create" } | { mode: "edit"; route: LocalRoute } | { mode: "view"; route: LocalRoute } | null;
 
 /** 내 루트 관리 페이지 */
 export function MyRoutes() {
@@ -142,10 +142,10 @@ export function MyRoutes() {
     setTimeout(() => setCopied(null), 1500);
   };
 
-  // 편집 모드 화면
+  // 편집/상세 정보 모드 화면
   if (editor) {
     const initial: RouteDraft | undefined =
-      editor.mode === "edit"
+      editor.mode === "edit" || editor.mode === "view"
         ? {
             name: editor.route.name,
             target_rewards: editor.route.target_rewards,
@@ -161,21 +161,23 @@ export function MyRoutes() {
             gahos: editor.route.gahos,
             restrictions: editor.route.restrictions,
             gift_dependencies: editor.route.gift_dependencies ?? [],
+            deck_code: editor.route.deck_code,
           }
         : undefined;
     return (
       <div className="mx-auto max-w-4xl p-6">
-        <PageHeader title={editor.mode === "edit" ? "루트 편집" : "새 루트 작성"} />
+        <PageHeader title={editor.mode === "edit" ? "루트 편집" : editor.mode === "view" ? "루트 상세 정보" : "새 루트 작성"} />
         <Card className="no-hover">
           <CardContent className="p-5">
             <RouteEditor
               initial={initial}
-              initialSelfReported={editor.mode === "edit" ? editor.route.verified : false}
+              initialSelfReported={editor.mode === "edit" || editor.mode === "view" ? editor.route.verified : false}
               gifts={gifts}
               packs={packs}
               dungeonMeta={dungeonMeta}
               onSubmit={handleSubmit}
               onCancel={() => setEditor(null)}
+              readOnly={editor.mode === "view"}
             />
           </CardContent>
         </Card>
@@ -224,6 +226,10 @@ export function MyRoutes() {
                       <ShieldAlert className="size-3" />미검증
                     </Badge>
                   )}
+                  <Badge variant="outline" className="gap-1 border-primary/30 bg-primary/5 text-primary">
+                    <Play className="size-3 fill-primary/20" />
+                    플레이 {route.play_count ?? 0}회
+                  </Badge>
                   <span className="text-[11px] text-muted-foreground">{formatDate(route.created_at)}</span>
                 </div>
               </CardHeader>
@@ -330,6 +336,15 @@ export function MyRoutes() {
                             </Button>
                           );
                         })()}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditor({ mode: "view", route })}
+                          title="루트 상세 정보 보기"
+                        >
+                          <Eye className="size-3.5" />
+                          상세 정보
+                        </Button>
                         <Button size="sm" variant="ghost" onClick={() => handleDelete(route)}>
                           <Trash2 className="size-3.5 text-destructive" />
                         </Button>

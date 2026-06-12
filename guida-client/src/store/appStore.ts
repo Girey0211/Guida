@@ -162,22 +162,30 @@ export const useAppStore = create<AppState>((set, get) => ({
       settings.app_version = appVersion;
 
       let update: UpdateGateState = NO_UPDATE;
-      const appUpdate = await checkAppUpdate();
-      if (appUpdate) {
-        // (a) 설치 가능한 새 버전이 있으면 강제 업데이트(정책상 모든 업데이트 강제)
-        update = { required: true, appUpdate, manualReason: null };
-        await logger.warn("System", `Force update required: v${appVersion} -> v${appUpdate.version}`);
-      } else if (isBelowMinVersion(appVersion, patch?.min_app_version)) {
-        // (b) 서버가 요구하는 최소 버전 미달인데 자동 설치 핸들이 없음
-        //     (릴리스 미게시/오프라인) → 수동 다운로드 안내로 강제 차단
-        update = {
-          required: true,
-          appUpdate: null,
-          manualReason: `현재 버전 v${appVersion} 은(는) 더 이상 지원되지 않습니다. 최신 버전(v${patch?.min_app_version} 이상)으로 업데이트해 주세요.`,
-        };
-        await logger.error("System", `Force update required (manual instructions): v${appVersion} < min v${patch?.min_app_version}`);
+      if (!online) {
+        // 서버 연결 불가 → 업데이트 확인/강제 게이트를 생략하고 현재(캐시) 버전으로
+        // 그대로 부팅한다. 반쪽짜리 연결 상태에서 강제 설치를 시작하면 설치를
+        // 끝내지 못한 채 앱이 닫혀(NSIS 설치 종료) 그대로 사라지는 문제를 막는다.
+        // 사용자에게는 ServerUnavailableNotice 팝업으로 안내한다.
+        await logger.warn("System", "Server unreachable — skipping update check; booting current version");
       } else {
-        await logger.info("System", `App version v${appVersion} meets current minimum requirements`);
+        const appUpdate = await checkAppUpdate();
+        if (appUpdate) {
+          // (a) 설치 가능한 새 버전이 있으면 강제 업데이트(정책상 모든 업데이트 강제)
+          update = { required: true, appUpdate, manualReason: null };
+          await logger.warn("System", `Force update required: v${appVersion} -> v${appUpdate.version}`);
+        } else if (isBelowMinVersion(appVersion, patch?.min_app_version)) {
+          // (b) 서버가 요구하는 최소 버전 미달인데 자동 설치 핸들이 없음
+          //     (릴리스 미게시) → 수동 다운로드 안내로 강제 차단
+          update = {
+            required: true,
+            appUpdate: null,
+            manualReason: `현재 버전 v${appVersion} 은(는) 더 이상 지원되지 않습니다. 최신 버전(v${patch?.min_app_version} 이상)으로 업데이트해 주세요.`,
+          };
+          await logger.error("System", `Force update required (manual instructions): v${appVersion} < min v${patch?.min_app_version}`);
+        } else {
+          await logger.info("System", `App version v${appVersion} meets current minimum requirements`);
+        }
       }
 
       // 5. 설정 영구 저장 (current_patch / app_version 갱신 반영)

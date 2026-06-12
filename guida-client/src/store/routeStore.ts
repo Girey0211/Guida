@@ -60,7 +60,18 @@ export const useRouteStore = create<RouteState>((set, get) => ({
 
   loadMyRoutes: async () => {
     const file = await readJson<RoutesFile>(ROUTES_FILE, { routes: [] });
-    set({ myRoutes: file.routes });
+    let changed = false;
+    const routes = file.routes.map((r) => {
+      if (r.imported_from && !r.verified) {
+        changed = true;
+        return { ...r, verified: true };
+      }
+      return r;
+    });
+    set({ myRoutes: routes });
+    if (changed) {
+      await writeJson(ROUTES_FILE, { routes } satisfies RoutesFile);
+    }
   },
 
   createRoute: async (draft, selfReported) => {
@@ -72,6 +83,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       verified: selfReported,
       verified_method: "self_report",
       verified_at: selfReported ? now : undefined,
+      play_count: 0,
       ...draft,
     };
     const next = [route, ...get().myRoutes];
@@ -103,6 +115,20 @@ export const useRouteStore = create<RouteState>((set, get) => ({
   },
 
   verifyRoute: async (localId) => {
+    const route = get().myRoutes.find((r) => r.local_id === localId);
+    if (!route) return;
+
+    const { uuid, settings } = useAppStore.getState();
+    const code = route.imported_from || route.shared_code;
+
+    if (code) {
+      try {
+        await routesApi.recordPlay(uuid, code, settings.current_patch);
+      } catch (e) {
+        console.error("Failed to record play on server:", e);
+      }
+    }
+
     const now = new Date().toISOString();
     const next = get().myRoutes.map((r) =>
       r.local_id === localId
@@ -110,6 +136,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
             ...r,
             verified: true,
             verified_at: r.verified_at ?? now,
+            play_count: (r.play_count ?? 0) + 1,
           }
         : r,
     );
@@ -200,8 +227,8 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       name: shared.name,
       created_at: now,
       patch_version: shared.patch_version,
-      verified: false,
-      verified_method: "self_report",
+      verified: true,
+      verified_method: shared.verified_method,
       // 가져온 루트는 내가 발행한 게 아니므로 shared_code 가 아니라 출처(imported_from)로 기록한다.
       // 이래야 재공유 시 남의 루트를 덮어쓰지 않고 내 코드로 새로 발행된다.
       imported_from: shared.route_code,
@@ -218,6 +245,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       starting_gift: null,
       gahos: [],
       restrictions: {},
+      play_count: 0,
     };
     const next = [local, ...get().myRoutes];
     set({ myRoutes: next });
@@ -247,6 +275,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
             memo: shared.memo,
             gift_order: shared.gift_order,
             pack_order: shared.pack_order,
+            verified: true,
             verified_method: shared.verified_method,
           }
         : r,
