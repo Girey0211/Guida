@@ -1,6 +1,6 @@
 {
-  "current_patch": "2.4",
-  "min_app_version": "0.1.0",
-  "updated_at": "2026-06-01T00:00:00Z",
-  "note": "신규 인격/에고기프트 추가 패치. 거울 던전 보상 테이블 일부 조정."
+  "current_patch": "1.107.0",
+  "min_app_version": "0.2.7",
+  "updated_at": "2026-06-11T12:00:00Z",
+  "note": "경험기억 신규 인격 & E.G.O 정보 안내"
 }

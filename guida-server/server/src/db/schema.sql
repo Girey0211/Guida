@@ -101,11 +101,6 @@ CREATE TABLE IF NOT EXISTS config (
   value TEXT NOT NULL
 );
 
--- 현재 게임 패치 버전 초기값 (data/patch_version.json 과 일치)
-INSERT INTO config (key, value)
-VALUES ('current_patch', '2.7')
-ON CONFLICT (key) DO NOTHING;
-
 -- ─────────────────────────────────────────────
 -- backups — 영지식 백업
 -- ─────────────────────────────────────────────

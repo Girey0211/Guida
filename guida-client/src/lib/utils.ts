@@ -43,8 +43,30 @@ export function formatDate(iso: string): string {
   }
 }
 
-/** 두 패치 버전(예: "2.4", "2.2")의 마이너 차이를 반환 (a - b) */
+/** 두 패치 버전(예: "1.107.0", "1.106.0", 또는 "2.4", "2.2")의 차이를 반환 (a - b) */
 export function patchDiff(a: string, b: string): number {
+  const parseSemverPatch = (v: string): { major: number; minor: number; patch: number } | null => {
+    const parts = v.split(".").map((x) => parseInt(x, 10));
+    if (parts.length >= 2 && parts.every((x) => !isNaN(x))) {
+      return {
+        major: parts[0],
+        minor: parts[1],
+        patch: parts[2] ?? 0,
+      };
+    }
+    return null;
+  };
+
+  const sa = parseSemverPatch(a);
+  const sb = parseSemverPatch(b);
+
+  if (sa && sb) {
+    if (sa.major !== sb.major) {
+      return (sa.major - sb.major) * 100 + (sa.minor - sb.minor);
+    }
+    return sa.minor - sb.minor;
+  }
+
   const pa = parseFloat(a);
   const pb = parseFloat(b);
   if (Number.isNaN(pa) || Number.isNaN(pb)) return 0;
