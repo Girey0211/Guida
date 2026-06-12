@@ -6,6 +6,21 @@
 >
 > *"Guida"는 단테의 신곡에서 베르길리우스가 단테의 안내자(길잡이)로 불리던 이탈리아어 단어입니다. 한국어 표기 및 약칭은 **가이다**입니다.*
 
+<div align="center">
+  <br />
+  <a href="https://github.com/Girey0211/Guida/releases/latest">
+    <img src="https://img.shields.io/github/v/release/Girey0211/Guida?label=Download%20Desktop%20App&color=E67E22&logo=windows&style=for-the-badge" alt="Download Desktop App" />
+  </a>
+  &nbsp;
+  <a href="https://girey0211.github.io/Guida/">
+    <img src="https://img.shields.io/badge/Landing%20Page-girey0211.github.io%2FGuida%2F-2980B9?logo=google-chrome&style=for-the-badge&logoColor=white" alt="Landing Page" />
+  </a>
+  <br /><br />
+  
+  📥 **[데스크톱 설치 파일 다운로드 (GitHub Releases)](https://github.com/Girey0211/Guida/releases/latest)** <br /> 🌐 **[가이다 랜딩 페이지 바로가기 (GitHub Pages)](https://girey0211.github.io/Guida/)**
+  <br />
+</div>
+
 ---
 
 ## 📑 목차
@@ -37,7 +52,7 @@
 | 🔍 **Transparency** (투명성) | GitHub 전면 오픈소스 공개로 코드 투명성 확보 및 보안 취약점 원천 차단 |
 | 🛡️ **Read-Only** (안전성) | 게임 내 조작(Input) 및 클라이언트 변조가 없는 비인젝션(Non-Injection) 방식 설계 |
 | 📦 **Offline-First** (독립성) | 중앙 서버 가동 여부와 관계없이 핵심 기능이 100% 가동되는 하이브리드 아키텍처 |
-| 🪶 **Ultra-Lightweight** (경량화) | 최초 설치 용량 **15MB 이하** 목표 (이미지 지연 로딩 적용) |
+| 🪶 **Lightweight** (경량화) | 설치 용량 **15MB 이하** 목표 (이미지 지연 로딩 적용) |
 
 ---
 
@@ -897,7 +912,8 @@ data/
 
 ### 10.1. 배포 방식
 
-- GitHub Releases를 통한 `.exe` 설치 파일 배포
+- **데스크톱 앱 다운로드:** [GitHub Releases 최신 버전](https://github.com/Girey0211/Guida/releases/latest)을 통해 `.exe` (또는 `.msi`) 설치 파일 배포
+- **공식 웹 페이지:** 소개, 설치 방법 안내 및 웹 피드백 창을 제공하는 [가이다 웹 버전](https://girey0211.github.io/Guida/) 운영
 - 각 릴리즈에 VirusTotal 스캔 결과 링크 첨부
 - 오픈소스 공개로 코드 투명성 보장
 
