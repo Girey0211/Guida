@@ -451,6 +451,7 @@ function areRouteFieldsEqual(local: LocalRoute, shared: SharedRoute): boolean {
   if (local.difficulty_switch_floor !== shared.difficulty_switch_floor) return false;
   if (local.memo !== shared.memo) return false;
   if (local.verified_method !== shared.verified_method) return false;
+  if ((local.deck_code || null) !== (shared.deck_code || null)) return false;
   
   if (local.target_rewards.length !== shared.target_rewards.length) return false;
   for (let i = 0; i < local.target_rewards.length; i++) {

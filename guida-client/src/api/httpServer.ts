@@ -43,6 +43,7 @@ interface ServerRoute {
   pack_order?: PackOrderItem[];
   memo: string | null;
   verified_method: SharedRoute["verified_method"];
+  deck_code?: string | null;
   uploaded_at: string;
   likes: number;
   play_count: number;
@@ -140,6 +141,7 @@ function toShared(r: ServerRoute): SharedRoute {
     gift_order: r.gift_order ?? [],
     pack_order: r.pack_order ?? [],
     verified_method: r.verified_method,
+    deck_code: r.deck_code ?? null,
     stats,
     uploaded_at: r.uploaded_at,
   };
@@ -263,6 +265,7 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
     pack_order: route.pack_order,
     memo: route.memo,
     verified_method: route.verified_method,
+    deck_code: route.deck_code,
   };
   const bodyString = JSON.stringify(bodyObj);
   const headers = await getAuthHeaders("upload", bodyString);
@@ -305,6 +308,7 @@ export async function updateRoute(code: string, payload: UploadPayload): Promise
     pack_order: route.pack_order,
     memo: route.memo,
     verified_method: route.verified_method,
+    deck_code: route.deck_code,
   };
   const bodyString = JSON.stringify(bodyObj);
   const headers = await getAuthHeaders("update", bodyString);

@@ -167,6 +167,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
         gift_order: route.gift_order,
         pack_order: route.pack_order,
         verified_method: route.verified_method,
+        deck_code: route.deck_code,
       },
     };
 
@@ -232,6 +233,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       // 가져온 루트는 내가 발행한 게 아니므로 shared_code 가 아니라 출처(imported_from)로 기록한다.
       // 이래야 재공유 시 남의 루트를 덮어쓰지 않고 내 코드로 새로 발행된다.
       imported_from: shared.route_code,
+      deck_code: shared.deck_code,
       target_rewards: shared.target_rewards,
       floors: shared.floors,
       difficulty_tag: shared.difficulty_tag,
@@ -275,6 +277,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
             memo: shared.memo,
             gift_order: shared.gift_order,
             pack_order: shared.pack_order,
+            deck_code: shared.deck_code,
             verified: true,
             verified_method: shared.verified_method,
           }
