@@ -17,7 +17,7 @@
   </a>
   <br /><br />
   
-  📥 **[데스크톱 설치 파일 다운로드 (GitHub Releases)](https://github.com/Girey0211/Guida/releases/latest)** <br /> 🌐 **[가이다 랜딩 페이지 바로가기 (GitHub Pages)](https://girey0211.github.io/Guida/)**
+  📥 **[데스크톱 설치 파일 다운로드 (GitHub Releases)](https://github.com/Girey0211/Guida/releases/latest)**<br />  🌐 **[가이다 랜딩 페이지 바로가기 (GitHub Pages)](https://girey0211.github.io/Guida/)**
   <br />
 </div>
 

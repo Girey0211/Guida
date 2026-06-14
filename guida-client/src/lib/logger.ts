@@ -28,7 +28,7 @@ export const logger = {
           context instanceof Error
             ? `${context.name}: ${context.message}\nStack: ${context.stack}`
             : typeof context === "object"
-            ? JSON.stringify(context)
+            ? JSON.stringify(context, null, 2)
             : String(context)
         }`;
       } catch {
@@ -40,11 +40,23 @@ export const logger = {
 
     // 1. 브라우저 콘솔 출력
     if (level === "INFO") {
-      console.log(logLine);
+      if (context !== undefined) {
+        console.log(logLine, context);
+      } else {
+        console.log(logLine);
+      }
     } else if (level === "WARN") {
-      console.warn(logLine);
+      if (context !== undefined) {
+        console.warn(logLine, context);
+      } else {
+        console.warn(logLine);
+      }
     } else {
-      console.error(logLine);
+      if (context !== undefined) {
+        console.error(logLine, context);
+      } else {
+        console.error(logLine);
+      }
     }
 
     // 2. 환경별 저장 매체 기록

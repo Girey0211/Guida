@@ -38,19 +38,65 @@ const PRISONERS_CACHE = "prisoners.cache.json";
 
 async function fetchJson<T>(path: string): Promise<T> {
   const startTime = Date.now();
-  await logger.info("CDN", `Fetching game data: ${path}`);
+  const fullUrl = new URL(`${DATA_BASE}/${path}`, window.location.origin).href;
+  const requestDetails = {
+    url: fullUrl,
+    method: "GET",
+    cache: "no-cache",
+  };
+
+  await logger.info("CDN", `Fetching game data: ${fullUrl}`, requestDetails);
   try {
     const res = await fetch(`${DATA_BASE}/${path}`, { cache: "no-cache" });
     const elapsed = Date.now() - startTime;
+    const responseHeaders = Object.fromEntries(res.headers.entries());
+    const responseDetails: Record<string, any> = {
+      url: fullUrl,
+      method: "GET",
+      status: res.status,
+      statusText: res.statusText,
+      headers: responseHeaders,
+      elapsedMs: elapsed,
+    };
+
     if (!res.ok) {
-      await logger.error("CDN", `Fetch game data failed: ${path} - Status ${res.status} (${elapsed}ms)`);
+      let errorBody: any = null;
+      try {
+        const clone = res.clone();
+        errorBody = await clone.json();
+      } catch {
+        try {
+          const clone = res.clone();
+          errorBody = await clone.text();
+        } catch {}
+      }
+      responseDetails.error = errorBody || `HTTP ${res.status}`;
+      await logger.error("CDN", `Fetch game data failed: ${fullUrl} - Status ${res.status} (${elapsed}ms)`, responseDetails);
       throw new Error(`HTTP ${res.status} — ${path}`);
     }
-    await logger.info("CDN", `Fetch game data success: ${path} - Status ${res.status} (${elapsed}ms)`);
-    return (await res.json()) as T;
+
+    let responseBody: any = null;
+    try {
+      const clone = res.clone();
+      responseBody = await clone.json();
+    } catch {
+      try {
+        const clone = res.clone();
+        responseBody = await clone.text();
+      } catch {}
+    }
+    responseDetails.body = responseBody;
+
+    await logger.info("CDN", `Fetch game data success: ${fullUrl} - Status ${res.status} (${elapsed}ms)`, responseDetails);
+    return responseBody as T;
   } catch (err) {
     const elapsed = Date.now() - startTime;
-    await logger.error("CDN", `Fetch game data failed: ${path} (${elapsed}ms)`, err);
+    await logger.error("CDN", `Fetch game data failed: ${fullUrl} (${elapsed}ms)`, {
+      url: fullUrl,
+      method: "GET",
+      elapsedMs: elapsed,
+      error: err instanceof Error ? `${err.name}: ${err.message}` : err,
+    });
     throw err;
   }
 }
