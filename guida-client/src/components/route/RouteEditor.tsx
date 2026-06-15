@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Plus, Save, X, Check, ChevronDown, ChevronUp, Copy, RotateCcw } from "lucide-react";
 import {
   type SinnerIdentityState,
@@ -881,7 +882,7 @@ export function RouteEditor({
         const wawEgo = sinnerMeta.egos.find(e => e.grade === "WAW" && e.code_index === sinnerState.egoWawCodeIndex);
         if (wawEgo) activeEgoNames.push(`[WAW] ${wawEgo.name}`);
 
-        return (
+        return createPortal(
           <>
             {/* 백드롭 */}
             <div 
@@ -1169,7 +1170,8 @@ export function RouteEditor({
                 </div>
               </div>
             </aside>
-          </>
+          </>,
+          document.body
         );
       })()}
 

@@ -335,6 +335,7 @@ export function UserProfile() {
                     likeBusy={likeBusy === route.route_code}
                     onLike={handleLike}
                     onImport={handleImport}
+                    buttonsOnNewLine={true}
                   />
                 );
               })}

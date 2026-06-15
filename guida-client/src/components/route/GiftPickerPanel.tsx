@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, X } from "lucide-react";
 import type { Gift } from "@/types/gameData";
 import { Input } from "@/components/ui/input";
@@ -120,7 +121,7 @@ export function GiftPickerPanel({
     setSelectedOnly(false);
   };
 
-  return (
+  return createPortal(
     <>
       {/* 백드롭 */}
       <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} aria-hidden />
@@ -281,7 +282,8 @@ export function GiftPickerPanel({
           )}
         </div>
       </aside>
-    </>
+    </>,
+    document.body
   );
 }
 
