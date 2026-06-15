@@ -73,52 +73,105 @@ function url(path: string): string {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const method = init?.method ?? "GET";
   const startTime = Date.now();
+  const fullUrl = new URL(url(path), window.location.origin).href;
 
-  await logger.info("HTTP", `Sending request: ${method} ${path}`);
+  const headers = {
+    "content-type": "application/json",
+    ...(init?.headers ?? {}),
+  };
+
+  const requestDetails: Record<string, any> = {
+    url: fullUrl,
+    method,
+    headers,
+  };
+  if (init?.body) {
+    try {
+      requestDetails.body = JSON.parse(init.body as string);
+    } catch {
+      requestDetails.body = init.body;
+    }
+  }
+
+  await logger.info("HTTP", `Sending request: ${method} ${fullUrl}`, requestDetails);
 
   let res: Response;
   try {
     res = await fetch(url(path), {
       ...init,
-      headers: {
-        "content-type": "application/json",
-        ...(init?.headers ?? {}),
-      },
+      headers,
     });
   } catch (err) {
     const elapsed = Date.now() - startTime;
-    await logger.error("HTTP", `Request failed: ${method} ${path} (${elapsed}ms) - Network Error`, err);
+    await logger.error("HTTP", `Request failed: ${method} ${fullUrl} (${elapsed}ms) - Network Error`, {
+      url: fullUrl,
+      method,
+      elapsedMs: elapsed,
+      error: err instanceof Error ? `${err.name}: ${err.message}` : err,
+    });
     throw new ServerUnavailableError();
   }
 
   const elapsed = Date.now() - startTime;
+  const responseHeaders = Object.fromEntries(res.headers.entries());
+  const responseDetails: Record<string, any> = {
+    url: fullUrl,
+    method,
+    status: res.status,
+    statusText: res.statusText,
+    headers: responseHeaders,
+    elapsedMs: elapsed,
+  };
+
   if (!res.ok) {
     let message = `서버 오류가 발생했습니다 (HTTP ${res.status}).`;
-    let errorDetail = "";
+    let errorBody: any = null;
     try {
-      const body = (await res.json()) as { error?: string };
+      const clone = res.clone();
+      const body = await clone.json();
+      errorBody = body;
       if (body?.error) {
         message = body.error;
-        errorDetail = body.error;
       }
     } catch {
-      /* 본문이 JSON 이 아니면 기본 메시지 사용 */
+      try {
+        const clone = res.clone();
+        errorBody = await clone.text();
+      } catch {
+        /* ignore */
+      }
     }
     const code = STATUS_TO_CODE[res.status];
 
-    await logger.warn("HTTP", `Request unsuccessful: ${method} ${path} - Status ${res.status} (${elapsed}ms)`, {
-      code,
-      message: errorDetail || message
-    });
+    responseDetails.error = errorBody || message;
+    responseDetails.code = code;
+
+    await logger.warn("HTTP", `Request unsuccessful: ${method} ${fullUrl} - Status ${res.status} (${elapsed}ms)`, responseDetails);
 
     if (code) throw new ApiError(message, code);
     throw new ServerUnavailableError(message);
   }
 
-  await logger.info("HTTP", `Request success: ${method} ${path} - Status ${res.status} (${elapsed}ms)`);
+  let responseBody: any = null;
+  if (res.status !== 204) {
+    try {
+      const clone = res.clone();
+      responseBody = await clone.json();
+    } catch {
+      try {
+        const clone = res.clone();
+        responseBody = await clone.text();
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  responseDetails.body = responseBody;
+
+  await logger.info("HTTP", `Request success: ${method} ${fullUrl} - Status ${res.status} (${elapsed}ms)`, responseDetails);
 
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  return responseBody as T;
 }
 
 /** 서버 Route → 클라이언트 SharedRoute 변환 */
