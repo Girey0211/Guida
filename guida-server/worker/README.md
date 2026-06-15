@@ -59,13 +59,17 @@ Cloudflare 대시보드에서 레포를 한 번 연결하면, 이후 push마다 
 2. GitHub 앱 설치/인증 후 `Girey0211/Guida` 레포 선택.
 3. 빌드 설정:
    - **Root directory(루트 디렉터리):** `guida-server/worker`
+   - **Build command:** `npm run build && npm run db:migrate`
+     → 타입체크 + **DB 스키마 자동 동기화**(배포마다 schema.sql 멱등 적용 = 기존 "부팅마다 동기화"의 대체)
    - **Deploy command:** `npx wrangler deploy` (기본값)
-   - Build command 는 비워도 됨(자동으로 `npm install` 실행).
    - 빌드 트리거 브랜치: `main`
-   > 모노레포 전체가 체크아웃되므로 `src/data.ts` 의 `../../data/*.json` import 도 정상 해석된다.
-4. **Settings → Variables and Secrets** 에서 시크릿 추가:
-   - `DATABASE_URL` = Neon 연결 문자열 (**Secret/Encrypt** 로 추가)
-5. 저장하면 첫 배포가 돌고, 이후 `main` 에 push할 때마다 자동 재배포된다.
+   > 모노레포 전체가 체크아웃되므로 `src/data.ts` 의 `../../data/*.json` import 와
+   > `scripts/migrate.ts` 의 `../../server/src/db/schema.sql` 참조 모두 정상 해석된다.
+4. 변수/시크릿 등록:
+   - **런타임 시크릿** (Worker 실행용): Settings → Variables and Secrets → `DATABASE_URL` (**Secret/Encrypt**)
+   - **빌드 변수** (migrate 실행용): Build 설정의 **Build variables and secrets** 에도 `DATABASE_URL` 추가
+     → 빌드 단계와 런타임은 환경이 분리돼 있어 **양쪽 모두** 등록해야 한다.
+5. 저장하면 첫 배포가 돌고, 이후 `main` 에 push할 때마다 자동 재배포(+ 스키마 동기화)된다.
 
 배포 URL: `https://guida-server.<your-subdomain>.workers.dev` (또는 커스텀 도메인 연결).
 
@@ -91,7 +95,8 @@ Cloudflare 대시보드에서 레포를 한 번 연결하면, 이후 push마다 
 - **게임 데이터 갱신**: 현재 `../data/*.json` 을 번들에 박는다. push → Workers Builds 재배포 시 반영.
   자주 갱신하거나 서버 재배포 없이 바꾸려면 [docs/cdn-data-plan.md](../../docs/cdn-data-plan.md) 대로
   Static Assets / R2 / 별도 CDN 으로 분리하는 것을 고려.
-- **스키마 변경**: schema.sql 수정 후 `npm run db:migrate` 재실행(멱등).
+- **스키마 변경**: schema.sql 수정 → push 하면 Workers Builds 빌드 단계에서 자동 적용(멱등).
+  로컬에서 즉시 반영하려면 `npm run db:migrate`(.dev.vars 의 DATABASE_URL 자동 사용).
 - **DB 연결**: 트랜잭션(upload/like)은 WebSocket `Pool`, 단순 쿼리는 HTTP `neon()` 사용.
   Pool 은 요청 종료 시 `ctx.waitUntil(pool.end())` 로 정리한다.
 

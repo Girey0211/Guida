@@ -10,7 +10,7 @@
     "build": "tsc --noEmit",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "tsx --env-file=.dev.vars scripts/migrate.ts"
+    "db:migrate": "tsx scripts/migrate.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
