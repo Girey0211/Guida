@@ -28,23 +28,3 @@ export const PATCH_VERSION_FILE = patchVersion as {
   current_patch?: string;
   min_app_version?: string;
 };
-
-/**
- * 정적 CDN 서빙용 매핑: 클라(guida-client/src/api/gameData.ts)가 요청하는
- * `.json` 파일명을 그대로 키로 둔다. (`/data/<파일명>` 으로 노출)
- *
- * 데이터는 빌드 타임에 번들로 박히므로 git push → Workers 자동 재배포 시
- * 최신 JSON 이 그대로 반영된다. (docs/cdn-data-plan.md Phase 2)
- *
- * game_data.json 은 현재 미배포(번들에 없음)라 의도적으로 제외 — 클라는
- * 해당 파일을 fetchOptional 로 받아 404 시 null 폴백한다.
- */
-export const DATA_FILES: Record<string, string> = {
-  'gifts.json': GAME_DATA.gifts,
-  'packs.json': GAME_DATA.packs,
-  'events.json': GAME_DATA.events,
-  'dependencies.json': GAME_DATA.dependencies,
-  'dungeon_meta.json': GAME_DATA.dungeon_meta,
-  'prisoners.json': GAME_DATA.prisoners,
-  'patch_version.json': JSON.stringify(patchVersion),
-};

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import type { AppEnv } from '../types.js';
 import { getSql } from '../db.js';
-import { GAME_DATA, PATCH_VERSION_FILE, DATA_FILES } from '../data.js';
+import { GAME_DATA, PATCH_VERSION_FILE } from '../data.js';
 
 /**
  * /api/game/* — 게임 데이터 서빙 (기존 gameData.ts 포팅).
@@ -56,25 +56,6 @@ gameData.get('/api/game/:resource', (c) => {
     return c.json({ error: '존재하지 않는 게임 데이터입니다.' }, 404);
   }
   return c.body(body, 200, { 'content-type': 'application/json; charset=utf-8' });
-});
-
-// ── 정적 CDN 엔드포인트 (docs/cdn-data-plan.md Phase 2) ──────────────────
-// /data/<파일명>.json — 클라(gameData.ts)의 요청 경로와 1:1 로 일치시켜
-// VITE_DATA_BASE_URL=https://api.girey.org/data 만으로 CDN 전환이 되게 한다.
-//
-// 동작: git push → Workers 자동 재배포로 번들 데이터 갱신 → 엣지에서 즉시 서빙.
-// Cloudflare Worker 는 전 엣지에서 메모리 기반으로 응답하므로 origin 왕복이 없다.
-// Cache-Control 로 브라우저/중간 캐시는 짧게 허용하되, 클라는 no-cache 로 받아
-// 항상 최신 배포본을 가져온다(패치 직후 stale 방지).
-gameData.get('/data/:file', (c) => {
-  const body = DATA_FILES[c.req.param('file')];
-  if (body === undefined) {
-    return c.json({ error: '존재하지 않는 게임 데이터입니다.' }, 404);
-  }
-  return c.body(body, 200, {
-    'content-type': 'application/json; charset=utf-8',
-    'cache-control': 'public, max-age=300, stale-while-revalidate=86400',
-  });
 });
 
 export default gameData;
