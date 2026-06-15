@@ -39,7 +39,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost https://raw.githubusercontent.com https://*.cloudflare.com data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost https://raw.githubusercontent.com https://*.cloudflare.com http://girey0211.kro.kr:8080 http://localhost:8080 http://localhost:3000"
+      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost https://raw.githubusercontent.com https://cdn.girey.org data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost https://api.girey.org https://cdn.girey.org http://localhost:3000 http://localhost:8787"
     }
   },
   "plugins": {

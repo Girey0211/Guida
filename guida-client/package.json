@@ -12,7 +12,8 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "bump": "node scripts/bump-version.js"
+    "bump": "node scripts/bump-version.js",
+    "deck": "node scripts/decode-deck.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",
