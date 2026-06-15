@@ -31,6 +31,7 @@ export function MyRoutes() {
   const [serverRoutes, setServerRoutes] = useState<Record<string, SharedRoute>>({});
   const [checkingCodes, setCheckingCodes] = useState<Record<string, boolean>>({});
   const [syncing, setSyncing] = useState<string | null>(null);
+  const [routeToDelete, setRouteToDelete] = useState<LocalRoute | null>(null);
 
   useEffect(() => {
     void loadMyRoutes();
@@ -85,10 +86,8 @@ export function MyRoutes() {
     setEditor(null);
   };
 
-  const handleDelete = async (route: LocalRoute) => {
-    if (!confirm(`'${route.name}' 루트를 삭제할까요?`)) return;
-    await deleteRoute(route.local_id);
-    toast.info("루트를 삭제했습니다.");
+  const handleDelete = (route: LocalRoute) => {
+    setRouteToDelete(route);
   };
 
   const handleShare = async (route: LocalRoute) => {
@@ -437,6 +436,48 @@ export function MyRoutes() {
       >
         <Plus className="size-6" />
       </button>
+
+      {/* 루트 삭제 확인 모달 */}
+      {routeToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-md border border-border bg-card/95 shadow-xl animate-in fade-in zoom-in-95 duration-150">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-destructive text-base">
+                <Trash2 className="size-5" /> 루트 삭제 확인
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-foreground">
+                <span className="font-semibold text-primary">'{routeToDelete.name}'</span> 루트를 정말로 삭제하시겠습니까?
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                이 작업은 되돌릴 수 없으며, 로컬에 저장된 모든 정보가 영구적으로 삭제됩니다.
+              </p>
+              <div className="flex gap-2 justify-end pt-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setRouteToDelete(null)}
+                  className="px-4 text-xs h-9"
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    await deleteRoute(routeToDelete.local_id);
+                    toast.info("루트를 삭제했습니다.");
+                    setRouteToDelete(null);
+                  }}
+                  className="px-4 gap-1.5 text-xs h-9"
+                >
+                  <Trash2 className="size-3.5" />
+                  삭제
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

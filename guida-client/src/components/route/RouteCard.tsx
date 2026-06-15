@@ -17,6 +17,7 @@ interface Props {
   onLike: (code: string) => void;
   onImport: (code: string) => void;
   likeBusy?: boolean;
+  buttonsOnNewLine?: boolean;
 }
 
 /** 탐색 화면의 루트 카드 */
@@ -30,6 +31,7 @@ export function RouteCard({
   onLike,
   onImport,
   likeBusy,
+  buttonsOnNewLine,
 }: Props) {
   const navigate = useNavigate();
 
@@ -81,41 +83,83 @@ export function RouteCard({
           <p className="line-clamp-2 text-xs text-muted-foreground">{route.memo}</p>
         )}
 
-        <div className="mt-auto flex items-center justify-between pt-1">
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <ThumbsUp className="size-3.5" /> {likes}
-            </span>
-            <span className="flex items-center gap-1">
-              <Play className="size-3.5" /> {plays}
-            </span>
-            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] tracking-wider">
-              {route.route_code}
-            </code>
+        {buttonsOnNewLine ? (
+          <div className="mt-auto space-y-3 pt-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <ThumbsUp className="size-3.5" /> {likes}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Play className="size-3.5" /> {plays}
+                </span>
+              </div>
+              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] tracking-wider">
+                {route.route_code}
+              </code>
+            </div>
+            <div className="flex gap-1.5 justify-end">
+              <Button
+                size="sm"
+                variant={liked ? "secondary" : "outline"}
+                disabled={liked || likeBusy}
+                onClick={() => onLike(route.route_code)}
+                title={liked ? "이미 추천함" : "추천"}
+                className="flex-1 sm:flex-initial"
+              >
+                <ThumbsUp className="size-3.5" />
+                {liked ? "추천함" : "추천"}
+              </Button>
+              <Button
+                size="sm"
+                variant={saved ? "secondary" : "default"}
+                disabled={saved}
+                onClick={() => onImport(route.route_code)}
+                title={saved ? "이미 내 루트에 있습니다" : "내 루트로 가져오기"}
+                className="flex-1 sm:flex-initial"
+              >
+                <Download className="size-3.5" />
+                {saved ? "가져옴" : "가져오기"}
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-1.5">
-            <Button
-              size="sm"
-              variant={liked ? "secondary" : "outline"}
-              disabled={liked || likeBusy}
-              onClick={() => onLike(route.route_code)}
-              title={liked ? "이미 추천함" : "추천"}
-            >
-              <ThumbsUp className="size-3.5" />
-              {liked ? "추천함" : "추천"}
-            </Button>
-            <Button
-              size="sm"
-              variant={saved ? "secondary" : "default"}
-              disabled={saved}
-              onClick={() => onImport(route.route_code)}
-              title={saved ? "이미 내 루트에 있습니다" : "내 루트로 가져오기"}
-            >
-              <Download className="size-3.5" />
-              {saved ? "가져옴" : "가져오기"}
-            </Button>
+        ) : (
+          <div className="mt-auto flex items-center justify-between pt-1">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <ThumbsUp className="size-3.5" /> {likes}
+              </span>
+              <span className="flex items-center gap-1">
+                <Play className="size-3.5" /> {plays}
+              </span>
+              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] tracking-wider">
+                {route.route_code}
+              </code>
+            </div>
+            <div className="flex gap-1.5">
+              <Button
+                size="sm"
+                variant={liked ? "secondary" : "outline"}
+                disabled={liked || likeBusy}
+                onClick={() => onLike(route.route_code)}
+                title={liked ? "이미 추천함" : "추천"}
+              >
+                <ThumbsUp className="size-3.5" />
+                {liked ? "추천함" : "추천"}
+              </Button>
+              <Button
+                size="sm"
+                variant={saved ? "secondary" : "default"}
+                disabled={saved}
+                onClick={() => onImport(route.route_code)}
+                title={saved ? "이미 내 루트에 있습니다" : "내 루트로 가져오기"}
+              >
+                <Download className="size-3.5" />
+                {saved ? "가져옴" : "가져오기"}
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

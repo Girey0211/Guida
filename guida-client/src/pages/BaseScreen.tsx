@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FolderHeart, Map, Settings as SettingsIcon, MonitorPlay, WifiOff, ChevronRight, MousePointerClick, MousePointer2 } from "lucide-react";
+import { FolderHeart, Map, Settings as SettingsIcon, MonitorPlay, WifiOff, ChevronRight, MousePointerClick, MousePointer2, User } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { usePlayStore } from "@/store/playStore";
 import { useOverlayControl } from "@/hooks/useTauriCommand";
@@ -167,21 +167,40 @@ export function BaseScreen() {
 
       {/* 탭 네비게이션 */}
       <nav className="z-10 flex shrink-0 gap-1 border-b border-border bg-brand/40 backdrop-blur-md px-3">
-        {TABS.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setTab(id)}
-            className={cn(
-              "flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
-              tab === id
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground",
-            )}
-          >
-            <Icon className="size-4" />
-            {label}
-          </button>
-        ))}
+        {TABS.map(({ id, label, icon: Icon }) => {
+          const tabButton = (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={cn(
+                "flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+                tab === id
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Icon className="size-4" />
+              {label}
+            </button>
+          );
+
+          if (id === "hub") {
+            return (
+              <div key="hub-group" className="flex gap-1">
+                {tabButton}
+                <button
+                  onClick={() => navigate("/user/me")}
+                  className="flex items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <User className="size-4" />
+                  내 프로필
+                </button>
+              </div>
+            );
+          }
+
+          return tabButton;
+        })}
       </nav>
 
       {/* 탭 콘텐츠 */}
