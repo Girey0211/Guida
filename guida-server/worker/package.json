@@ -7,6 +7,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
+    "build": "tsc --noEmit",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx --env-file=.dev.vars scripts/migrate.ts"
