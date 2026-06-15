@@ -21,7 +21,6 @@ pub fn run() {
                 app.handle().plugin(tauri_plugin_process::init())?;
                 app.handle().plugin(
                     tauri_plugin_global_shortcut::Builder::new()
-                        .with_shortcuts(["f9"])?
                         .with_handler(|app, _shortcut, event| {
                             if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
                                 if let Some(overlay) = app.get_webview_window("overlay") {
@@ -33,6 +32,15 @@ pub fn run() {
                         })
                         .build(),
                 )?;
+
+                // Try to register the global shortcut 'F9' gracefully.
+                // If it fails (e.g., another application already registered it), we log the error but don't crash.
+                use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut};
+                if let Ok(shortcut) = "f9".parse::<Shortcut>() {
+                    if let Err(e) = app.global_shortcut().register(shortcut) {
+                        eprintln!("Failed to register global shortcut F9: {}", e);
+                    }
+                }
             }
             let _ = app;
             Ok(())

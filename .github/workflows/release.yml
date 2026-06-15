@@ -53,6 +53,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           # 베이스 URL 주입.
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_DATA_BASE_URL: ${{ vars.VITE_DATA_BASE_URL }}
           # 릴리즈 빌드 시 로그 기능 비활성화 (알파 버전 외에서는 비활성)
           VITE_ENABLE_LOGGING: 'true'
         with:
