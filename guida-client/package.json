@@ -1,7 +1,7 @@
 {
   "name": "guida",
   "private": true,
-  "version": "0.2.8",
+  "version": "0.3.0",
   "type": "module",
   "description": "림버스 컴퍼니 거울 던전 가이드 및 루트 공유 데스크톱 앱",
   "scripts": {
