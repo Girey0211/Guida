@@ -1,0 +1,63 @@
+name = "guida-server"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ──────────────────────────────────────────────────────────────
+# 시크릿 / 환경변수
+#   DATABASE_URL (Neon 연결 문자열)은 시크릿이라 이 파일에 두지 않는다.
+#   - 로컬:    .dev.vars 파일에 DATABASE_URL=... (git 무시됨)
+#   - 프로덕션: `wrangler secret put DATABASE_URL`
+#               또는 Workers Builds(대시보드) → Settings → Variables and Secrets
+# ──────────────────────────────────────────────────────────────
+
+# ──────────────────────────────────────────────────────────────
+# 레이트 리미팅 (Cloudflare 네이티브 Rate Limiting 바인딩)
+#   기존 @fastify/rate-limit 의 분당 제한을 엔드포인트별로 재현한다.
+#   period 는 10 또는 60(초)만 허용되므로 모두 60(=1분)으로 둔다.
+#   namespace_id 는 계정 내에서 바인딩을 구분하는 임의의 고유 정수.
+# ──────────────────────────────────────────────────────────────
+[[unsafe.bindings]]
+name = "RL_GLOBAL"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 60, period = 60 }
+
+[[unsafe.bindings]]
+name = "RL_INQUIRY"
+type = "ratelimit"
+namespace_id = "1002"
+simple = { limit = 5, period = 60 }
+
+[[unsafe.bindings]]
+name = "RL_UPLOAD"
+type = "ratelimit"
+namespace_id = "1003"
+simple = { limit = 10, period = 60 }
+
+[[unsafe.bindings]]
+name = "RL_UPDATE"
+type = "ratelimit"
+namespace_id = "1004"
+simple = { limit = 15, period = 60 }
+
+[[unsafe.bindings]]
+name = "RL_LIKE"
+type = "ratelimit"
+namespace_id = "1005"
+simple = { limit = 15, period = 60 }
+
+[[unsafe.bindings]]
+name = "RL_BACKUP"
+type = "ratelimit"
+namespace_id = "1006"
+simple = { limit = 10, period = 60 }
+
+[[unsafe.bindings]]
+name = "RL_RESTORE"
+type = "ratelimit"
+namespace_id = "1007"
+simple = { limit = 20, period = 60 }
+
+[observability]
+enabled = true
