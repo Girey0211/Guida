@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { ArrowLeft, LogOut, Gift, Boxes, Check, Lock } from "lucide-react";
-import type { DifficultyMode, GiftOrderItem, PackOrderItem, RouteDependency } from "@/types/route";
+import type { DifficultyMode, GiftOrderItem, PackOrderItem } from "@/types/route";
 import type { DependencyEdge, Gift as GiftEntity, Pack as PackEntity } from "@/types/gameData";
 import { useAppStore } from "@/store/appStore";
 import { useRouteStore } from "@/store/routeStore";
@@ -160,10 +160,11 @@ export function PlayScreen() {
                 giftOrder={route.gift_order}
                 giftById={giftById}
                 depsByGift={depsByGift}
-                giftDependencies={route.gift_dependencies ?? []}
                 routeTargetDepth={route.floors[0] ?? 5}
                 routeMode={route.difficulty_mode}
                 routeSwitchFloor={route.difficulty_switch_floor}
+                packOrder={route.pack_order}
+                packs={packs}
               />
             )}
             {tab === "packs" && (
@@ -274,19 +275,21 @@ function GiftsTab({
   giftOrder,
   giftById,
   depsByGift,
-  giftDependencies,
   routeTargetDepth,
   routeMode,
   routeSwitchFloor,
+  packOrder,
+  packs,
 }: {
   gifts: GiftEntity[];
   giftOrder: GiftOrderItem[];
   giftById: Map<string, GiftEntity>;
   depsByGift: Map<string, DependencyEdge[]>;
-  giftDependencies: RouteDependency[];
   routeTargetDepth: number;
   routeMode: DifficultyMode;
   routeSwitchFloor: number | null;
+  packOrder: PackOrderItem[];
+  packs: PackEntity[];
 }) {
   const { acquiredGifts, toggleGift } = usePlayStore();
 
@@ -294,6 +297,8 @@ function GiftsTab({
   const [keyword, setKeyword] = useState("");
   const [grade, setGrade] = useState("");
   const [source, setSource] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
+  const [selectedPackId, setSelectedPackId] = useState("");
   const [hardOnly, setHardOnly] = useState(false);
   const [craftableOnly, setCraftableOnly] = useState(false);
   const [hideAcquired, setHideAcquired] = useState(false);
@@ -306,17 +311,49 @@ function GiftsTab({
   );
   const sources = useMemo(() => distinct(gifts.map((g) => g.source_category)), [gifts]);
 
+  const tags = useMemo(() => {
+    const tSet = new Set<string>();
+    const excluded = new Set([
+      "화상", "출혈", "진동", "파열", "침잠", "호흡", "충전",
+      "참격", "관통", "타격", "범용"
+    ]);
+    gifts.forEach((g) => {
+      if (g.tags) {
+        g.tags.forEach((t) => {
+          if (!excluded.has(t)) tSet.add(t);
+        });
+      }
+    });
+    return [...tSet].sort((a, b) => a.localeCompare(b));
+  }, [gifts]);
+
+  const exclusivePacks = useMemo(() => {
+    // 플레이중에는 내 루트에 포함된 팩만 필터 후보에 보이게 하고
+    const routePackIds = new Set(packOrder.map((p) => p.pack_id));
+    const packIds = new Set<string>();
+    gifts.forEach((g) => {
+      if (g.pack_exclusive && g.pack_id && routePackIds.has(g.pack_id)) {
+        packIds.add(g.pack_id);
+      }
+    });
+    return packs
+      .filter((p) => packIds.has(p.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [gifts, packs, packOrder]);
+
   const resetFilters = () => {
     setQ("");
     setKeyword("");
     setGrade("");
     setSource("");
+    setSelectedTag("");
+    setSelectedPackId("");
     setHardOnly(false);
     setCraftableOnly(false);
     setHideAcquired(false);
   };
 
-  /** 미충족 선행조건: type "before"(이 기프트는 대상보다 나중에 획득) 중 대상 미획득 및 사용자 지정 우선순위 */
+  /** 미충족 선행조건: type "before"(이 기프트는 대상보다 나중에 획득) 중 대상 미획득 */
   const unmetBefore = (giftId: string): DependencyEdge[] => {
     const targetGiftIds = new Set(giftOrder.map((g) => g.gift_id));
 
@@ -324,22 +361,9 @@ function GiftsTab({
       (e) => e.type === "before" && targetGiftIds.has(e.target.gift_id) && !acquiredGifts.includes(e.target.gift_id),
     );
 
-    const customDeps: DependencyEdge[] = giftDependencies
-      .filter((d) => d.second_gift_id === giftId && targetGiftIds.has(d.first_gift_id) && !acquiredGifts.includes(d.first_gift_id))
-      .map((d) => ({
-        target: {
-          gift_id: d.first_gift_id,
-          name: giftById.get(d.first_gift_id)?.name ?? d.first_gift_id,
-        },
-        type: "before",
-        required: true,
-        reason: "사용자 설정 우선순위 제약",
-      }));
-
-    const combined = [...globalDeps, ...customDeps];
     const unique: DependencyEdge[] = [];
     const seen = new Set<string>();
-    for (const dep of combined) {
+    for (const dep of globalDeps) {
       if (!seen.has(dep.target.gift_id)) {
         seen.add(dep.target.gift_id);
         unique.push(dep);
@@ -353,16 +377,31 @@ function GiftsTab({
     return giftOrder.filter((item) => {
       const g = giftById.get(item.gift_id);
       if (!g) return true;
-      if (k && !g.name.includes(k)) return false;
+      if (k && !g.name.includes(k) && !(g.tags && g.tags.some((t) => t.includes(k)))) return false;
       if (keyword && g.keyword_type !== keyword) return false;
       if (grade && g.grade !== grade) return false;
       if (source && g.source_category !== source) return false;
+      if (source === "테마팩_전용" && selectedPackId && g.pack_id !== selectedPackId) return false;
+      if (selectedTag && !(g.tags && g.tags.includes(selectedTag))) return false;
       if (hardOnly && !g.hard_mode_only) return false;
       if (craftableOnly && !g.is_craftable) return false;
       if (hideAcquired && acquiredGifts.includes(item.gift_id)) return false;
       return true;
     });
-  }, [giftOrder, q, keyword, grade, source, hardOnly, craftableOnly, hideAcquired, acquiredGifts, giftById]);
+  }, [
+    giftOrder,
+    q,
+    keyword,
+    grade,
+    source,
+    selectedTag,
+    selectedPackId,
+    hardOnly,
+    craftableOnly,
+    hideAcquired,
+    acquiredGifts,
+    giftById,
+  ]);
 
   // priority 순 정렬 후 [획득가능 미획득 → 잠금 → 획득완료] 로 재배치
   const ordered = useMemo(() => {
@@ -371,7 +410,7 @@ function GiftsTab({
       acquiredGifts.includes(g.gift_id) ? 2 : unmetBefore(g.gift_id).length > 0 ? 1 : 0;
     return [...byPriority].sort((a, b) => rank(a) - rank(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered, acquiredGifts, depsByGift, giftDependencies, giftById]);
+  }, [filtered, acquiredGifts, depsByGift, giftById]);
 
   // 실제 target depth와 difficulty 계산
   const targetDepth = routeTargetDepth;
@@ -418,14 +457,42 @@ function GiftsTab({
             ))}
           </Select>
         </div>
-        <Select value={source} onChange={(e) => setSource(e.target.value)} className="h-8 text-xs">
-          <option value="">출처 전체</option>
-          {sources.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </Select>
+        <div className="grid grid-cols-2 gap-2">
+          <Select
+            value={source}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSource(val);
+              if (val !== "테마팩_전용") setSelectedPackId("");
+            }}
+            className="h-8 text-xs"
+          >
+            <option value="">출처 전체</option>
+            {sources.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </Select>
+          <Select value={selectedTag} onChange={(e) => setSelectedTag(e.target.value)} className="h-8 text-xs">
+            <option value="">태그 전체</option>
+            {tags.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </Select>
+        </div>
+        {source === "테마팩_전용" && (
+          <Select value={selectedPackId} onChange={(e) => setSelectedPackId(e.target.value)} className="h-8 text-xs w-full">
+            <option value="">테마팩 전체</option>
+            {exclusivePacks.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </Select>
+        )}
         <div className="flex flex-wrap items-center gap-1.5 pt-1">
           <FilterChip active={hardOnly} onClick={() => setHardOnly((v) => !v)}>
             하드 전용

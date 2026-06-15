@@ -91,10 +91,6 @@ export interface RouteRestriction {
  */
 export type RouteRestrictions = Record<string, RouteRestriction[]>;
 
-export interface RouteDependency {
-  first_gift_id: string;
-  second_gift_id: string;
-}
 
 /**
  * 로컬 `my_routes.json`에 저장되는 루트 1건 (README §8.2).
@@ -136,8 +132,7 @@ export interface LocalRoute {
   memo: string;
   /** 기프트 획득 순서 */
   gift_order: GiftOrderItem[];
-  /** 기프트 우선순위 의존성 목록 */
-  gift_dependencies?: RouteDependency[];
+
   /** 팩 방문 순서 */
   pack_order: PackOrderItem[];
   /** 시작 기프트(1개). 미선택이면 null */
@@ -195,6 +190,6 @@ export interface RouteDraft {
   starting_gift: RouteStartingGift | null;
   gahos: RouteGaho[];
   restrictions: RouteRestrictions;
-  gift_dependencies?: RouteDependency[];
+
   deck_code?: string | null;
 }

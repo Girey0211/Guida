@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/store/appStore";
 
 interface Props {
   gifts: Gift[];
@@ -25,8 +26,9 @@ function distinct<T extends string>(values: (T | null | undefined)[]): T[] {
 
 /**
  * 목표 에고기프트 선택용 오른쪽 드로어 패널.
- * 상단 필터(검색/키워드/등급/출처/하드 전용) + 박스형 목록.
+ * 상단 필터(검색/키워드/등급/출처/태그/하드 전용) + 박스형 목록.
  * 박스를 누르면 선택 표시로 바뀌고, 다시 누르면 해제된다.
+ * 출처를 "테마팩_전용"으로 고르면 어떤 테마팩인지 고르는 필터가 추가로 나타난다.
  */
 export function GiftPickerPanel({
   gifts,
@@ -36,10 +38,13 @@ export function GiftPickerPanel({
   onDeselectMultiple,
   onClose,
 }: Props) {
+  const { packs } = useAppStore();
   const [q, setQ] = useState("");
   const [keyword, setKeyword] = useState("");
   const [grade, setGrade] = useState("");
   const [source, setSource] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
+  const [selectedPackId, setSelectedPackId] = useState("");
   const [hardOnly, setHardOnly] = useState(false);
   const [craftableOnly, setCraftableOnly] = useState(false);
   const [selectedOnly, setSelectedOnly] = useState(false);
@@ -97,25 +102,71 @@ export function GiftPickerPanel({
   );
   const sources = useMemo(() => distinct(gifts.map((g) => g.source_category)), [gifts]);
 
+  const tags = useMemo(() => {
+    const tSet = new Set<string>();
+    const excluded = new Set([
+      "화상", "출혈", "진동", "파열", "침잠", "호흡", "충전",
+      "참격", "관통", "타격", "범용"
+    ]);
+    gifts.forEach((g) => {
+      if (g.tags) {
+        g.tags.forEach((t) => {
+          if (!excluded.has(t)) {
+            tSet.add(t);
+          }
+        });
+      }
+    });
+    return [...tSet].sort((a, b) => a.localeCompare(b));
+  }, [gifts]);
+
+  const exclusivePacks = useMemo(() => {
+    const packIds = new Set<string>();
+    gifts.forEach((g) => {
+      if (g.pack_exclusive && g.pack_id) {
+        packIds.add(g.pack_id);
+      }
+    });
+    return packs
+      .filter((p) => packIds.has(p.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [gifts, packs]);
+
   const filtered = useMemo(() => {
     const k = q.trim();
     return gifts.filter((g) => {
-      if (k && !g.name.includes(k)) return false;
+      if (k && !g.name.includes(k) && !(g.tags && g.tags.some((t) => t.includes(k)))) return false;
       if (keyword && g.keyword_type !== keyword) return false;
       if (grade && g.grade !== grade) return false;
       if (source && g.source_category !== source) return false;
+      if (source === "테마팩_전용" && selectedPackId && g.pack_id !== selectedPackId) return false;
+      if (selectedTag && !(g.tags && g.tags.includes(selectedTag))) return false;
       if (hardOnly && !g.hard_mode_only) return false;
       if (craftableOnly && !g.is_craftable) return false;
       if (selectedOnly && !selectedIds.has(g.id)) return false;
       return true;
     });
-  }, [gifts, q, keyword, grade, source, hardOnly, craftableOnly, selectedOnly, selectedIds]);
+  }, [
+    gifts,
+    q,
+    keyword,
+    grade,
+    source,
+    selectedPackId,
+    selectedTag,
+    hardOnly,
+    craftableOnly,
+    selectedOnly,
+    selectedIds,
+  ]);
 
   const resetFilters = () => {
     setQ("");
     setKeyword("");
     setGrade("");
     setSource("");
+    setSelectedTag("");
+    setSelectedPackId("");
     setHardOnly(false);
     setCraftableOnly(false);
     setSelectedOnly(false);
@@ -167,14 +218,40 @@ export function GiftPickerPanel({
               ))}
             </Select>
           </div>
-          <Select value={source} onChange={(e) => setSource(e.target.value)} className="h-8">
-            <option value="">출처 전체</option>
-            {sources.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </Select>
+          <div className="grid grid-cols-2 gap-2">
+            <Select value={source} onChange={(e) => {
+              const val = e.target.value;
+              setSource(val);
+              if (val !== "테마팩_전용") {
+                setSelectedPackId("");
+              }
+            }} className="h-8">
+              <option value="">출처 전체</option>
+              {sources.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </Select>
+            <Select value={selectedTag} onChange={(e) => setSelectedTag(e.target.value)} className="h-8">
+              <option value="">태그 전체</option>
+              {tags.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </Select>
+          </div>
+          {source === "테마팩_전용" && (
+            <Select value={selectedPackId} onChange={(e) => setSelectedPackId(e.target.value)} className="h-8 w-full mt-1">
+              <option value="">테마팩 전체</option>
+              {exclusivePacks.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </Select>
+          )}
           <div className="flex flex-wrap items-center gap-1.5">
             <FilterChip active={hardOnly} onClick={() => setHardOnly((v) => !v)}>
               하드 전용
