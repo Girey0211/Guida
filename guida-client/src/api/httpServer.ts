@@ -25,7 +25,7 @@ import { logger } from "@/lib/logger";
 export interface UploadPayload {
   uuid: string;
   patch_version: string;
-  route: Omit<SharedRoute, "route_code" | "stats" | "uploaded_at" | "patch_version">;
+  route: Omit<SharedRoute, "route_code" | "stats" | "uploaded_at" | "patch_version" | "uploader_uuid" | "uploader_nickname">;
 }
 
 /** 서버 응답(Route) 형태 — guida-server/src/types/index.ts 의 Route 와 일치 */
@@ -43,6 +43,8 @@ interface ServerRoute {
   memo: string | null;
   verified_method: SharedRoute["verified_method"];
   deck_code?: string | null;
+  uploader_uuid: string;
+  uploader_nickname: string;
   uploaded_at: string;
   likes: number;
   play_count: number;
@@ -193,6 +195,8 @@ function toShared(r: ServerRoute): SharedRoute {
     pack_order: r.pack_order ?? [],
     verified_method: r.verified_method,
     deck_code: r.deck_code ?? null,
+    uploader_uuid: r.uploader_uuid,
+    uploader_nickname: r.uploader_nickname,
     stats,
     uploaded_at: r.uploaded_at,
   };
@@ -302,7 +306,7 @@ async function getAuthHeaders(action: string, bodyString: string): Promise<Recor
 
 /** 루트 업로드 → 6자리 코드 발급 */
 export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> {
-  const { uuid, patch_version, route } = payload;
+  const { uuid, route } = payload;
   const bodyObj = {
     uuid,
     name: route.name,
@@ -329,14 +333,7 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
     },
   );
 
-  // 업로드 응답은 코드만 주므로 갓 만든 루트를 그대로 재구성해 반환 (통계 0 초기값)
-  return {
-    ...route,
-    route_code,
-    patch_version,
-    stats: { [patch_version]: { likes: 0, play_count: 0 } },
-    uploaded_at: new Date().toISOString(),
-  };
+  return getRouteByCode(route_code);
 }
 
 /**
@@ -451,3 +448,53 @@ export async function restoreBackup(recoveryCodeHash: string): Promise<string> {
   });
   return res.encrypted_blob;
 }
+
+export interface UserProfileResponse {
+  uuid: string;
+  nickname: string;
+  description: string;
+  likes_received: number;
+  routes: SharedRoute[];
+}
+
+/** 본인 프로필 조회 (POST, signed) */
+export async function getMyProfile(): Promise<UserProfileResponse> {
+  const headers = await getAuthHeaders("get_my_profile", "");
+  const res = await request<Omit<UserProfileResponse, "routes"> & { routes: ServerRoute[] }>(
+    "/api/users/me",
+    {
+      method: "POST",
+      headers,
+    }
+  );
+  return {
+    ...res,
+    routes: res.routes.map(toShared),
+  };
+}
+
+/** 타인 프로필 조회 (GET, unsigned) */
+export async function getUserProfile(uuid: string): Promise<UserProfileResponse> {
+  const res = await request<Omit<UserProfileResponse, "routes"> & { routes: ServerRoute[] }>(
+    `/api/users/${encodeURIComponent(uuid)}`
+  );
+  return {
+    ...res,
+    routes: res.routes.map(toShared),
+  };
+}
+
+/** 본인 프로필 수정 (PUT, signed) */
+export async function updateUserProfile(nickname: string, description: string): Promise<{ success: boolean; nickname: string; description: string }> {
+  const bodyString = JSON.stringify({ nickname, description });
+  const headers = await getAuthHeaders("update_profile", bodyString);
+  return request<{ success: boolean; nickname: string; description: string }>(
+    "/api/users/profile",
+    {
+      method: "PUT",
+      headers,
+      body: bodyString,
+    }
+  );
+}
+

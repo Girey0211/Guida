@@ -6,6 +6,7 @@ import { OverlayWindow } from "@/components/overlay/OverlayWindow";
 import { BaseScreen } from "@/pages/BaseScreen";
 import { PlayScreen } from "@/pages/PlayScreen";
 import { BackupScreen } from "@/pages/BackupScreen";
+import { UserProfile } from "@/pages/UserProfile";
 import { FirstRunNotice } from "@/components/common/FirstRunNotice";
 import { ServerUnavailableNotice } from "@/components/common/ServerUnavailableNotice";
 import { UpdateGate } from "@/components/common/UpdateGate";
@@ -65,6 +66,7 @@ export default function App() {
         <Route path="/" element={<BaseScreen />} />
         <Route path="/play" element={<PlayScreen />} />
         <Route path="/backup" element={<BackupScreen />} />
+        <Route path="/user/:uuid" element={<UserProfile />} />
       </Routes>
       <FirstRunNotice />
       <ServerUnavailableNotice />

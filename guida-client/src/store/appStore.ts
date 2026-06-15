@@ -158,7 +158,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       //      하므로 별도 강제 동작 불필요(오프라인이면 캐시로 동작).
       //    - 가이다 앱: GitHub Releases 매니페스트(Tauri updater)로 판정하고,
       //      서버 min_app_version 을 비상 차단선으로 함께 본다.
-      const appVersion = await getCurrentAppVersion(settings.app_version);
+      const appVersion = await getCurrentAppVersion(DEFAULT_SETTINGS.app_version);
       settings.app_version = appVersion;
 
       let update: UpdateGateState = NO_UPDATE;

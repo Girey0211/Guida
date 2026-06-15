@@ -38,11 +38,15 @@ const ROUTE_SELECT = `
     r.deck_code,
     r.uploaded_at,
     COALESCE(rs.likes, 0)      AS likes,
-    COALESCE(rs.play_count, 0) AS play_count
+    COALESCE(rs.play_count, 0) AS play_count,
+    r.uploader_uuid,
+    COALESCE(u.nickname, 'user_' || UPPER(SUBSTRING(REPLACE(r.uploader_uuid::text, '-', ''), 1, 6))) AS uploader_nickname
   FROM routes r
   LEFT JOIN route_stats rs
     ON rs.route_code = r.route_code
    AND rs.patch_version = r.patch_version
+  LEFT JOIN users u
+    ON u.uuid = r.uploader_uuid
 `;
 
 /** UploadBody 필수 필드 검증 (upload / update 공통). */
@@ -489,4 +493,150 @@ routeHub.post(
   },
 );
 
+// ──────────────────────────────────────────────
+// POST /api/users/me — 본인 프로필 조회 (가입/동기화용)
+// ──────────────────────────────────────────────
+routeHub.post('/api/users/me', async (c) => {
+  const rawBody = await c.req.text();
+  let uploaderUuid: string;
+  try {
+    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'get_my_profile');
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 401);
+  }
+
+  const sql = getSql(c.env);
+  // 사용자 정보 조회
+  const usersRows = (await sql(
+    `SELECT uuid, nickname, description FROM users WHERE uuid = $1`,
+    [uploaderUuid]
+  )) as { uuid: string; nickname: string; description: string }[];
+
+  const defaultNickname = `user_${uploaderUuid.replace(/-/g, '').substring(0, 6).toUpperCase()}`;
+  const user = usersRows[0] || {
+    uuid: uploaderUuid,
+    nickname: defaultNickname,
+    description: ''
+  };
+
+  // 총 추천수 조회
+  const likesRows = (await sql(
+    `SELECT COALESCE(SUM(rs.likes), 0) AS total_likes
+     FROM routes r
+     LEFT JOIN route_stats rs ON r.route_code = rs.route_code
+     WHERE r.uploader_uuid = $1`,
+    [uploaderUuid]
+  )) as { total_likes: string | number }[];
+  const likesReceived = Number(likesRows[0]?.total_likes ?? 0);
+
+  // 만든 루트 목록 조회
+  const routes = (await sql(
+    `${ROUTE_SELECT} WHERE r.uploader_uuid = $1 ORDER BY r.uploaded_at DESC`,
+    [uploaderUuid]
+  )) as Route[];
+
+  return c.json({
+    uuid: user.uuid,
+    nickname: user.nickname,
+    description: user.description,
+    likes_received: likesReceived,
+    routes
+  });
+});
+
+// ──────────────────────────────────────────────
+// GET /api/users/:uuid — 타인 프로필 조회
+// ──────────────────────────────────────────────
+routeHub.get('/api/users/:uuid', async (c) => {
+  const uuid = c.req.param('uuid');
+
+  // UUID 포맷 검증
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(uuid)) {
+    return c.json({ error: '올바르지 않은 사용자 식별자(UUID) 형식입니다.' }, 400);
+  }
+
+  const sql = getSql(c.env);
+  // 사용자 정보 조회
+  const usersRows = (await sql(
+    `SELECT uuid, nickname, description FROM users WHERE uuid = $1`,
+    [uuid]
+  )) as { uuid: string; nickname: string; description: string }[];
+
+  const defaultNickname = `user_${uuid.replace(/-/g, '').substring(0, 6).toUpperCase()}`;
+  const user = usersRows[0] || {
+    uuid,
+    nickname: defaultNickname,
+    description: ''
+  };
+
+  // 총 추천수 조회
+  const likesRows = (await sql(
+    `SELECT COALESCE(SUM(rs.likes), 0) AS total_likes
+     FROM routes r
+     LEFT JOIN route_stats rs ON r.route_code = rs.route_code
+     WHERE r.uploader_uuid = $1`,
+    [uuid]
+  )) as { total_likes: string | number }[];
+  const likesReceived = Number(likesRows[0]?.total_likes ?? 0);
+
+  // 만든 루트 목록 조회
+  const routes = (await sql(
+    `${ROUTE_SELECT} WHERE r.uploader_uuid = $1 ORDER BY r.uploaded_at DESC`,
+    [uuid]
+  )) as Route[];
+
+  return c.json({
+    uuid: user.uuid,
+    nickname: user.nickname,
+    description: user.description,
+    likes_received: likesReceived,
+    routes
+  });
+});
+
+// ──────────────────────────────────────────────
+// PUT /api/users/profile — 본인 프로필 수정
+// ──────────────────────────────────────────────
+routeHub.put('/api/users/profile', async (c) => {
+  const rawBody = await c.req.text();
+  let body: { nickname?: string; description?: string } = {};
+  try {
+    body = JSON.parse(rawBody);
+  } catch {
+    return c.json({ error: '요청 바디의 형식이 올바르지 않습니다.' }, 400);
+  }
+
+  const { nickname, description = '' } = body;
+
+  if (!nickname || typeof nickname !== 'string' || nickname.trim().length === 0) {
+    return c.json({ error: '닉네임은 필수이며 빈 칸일 수 없습니다.' }, 400);
+  }
+  if (nickname.length > 50) {
+    return c.json({ error: '닉네임은 최대 50자까지 입력 가능합니다.' }, 400);
+  }
+  if (description && description.length > 500) {
+    return c.json({ error: '소개 글은 최대 500자까지 입력 가능합니다.' }, 400);
+  }
+
+  let uploaderUuid: string;
+  try {
+    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'update_profile');
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 401);
+  }
+
+  const sql = getSql(c.env);
+  await sql(
+    `INSERT INTO users (uuid, nickname, description)
+     VALUES ($1, $2, $3)
+     ON CONFLICT (uuid)
+     DO UPDATE SET nickname = EXCLUDED.nickname, description = EXCLUDED.description`,
+    [uploaderUuid, nickname.trim(), description.trim()]
+  );
+
+  return c.json({ success: true, nickname: nickname.trim(), description: description.trim() });
+});
+
 export default routeHub;
+

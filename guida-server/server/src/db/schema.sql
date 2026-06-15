@@ -139,3 +139,16 @@ CREATE TABLE IF NOT EXISTS inquiries (
 CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON inquiries (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_inquiries_category ON inquiries (category);
 
+-- ─────────────────────────────────────────────
+-- users — 유저 프로필
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS users (
+  uuid        UUID         PRIMARY KEY,
+  nickname    VARCHAR(50)  NOT NULL,
+  description TEXT         NOT NULL DEFAULT '',
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_nickname ON users (nickname);
+
+

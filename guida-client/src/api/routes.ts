@@ -57,3 +57,21 @@ export function uploadBackup(recoveryCodeHash: string, encryptedBlob: string): P
 export function restoreBackup(recoveryCodeHash: string): Promise<string> {
   return withServer(() => server.restoreBackup(recoveryCodeHash));
 }
+
+export type { UserProfileResponse } from "./httpServer";
+
+/** 본인 프로필 조회 */
+export function getMyProfile() {
+  return withServer(() => server.getMyProfile());
+}
+
+/** 타인 프로필 조회 */
+export function getUserProfile(uuid: string) {
+  return withServer(() => server.getUserProfile(uuid));
+}
+
+/** 본인 프로필 수정 */
+export function updateUserProfile(nickname: string, description: string) {
+  return withServer(() => server.updateUserProfile(nickname, description));
+}
+

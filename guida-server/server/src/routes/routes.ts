@@ -123,11 +123,15 @@ const ROUTE_SELECT = `
     r.deck_code,
     r.uploaded_at,
     COALESCE(rs.likes, 0)      AS likes,
-    COALESCE(rs.play_count, 0) AS play_count
+    COALESCE(rs.play_count, 0) AS play_count,
+    r.uploader_uuid,
+    COALESCE(u.nickname, 'user_' || UPPER(SUBSTRING(REPLACE(r.uploader_uuid::text, '-', ''), 1, 6))) AS uploader_nickname
   FROM routes r
   LEFT JOIN route_stats rs
     ON rs.route_code = r.route_code
    AND rs.patch_version = r.patch_version
+  LEFT JOIN users u
+    ON u.uuid = r.uploader_uuid
 `;
 
 export default async function routeHubRoutes(fastify: FastifyInstance) {
@@ -607,4 +611,137 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       return { encrypted_blob: rows[0].encrypted_blob };
     },
   );
+
+  // ──────────────────────────────────────────────
+  // POST /api/users/me — 본인 프로필 조회 (가입/동기화용)
+  // ──────────────────────────────────────────────
+  fastify.post('/api/users/me', async (req, reply) => {
+    let uploaderUuid: string;
+    try {
+      uploaderUuid = verifyRequestSignature(req, 'get_my_profile');
+    } catch (err) {
+      return reply.code(401).send({ error: (err as Error).message });
+    }
+
+    // 사용자 정보 조회
+    const { rows } = await fastify.pg.query<{ uuid: string; nickname: string; description: string }>(
+      `SELECT uuid, nickname, description FROM users WHERE uuid = $1`,
+      [uploaderUuid]
+    );
+
+    const defaultNickname = `user_${uploaderUuid.replace(/-/g, '').substring(0, 6).toUpperCase()}`;
+    const user = rows[0] || {
+      uuid: uploaderUuid,
+      nickname: defaultNickname,
+      description: ''
+    };
+
+    // 총 추천수 조회
+    const { rows: likesRows } = await fastify.pg.query<{ total_likes: string }>(
+      `SELECT COALESCE(SUM(rs.likes), 0) AS total_likes
+       FROM routes r
+       LEFT JOIN route_stats rs ON r.route_code = rs.route_code
+       WHERE r.uploader_uuid = $1`,
+      [uploaderUuid]
+    );
+    const likesReceived = Number(likesRows[0]?.total_likes ?? 0);
+
+    // 만든 루트 목록 조회
+    const { rows: routes } = await fastify.pg.query<Route>(
+      `${ROUTE_SELECT} WHERE r.uploader_uuid = $1 ORDER BY r.uploaded_at DESC`,
+      [uploaderUuid]
+    );
+
+    return {
+      uuid: user.uuid,
+      nickname: user.nickname,
+      description: user.description,
+      likes_received: likesReceived,
+      routes
+    };
+  });
+
+  // ──────────────────────────────────────────────
+  // GET /api/users/:uuid — 타인 프로필 조회
+  // ──────────────────────────────────────────────
+  fastify.get<{ Params: { uuid: string } }>('/api/users/:uuid', async (req, reply) => {
+    const { uuid } = req.params;
+
+    // UUID 포맷 검증
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(uuid)) {
+      return reply.code(400).send({ error: '올바르지 않은 사용자 식별자(UUID) 형식입니다.' });
+    }
+
+    const { rows } = await fastify.pg.query<{ uuid: string; nickname: string; description: string }>(
+      `SELECT uuid, nickname, description FROM users WHERE uuid = $1`,
+      [uuid]
+    );
+
+    const defaultNickname = `user_${uuid.replace(/-/g, '').substring(0, 6).toUpperCase()}`;
+    const user = rows[0] || {
+      uuid,
+      nickname: defaultNickname,
+      description: ''
+    };
+
+    // 총 추천수 조회
+    const { rows: likesRows } = await fastify.pg.query<{ total_likes: string }>(
+      `SELECT COALESCE(SUM(rs.likes), 0) AS total_likes
+       FROM routes r
+       LEFT JOIN route_stats rs ON r.route_code = rs.route_code
+       WHERE r.uploader_uuid = $1`,
+      [uuid]
+    );
+    const likesReceived = Number(likesRows[0]?.total_likes ?? 0);
+
+    // 만든 루트 목록 조회
+    const { rows: routes } = await fastify.pg.query<Route>(
+      `${ROUTE_SELECT} WHERE r.uploader_uuid = $1 ORDER BY r.uploaded_at DESC`,
+      [uuid]
+    );
+
+    return {
+      uuid: user.uuid,
+      nickname: user.nickname,
+      description: user.description,
+      likes_received: likesReceived,
+      routes
+    };
+  });
+
+  // ──────────────────────────────────────────────
+  // PUT /api/users/profile — 본인 프로필 수정
+  // ──────────────────────────────────────────────
+  fastify.put<{ Body: { nickname: string; description?: string } }>('/api/users/profile', async (req, reply) => {
+    const { nickname, description = '' } = req.body ?? {};
+
+    if (!nickname || typeof nickname !== 'string' || nickname.trim().length === 0) {
+      return reply.code(400).send({ error: '닉네임은 필수이며 빈 칸일 수 없습니다.' });
+    }
+    if (nickname.length > 50) {
+      return reply.code(400).send({ error: '닉네임은 최대 50자까지 입력 가능합니다.' });
+    }
+    if (description && description.length > 500) {
+      return reply.code(400).send({ error: '소개 글은 최대 500자까지 입력 가능합니다.' });
+    }
+
+    let uploaderUuid: string;
+    try {
+      uploaderUuid = verifyRequestSignature(req, 'update_profile');
+    } catch (err) {
+      return reply.code(401).send({ error: (err as Error).message });
+    }
+
+    await fastify.pg.query(
+      `INSERT INTO users (uuid, nickname, description)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (uuid)
+       DO UPDATE SET nickname = EXCLUDED.nickname, description = EXCLUDED.description`,
+      [uploaderUuid, nickname.trim(), description.trim()]
+    );
+
+    return { success: true, nickname: nickname.trim(), description: description.trim() };
+  });
 }
+

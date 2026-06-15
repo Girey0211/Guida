@@ -174,6 +174,8 @@ export interface SharedRoute {
   verified_method: VerifiedMethod;
   /** 덱 공유 코드 */
   deck_code?: string | null;
+  uploader_uuid: string;
+  uploader_nickname: string;
   /** 패치 버전을 키로 하는 통계 맵 (예: { "2.7": { likes, play_count } }) */
   stats: Record<string, RouteStat>;
   uploaded_at: string;

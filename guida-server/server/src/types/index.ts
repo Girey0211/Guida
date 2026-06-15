@@ -43,6 +43,8 @@ export interface Route {
   memo: string | null;
   verified_method: VerifiedMethod;
   deck_code: string | null;
+  uploader_uuid: string;
+  uploader_nickname: string;
   uploaded_at: string;
   likes: number;
   play_count: number;

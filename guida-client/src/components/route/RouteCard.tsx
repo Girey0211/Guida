@@ -1,4 +1,5 @@
-import { ThumbsUp, Play, Download, Layers, ShieldCheck } from "lucide-react";
+import { ThumbsUp, Play, Download, Layers, ShieldCheck, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { SharedRoute } from "@/types/route";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,8 @@ export function RouteCard({
   onImport,
   likeBusy,
 }: Props) {
+  const navigate = useNavigate();
+
   return (
     <Card className="flex flex-col transition-colors hover:border-primary/40">
       <CardHeader className="pb-3">
@@ -48,6 +51,19 @@ export function RouteCard({
               <ShieldCheck className="size-3" />
               검증
             </Badge>
+          )}
+          {route.uploader_nickname && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/user/${route.uploader_uuid}`);
+              }}
+              className="ml-auto flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors cursor-pointer bg-transparent border-0 p-0"
+              title="작성자 프로필 보기"
+            >
+              <User className="size-3" />
+              {route.uploader_nickname}
+            </button>
           )}
         </div>
       </CardHeader>

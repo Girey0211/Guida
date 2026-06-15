@@ -30,6 +30,11 @@ async function main() {
   fastify.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
     try {
       const bodyStr = body as string;
+      if (!bodyStr || bodyStr.trim() === '') {
+        (req as any).rawBody = '';
+        done(null, {});
+        return;
+      }
       const json = JSON.parse(bodyStr);
       (req as any).rawBody = bodyStr;
       done(null, json);

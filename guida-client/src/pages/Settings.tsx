@@ -1,4 +1,4 @@
-import { Moon, RefreshCw, Copy, Check, RotateCcw, FolderOpen, Trash2, FileText } from "lucide-react";
+import { Moon, RefreshCw, Copy, Check, RotateCcw, FolderOpen, Trash2, FileText, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/appStore";
@@ -120,6 +120,24 @@ export function Settings() {
       <PageHeader title="설정" />
 
       <div className="space-y-4">
+        {/* 내 프로필 */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-1.5">
+              <User className="size-4" /> 내 프로필
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              닉네임과 소개글을 수정하고, 내가 업로드한 공유 루트 목록 및 받은 추천수를 확인합니다.
+            </p>
+            <Button onClick={() => navigate("/user/me")} className="w-full gap-1.5">
+              <User className="size-4" />
+              내 프로필 관리 페이지로 이동
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* 외형 */}
         <Card>
           <CardHeader className="pb-3">
