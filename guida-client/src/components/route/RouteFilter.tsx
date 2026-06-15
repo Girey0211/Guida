@@ -1,5 +1,5 @@
 import type { RouteFilterState } from "@/types/filter";
-import type { DifficultyMode, DifficultyTag, RouteType } from "@/types/route";
+import type { DifficultyMode, DifficultyTag } from "@/types/route";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,12 +13,9 @@ interface Props {
   currentPatch: string;
   /** 데이터에 존재하는 패치 버전 목록 */
   availablePatches: string[];
-  /** 선택 가능한 목표 재화 */
-  targetRewards: string[];
 }
 
 const DIFFICULTIES: DifficultyTag[] = ["쉬움", "보통", "어려움"];
-const ROUTE_TYPES: RouteType[] = ["파밍 효율 중심", "특정 목표 중심"];
 const DIFFICULTY_MODES: { value: DifficultyMode; label: string }[] = [
   { value: "normal", label: "노말" },
   { value: "hard", label: "하드" },
@@ -31,7 +28,6 @@ export function RouteFilter({
   onChange,
   currentPatch,
   availablePatches,
-  targetRewards,
 }: Props) {
   const set = <K extends keyof RouteFilterState>(key: K, value: RouteFilterState[K]) =>
     onChange({ ...filter, [key]: value });
@@ -97,25 +93,13 @@ export function RouteFilter({
 
       {/* 게임 콘텐츠 필터 */}
       <div className="space-y-1.5">
-        <Label>목표 재화</Label>
-        <Select value={filter.targetReward} onChange={(e) => set("targetReward", e.target.value)}>
-          <option value="">전체</option>
-          {targetRewards.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      <div className="space-y-1.5">
-        <Label>거던 층수 (특정 층 집중)</Label>
+        <Label>목표 층수</Label>
         <Select
           value={filter.floor ?? ""}
           onChange={(e) => set("floor", e.target.value ? Number(e.target.value) : null)}
         >
           <option value="">전체</option>
-          {[1, 2, 3, 4, 5, 6, 7].map((f) => (
+          {[5, 10, 15].map((f) => (
             <option key={f} value={f}>
               {f}층
             </option>
@@ -139,7 +123,7 @@ export function RouteFilter({
       </div>
 
       <div className="space-y-1.5">
-        <Label>난이도 태그</Label>
+        <Label>루트 난이도</Label>
         <Select
           value={filter.difficulty ?? ""}
           onChange={(e) => set("difficulty", (e.target.value || null) as DifficultyTag | null)}
@@ -148,21 +132,6 @@ export function RouteFilter({
           {DIFFICULTIES.map((d) => (
             <option key={d} value={d}>
               {d}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      <div className="space-y-1.5">
-        <Label>루트 유형</Label>
-        <Select
-          value={filter.routeType ?? ""}
-          onChange={(e) => set("routeType", (e.target.value || null) as RouteType | null)}
-        >
-          <option value="">전체</option>
-          {ROUTE_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
             </option>
           ))}
         </Select>

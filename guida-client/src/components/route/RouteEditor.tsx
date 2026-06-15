@@ -11,7 +11,6 @@ import type {
   DifficultyTag,
   PackOrderItem,
   RouteDraft,
-  RouteType,
   RouteRestrictions,
 } from "@/types/route";
 import type { DungeonMeta, Gift, Pack } from "@/types/gameData";
@@ -44,7 +43,6 @@ interface Props {
 }
 
 const DIFFICULTIES: DifficultyTag[] = ["쉬움", "보통", "어려움"];
-const ROUTE_TYPES: RouteType[] = ["파밍 효율 중심", "특정 목표 중심"];
 /** 목표 층수 — 도달 목표 깊이 */
 const TARGET_FLOORS = [5, 10, 15];
 /** 하드 전환 가능 층 (1~5 중 하나) */
@@ -110,7 +108,6 @@ const EMPTY: RouteDraft = {
   name: "",
   target_rewards: [],
   difficulty_tag: "보통",
-  route_type: "파밍 효율 중심",
   difficulty_mode: "normal",
   difficulty_switch_floor: null,
   floors: [5],
@@ -614,28 +611,16 @@ export function RouteEditor({
         </div>
       </div>
 
-      {/* 난이도 태그 / 유형 */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label>난이도 태그</Label>
-          <Select value={draft.difficulty_tag} onChange={(e) => set("difficulty_tag", e.target.value as DifficultyTag)} disabled={readOnly}>
-            {DIFFICULTIES.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label>루트 유형</Label>
-          <Select value={draft.route_type} onChange={(e) => set("route_type", e.target.value as RouteType)} disabled={readOnly}>
-            {ROUTE_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </Select>
-        </div>
+      {/* 루트 난이도 태그 */}
+      <div className="space-y-1.5">
+        <Label>루트 난이도</Label>
+        <Select value={draft.difficulty_tag} onChange={(e) => set("difficulty_tag", e.target.value as DifficultyTag)} disabled={readOnly}>
+          {DIFFICULTIES.map((d) => (
+            <option key={d} value={d}>
+              {d}
+            </option>
+          ))}
+        </Select>
       </div>
 
       {/* 난이도 모드 */}
@@ -791,10 +776,11 @@ export function RouteEditor({
                 onContextMenu={readOnly ? (e) => e.preventDefault() : (e) => handleSinnerContextMenu(e, state.sinnerId)}
                 title={readOnly ? `${activeEgoNames.length > 0 ? `장착 에고:\n- ${activeEgoNames.join("\n- ")}` : "장착된 에고 없음"}` : `${activeEgoNames.length > 0 ? `장착 에고:\n- ${activeEgoNames.join("\n- ")}` : "장착된 에고 없음"}\n\n우클릭: ${state.order > 0 ? "편성 취소" : "편성 추가"}`}
                 className={cn(
-                  "relative flex flex-col justify-between overflow-hidden rounded-md border p-2.5 cursor-pointer transition-all hover:bg-primary/5 hover:border-primary/40 min-h-[105px]",
+                  "relative flex flex-col justify-between rounded-md border p-2.5 cursor-pointer transition-all hover:bg-primary/5 hover:border-primary/40 min-h-[105px]",
                   state.order > 0
                     ? "border-primary bg-primary/5 shadow-inner"
-                    : "border-border bg-muted/10"
+                    : "border-border bg-muted/10",
+                  activeEgoPopoverSinnerId === state.sinnerId ? "z-30" : "z-10"
                 )}
               >
                 {/* 편성 번호 뱃지 */}
@@ -1482,9 +1468,9 @@ export function RouteEditor({
         )}
       </div>
 
-      {/* 팩 방문 (구간별) */}
+      {/* 방문 팩 (구간별) */}
       <div className="space-y-2">
-        <Label>팩 방문</Label>
+        <Label>방문 팩</Label>
         <div className="space-y-2">
           {PACK_BUCKETS.map((bucket) => {
             // 11~15 구간은 EXTREME 모드이거나 목표 층수 15층일 때만 노출
@@ -1493,11 +1479,12 @@ export function RouteEditor({
             const open = openPackBucket === bucket.key;
             // 이 구간의 실제 난이도 (난이도 모드 + 하드 전환 층 기준)
             const diff = difficultyAtFloor(bucket.floor, draft.difficulty_mode, draft.difficulty_switch_floor);
+            const displayLabel = bucket.key === "5-10" && targetDepth === 5 ? "5층" : bucket.label;
             return (
               <div key={bucket.key} className="rounded-md border border-border p-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-muted-foreground">
-                    {bucket.label}
+                    {displayLabel}
                     {bucket.key !== "11-15" && (
                       <span className="ml-1.5 font-normal text-primary/80">· {DIFFICULTY_MODE_LABEL[diff]}</span>
                     )}

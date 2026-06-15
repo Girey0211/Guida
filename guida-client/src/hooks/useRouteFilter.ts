@@ -56,8 +56,6 @@ export function useRouteFilter(
       // 난이도 모드
       if (filter.difficultyMode && r.difficulty_mode !== filter.difficultyMode) return false;
 
-      // 루트 유형
-      if (filter.routeType && r.route_type !== filter.routeType) return false;
 
       // 신뢰도(최소 추천/플레이)
       const { likes, plays } = statFor(r, statPatch);

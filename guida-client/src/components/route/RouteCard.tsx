@@ -43,7 +43,6 @@ export function RouteCard({
             {route.floors.length}층
           </Badge>
           <Badge variant="secondary">{route.difficulty_tag}</Badge>
-          <Badge variant="secondary">{route.route_type}</Badge>
           {route.verified_method === "self_report" && (
             <Badge variant="success" className="gap-1">
               <ShieldCheck className="size-3" />

@@ -158,7 +158,6 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       route: {
         name: route.name,
         difficulty_tag: route.difficulty_tag,
-        route_type: route.route_type,
         difficulty_mode: route.difficulty_mode,
         difficulty_switch_floor: route.difficulty_switch_floor,
         target_rewards: route.target_rewards,
@@ -237,7 +236,6 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       target_rewards: shared.target_rewards,
       floors: shared.floors,
       difficulty_tag: shared.difficulty_tag,
-      route_type: shared.route_type,
       difficulty_mode: shared.difficulty_mode,
       difficulty_switch_floor: shared.difficulty_switch_floor,
       memo: shared.memo,
@@ -269,7 +267,6 @@ export const useRouteStore = create<RouteState>((set, get) => ({
             name: shared.name,
             patch_version: shared.patch_version,
             difficulty_tag: shared.difficulty_tag,
-            route_type: shared.route_type,
             difficulty_mode: shared.difficulty_mode,
             difficulty_switch_floor: shared.difficulty_switch_floor,
             target_rewards: shared.target_rewards,

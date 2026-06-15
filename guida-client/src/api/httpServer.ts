@@ -34,7 +34,6 @@ interface ServerRoute {
   name: string;
   patch_version: string;
   difficulty_tag: SharedRoute["difficulty_tag"];
-  route_type: SharedRoute["route_type"];
   difficulty_mode: SharedRoute["difficulty_mode"];
   difficulty_switch_floor: number | null;
   target_rewards: string[];
@@ -185,7 +184,6 @@ function toShared(r: ServerRoute): SharedRoute {
     patch_version: r.patch_version,
     name: r.name,
     difficulty_tag: r.difficulty_tag,
-    route_type: r.route_type,
     difficulty_mode: r.difficulty_mode,
     difficulty_switch_floor: r.difficulty_switch_floor ?? null,
     target_rewards: r.target_rewards ?? [],
@@ -309,7 +307,6 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
     uuid,
     name: route.name,
     difficulty_tag: route.difficulty_tag,
-    route_type: route.route_type,
     difficulty_mode: route.difficulty_mode,
     difficulty_switch_floor: route.difficulty_switch_floor,
     target_rewards: route.target_rewards,
@@ -352,7 +349,6 @@ export async function updateRoute(code: string, payload: UploadPayload): Promise
     uuid,
     name: route.name,
     difficulty_tag: route.difficulty_tag,
-    route_type: route.route_type,
     difficulty_mode: route.difficulty_mode,
     difficulty_switch_floor: route.difficulty_switch_floor,
     target_rewards: route.target_rewards,

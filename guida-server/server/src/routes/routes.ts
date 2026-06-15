@@ -85,14 +85,12 @@ import type {
   ListRoutesQuery,
   DifficultyTag,
   DifficultyMode,
-  RouteType,
   VerifiedMethod,
 } from '../types/index.js';
 
 const CODE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const VALID_DIFFICULTY_TAG: DifficultyTag[] = ['쉬움', '보통', '어려움'];
 const VALID_DIFFICULTY_MODE: DifficultyMode[] = ['normal', 'hard', 'extreme'];
-const VALID_ROUTE_TYPE: RouteType[] = ['파밍 효율 중심', '특정 목표 중심'];
 const VALID_VERIFIED: VerifiedMethod[] = ['self_report', 'ocr'];
 
 /** 6자리 대문자 영숫자 코드 생성 (예: X7R2B9) */
@@ -114,7 +112,6 @@ const ROUTE_SELECT = `
     r.name,
     r.patch_version,
     r.difficulty_tag,
-    r.route_type,
     r.difficulty_mode,
     r.difficulty_switch_floor,
     r.target_rewards,
@@ -138,7 +135,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   // GET /api/routes — 목록 조회 (필터 + 정렬 + 페이지네이션)
   // ──────────────────────────────────────────────
   fastify.get<{ Querystring: ListRoutesQuery }>('/api/routes', async (req) => {
-    const { patch, sort = 'likes', difficulty_tag, difficulty_mode, route_type, min_likes } =
+    const { patch, sort = 'likes', difficulty_tag, difficulty_mode, min_likes } =
       req.query;
 
     const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
@@ -158,10 +155,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
     if (difficulty_mode) {
       params.push(difficulty_mode);
       conditions.push(`r.difficulty_mode = $${params.length}`);
-    }
-    if (route_type) {
-      params.push(route_type);
-      conditions.push(`r.route_type = $${params.length}`);
     }
     if (min_likes !== undefined && min_likes !== null && `${min_likes}` !== '') {
       params.push(Number(min_likes));
@@ -230,7 +223,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       uuid,
       name,
       difficulty_tag,
-      route_type,
       difficulty_mode,
       difficulty_switch_floor = null,
       target_rewards,
@@ -247,7 +239,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       !uuid ||
       !name ||
       !VALID_DIFFICULTY_TAG.includes(difficulty_tag) ||
-      !VALID_ROUTE_TYPE.includes(route_type) ||
       !VALID_DIFFICULTY_MODE.includes(difficulty_mode) ||
       (difficulty_switch_floor !== null && typeof difficulty_switch_floor !== 'number') ||
       !Array.isArray(target_rewards) ||
@@ -282,16 +273,15 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
           await client.query('BEGIN');
           await client.query(
             `INSERT INTO routes
-               (route_code, name, patch_version, difficulty_tag, route_type,
+               (route_code, name, patch_version, difficulty_tag,
                 difficulty_mode, difficulty_switch_floor, target_rewards, floors,
                 gift_order, pack_order, memo, verified_method, uploader_uuid, deck_code)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
             [
               code,
               name,
               patchVersion,
               difficulty_tag,
-              route_type,
               difficulty_mode,
               difficulty_switch_floor,
               target_rewards,
@@ -350,7 +340,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         uuid,
         name,
         difficulty_tag,
-        route_type,
         difficulty_mode,
         difficulty_switch_floor = null,
         target_rewards,
@@ -367,7 +356,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         !uuid ||
         !name ||
         !VALID_DIFFICULTY_TAG.includes(difficulty_tag) ||
-        !VALID_ROUTE_TYPE.includes(route_type) ||
         !VALID_DIFFICULTY_MODE.includes(difficulty_mode) ||
         (difficulty_switch_floor !== null && typeof difficulty_switch_floor !== 'number') ||
         !Array.isArray(target_rewards) ||
@@ -404,16 +392,15 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         `UPDATE routes SET
            name = $2,
            difficulty_tag = $3,
-           route_type = $4,
-           difficulty_mode = $5,
-           difficulty_switch_floor = $6,
-           target_rewards = $7,
-           floors = $8,
-           gift_order = $9,
-           pack_order = $10,
-           memo = $11,
-           verified_method = $12,
-           deck_code = $13,
+           difficulty_mode = $4,
+           difficulty_switch_floor = $5,
+           target_rewards = $6,
+           floors = $7,
+           gift_order = $8,
+           pack_order = $9,
+           memo = $10,
+           verified_method = $11,
+           deck_code = $12,
            uploaded_at = now()
          WHERE route_code = $1
          RETURNING route_code`,
@@ -421,7 +408,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
           code,
           name,
           difficulty_tag,
-          route_type,
           difficulty_mode,
           difficulty_switch_floor,
           target_rewards,

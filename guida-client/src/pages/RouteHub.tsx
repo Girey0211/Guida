@@ -16,7 +16,7 @@ import { toast } from "@/components/ui/toast";
 
 /** 루트 공유 허브 (탐색) 페이지 */
 export function RouteHub() {
-  const { uuid, settings, gameData } = useAppStore();
+  const { uuid, settings } = useAppStore();
   const { hubRoutes, myRoutes, loadingHub, hubError, loadHub, loadMyRoutes, likeHubRoute, importByCode } =
     useRouteStore();
   const [filter, setFilter] = useState<RouteFilterState>(DEFAULT_FILTER);
@@ -116,7 +116,6 @@ export function RouteHub() {
           onChange={setFilter}
           currentPatch={currentPatch}
           availablePatches={availablePatches}
-          targetRewards={gameData?.targetRewards ?? []}
         />
 
         {/* 결과 */}

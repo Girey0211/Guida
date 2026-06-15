@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS routes (
   name                    VARCHAR(100) NOT NULL,
   patch_version           VARCHAR(10)  NOT NULL,             -- 업로드 시점 패치 버전
   difficulty_tag          VARCHAR(10)  NOT NULL,             -- 체감 난이도: 쉬움 | 보통 | 어려움
-  route_type              VARCHAR(30)  NOT NULL,             -- 파밍 효율 중심 | 특정 목표 중심
   difficulty_mode         VARCHAR(10)  NOT NULL DEFAULT 'normal', -- 거던 난이도: normal | hard | extreme
   difficulty_switch_floor INT,                               -- 노말→하드 전환 층 (null = 단일 난이도)
   target_rewards          TEXT[]       NOT NULL DEFAULT '{}', -- 목표 재화 배열
@@ -47,7 +46,7 @@ BEGIN
 END $$;
 
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS difficulty_tag          VARCHAR(10)  NOT NULL DEFAULT '보통';
-ALTER TABLE routes ADD COLUMN IF NOT EXISTS route_type              VARCHAR(30)  NOT NULL DEFAULT '파밍 효율 중심';
+ALTER TABLE routes DROP COLUMN IF EXISTS route_type;
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS difficulty_mode         VARCHAR(10)  NOT NULL DEFAULT 'normal';
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS difficulty_switch_floor INT;
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS target_rewards          TEXT[]       NOT NULL DEFAULT '{}';
@@ -61,7 +60,7 @@ ALTER TABLE routes DROP COLUMN IF EXISTS steps;
 CREATE INDEX IF NOT EXISTS idx_routes_patch           ON routes (patch_version);
 CREATE INDEX IF NOT EXISTS idx_routes_difficulty_tag  ON routes (difficulty_tag);
 CREATE INDEX IF NOT EXISTS idx_routes_difficulty_mode ON routes (difficulty_mode);
-CREATE INDEX IF NOT EXISTS idx_routes_route_type      ON routes (route_type);
+DROP INDEX IF EXISTS idx_routes_route_type;
 CREATE INDEX IF NOT EXISTS idx_routes_uploaded_at     ON routes (uploaded_at DESC);
 
 -- ─────────────────────────────────────────────

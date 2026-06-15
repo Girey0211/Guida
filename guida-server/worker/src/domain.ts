@@ -1,7 +1,6 @@
 /** DB 스키마 / API 계약 타입 (기존 server/src/types/index.ts 와 동일). */
 export type DifficultyTag = '쉬움' | '보통' | '어려움';
 export type DifficultyMode = 'normal' | 'hard' | 'extreme';
-export type RouteType = '파밍 효율 중심' | '특정 목표 중심';
 export type VerifiedMethod = 'self_report' | 'ocr';
 
 export interface GiftOrderItem {
@@ -25,7 +24,6 @@ export interface Route {
   name: string;
   patch_version: string;
   difficulty_tag: DifficultyTag;
-  route_type: RouteType;
   difficulty_mode: DifficultyMode;
   difficulty_switch_floor: number | null;
   target_rewards: string[];
@@ -44,7 +42,6 @@ export interface UploadBody {
   uuid: string;
   name: string;
   difficulty_tag: DifficultyTag;
-  route_type: RouteType;
   difficulty_mode: DifficultyMode;
   difficulty_switch_floor?: number | null;
   target_rewards: string[];
@@ -70,7 +67,6 @@ export interface ListRoutesQuery {
   sort?: 'likes' | 'latest' | 'play_count';
   difficulty_tag?: DifficultyTag;
   difficulty_mode?: DifficultyMode;
-  route_type?: RouteType;
   min_likes?: string;
   limit?: string;
   offset?: string;

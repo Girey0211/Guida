@@ -8,7 +8,6 @@
 export type DifficultyTag = '쉬움' | '보통' | '어려움';
 /** 난이도 모드 — 거던 실제 난이도 (gift_order / pack_order 항목과 연동) */
 export type DifficultyMode = 'normal' | 'hard' | 'extreme';
-export type RouteType = '파밍 효율 중심' | '특정 목표 중심';
 export type VerifiedMethod = 'self_report' | 'ocr';
 
 /** 기프트 획득 순서 한 항목 (routes.gift_order JSONB) — gifts.json 의 id 참조 */
@@ -35,7 +34,6 @@ export interface Route {
   name: string;
   patch_version: string;
   difficulty_tag: DifficultyTag;
-  route_type: RouteType;
   difficulty_mode: DifficultyMode;
   difficulty_switch_floor: number | null;
   target_rewards: string[];
@@ -63,7 +61,6 @@ export interface UploadBody {
   uuid: string;
   name: string;
   difficulty_tag: DifficultyTag;
-  route_type: RouteType;
   difficulty_mode: DifficultyMode;
   difficulty_switch_floor?: number | null;
   target_rewards: string[];
@@ -92,7 +89,6 @@ export interface ListRoutesQuery {
   sort?: 'likes' | 'latest' | 'play_count';
   difficulty_tag?: DifficultyTag;
   difficulty_mode?: DifficultyMode;
-  route_type?: RouteType;
   min_likes?: number;
   limit?: number;
   offset?: number;

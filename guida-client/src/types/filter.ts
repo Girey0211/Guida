@@ -1,4 +1,4 @@
-import type { DifficultyMode, DifficultyTag, RouteType } from "./route";
+import type { DifficultyMode, DifficultyTag } from "./route";
 
 /** 정렬 기준 */
 export type SortBy = "likes" | "recent" | "play_count";
@@ -28,8 +28,6 @@ export interface RouteFilterState {
   difficulty: DifficultyTag | null;
   /** 난이도 모드 — 노말/하드/EXTREME (null이면 전체) */
   difficultyMode: DifficultyMode | null;
-  /** 루트 유형 (null이면 전체) */
-  routeType: RouteType | null;
   /** 최소 추천수 */
   minLikes: number;
   /** 최소 플레이수 */
@@ -46,7 +44,6 @@ export const DEFAULT_FILTER: RouteFilterState = {
   floor: null,
   difficulty: null,
   difficultyMode: null,
-  routeType: null,
   minLikes: 0,
   minPlays: 0,
   hideImported: false,

@@ -151,7 +151,6 @@ export function MyRoutes() {
             target_rewards: editor.route.target_rewards,
             floors: editor.route.floors,
             difficulty_tag: editor.route.difficulty_tag,
-            route_type: editor.route.route_type,
             difficulty_mode: editor.route.difficulty_mode,
             difficulty_switch_floor: editor.route.difficulty_switch_floor,
             memo: editor.route.memo,
@@ -216,7 +215,6 @@ export function MyRoutes() {
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
                   <Badge variant="secondary">{route.difficulty_tag}</Badge>
-                  <Badge variant="secondary">{route.route_type}</Badge>
                   {route.verified ? (
                     <Badge variant="success" className="gap-1">
                       <ShieldCheck className="size-3" />검증됨
@@ -239,7 +237,7 @@ export function MyRoutes() {
                     <Badge key={r} variant="outline" className="text-[11px]">{r}</Badge>
                   ))}
                 </div>
-                {route.memo && <p className="text-xs text-muted-foreground">{route.memo}</p>}
+                {route.memo && <p className="text-xs text-muted-foreground truncate" title={route.memo}>{route.memo}</p>}
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                   {/* 공유 코드 */}
@@ -446,7 +444,6 @@ export function MyRoutes() {
 function areRouteFieldsEqual(local: LocalRoute, shared: SharedRoute): boolean {
   if (local.name !== shared.name) return false;
   if (local.difficulty_tag !== shared.difficulty_tag) return false;
-  if (local.route_type !== shared.route_type) return false;
   if (local.difficulty_mode !== shared.difficulty_mode) return false;
   if (local.difficulty_switch_floor !== shared.difficulty_switch_floor) return false;
   if (local.memo !== shared.memo) return false;

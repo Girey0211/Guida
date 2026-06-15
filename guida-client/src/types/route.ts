@@ -13,9 +13,6 @@ export type DifficultyTag = "쉬움" | "보통" | "어려움";
 /** 난이도 모드 — 거던 실제 난이도. gift_order / pack_order 항목과 연동 */
 export type DifficultyMode = "normal" | "hard" | "extreme";
 
-/** 루트 유형 */
-export type RouteType = "파밍 효율 중심" | "특정 목표 중심";
-
 /**
  * 기프트 획득 순서 한 항목 (README §8.2 `gift_order[]`).
  * `gifts.json` 의 id 를 참조한다.
@@ -129,8 +126,6 @@ export interface LocalRoute {
   target_rewards: string[];
   /** 난이도 태그 */
   difficulty_tag: DifficultyTag;
-  /** 루트 유형 */
-  route_type: RouteType;
   /** 루트 최종 목표 난이도 */
   difficulty_mode: DifficultyMode;
   /** 노말 → 하드 전환 층. null이면 단일 난이도 */
@@ -169,7 +164,6 @@ export interface SharedRoute {
   patch_version: string;
   name: string;
   difficulty_tag: DifficultyTag;
-  route_type: RouteType;
   difficulty_mode: DifficultyMode;
   difficulty_switch_floor: number | null;
   target_rewards: string[];
@@ -190,7 +184,6 @@ export interface RouteDraft {
   name: string;
   target_rewards: string[];
   difficulty_tag: DifficultyTag;
-  route_type: RouteType;
   difficulty_mode: DifficultyMode;
   difficulty_switch_floor: number | null;
   floors: number[];

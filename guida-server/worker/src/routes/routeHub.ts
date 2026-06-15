@@ -10,13 +10,11 @@ import type {
   PlayBody,
   DifficultyTag,
   DifficultyMode,
-  RouteType,
   VerifiedMethod,
 } from '../domain.js';
 
 const VALID_DIFFICULTY_TAG: DifficultyTag[] = ['쉬움', '보통', '어려움'];
 const VALID_DIFFICULTY_MODE: DifficultyMode[] = ['normal', 'hard', 'extreme'];
-const VALID_ROUTE_TYPE: RouteType[] = ['파밍 효율 중심', '특정 목표 중심'];
 const VALID_VERIFIED: VerifiedMethod[] = ['self_report', 'ocr'];
 
 /**
@@ -29,7 +27,6 @@ const ROUTE_SELECT = `
     r.name,
     r.patch_version,
     r.difficulty_tag,
-    r.route_type,
     r.difficulty_mode,
     r.difficulty_switch_floor,
     r.target_rewards,
@@ -54,7 +51,6 @@ function isValidRouteBody(body: UploadBody): boolean {
     !body.uuid ||
     !body.name ||
     !VALID_DIFFICULTY_TAG.includes(body.difficulty_tag) ||
-    !VALID_ROUTE_TYPE.includes(body.route_type) ||
     !VALID_DIFFICULTY_MODE.includes(body.difficulty_mode) ||
     (body.difficulty_switch_floor != null && typeof body.difficulty_switch_floor !== 'number') ||
     !Array.isArray(body.target_rewards) ||
@@ -100,10 +96,6 @@ routeHub.get('/api/routes', async (c) => {
   if (q.difficulty_mode) {
     params.push(q.difficulty_mode);
     conditions.push(`r.difficulty_mode = $${params.length}`);
-  }
-  if (q.route_type) {
-    params.push(q.route_type);
-    conditions.push(`r.route_type = $${params.length}`);
   }
   if (q.min_likes !== undefined && q.min_likes !== null && `${q.min_likes}` !== '') {
     params.push(Number(q.min_likes));
@@ -170,7 +162,6 @@ routeHub.post(
     const {
       name,
       difficulty_tag,
-      route_type,
       difficulty_mode,
       difficulty_switch_floor = null,
       target_rewards,
@@ -208,16 +199,15 @@ routeHub.post(
             await client.query('BEGIN');
             await client.query(
               `INSERT INTO routes
-                 (route_code, name, patch_version, difficulty_tag, route_type,
+                 (route_code, name, patch_version, difficulty_tag,
                   difficulty_mode, difficulty_switch_floor, target_rewards, floors,
                   gift_order, pack_order, memo, verified_method, uploader_uuid, deck_code)
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
               [
                 code,
                 name,
                 patchVersion,
                 difficulty_tag,
-                route_type,
                 difficulty_mode,
                 difficulty_switch_floor,
                 target_rewards,
@@ -274,7 +264,6 @@ routeHub.put(
     const {
       name,
       difficulty_tag,
-      route_type,
       difficulty_mode,
       difficulty_switch_floor = null,
       target_rewards,
@@ -314,16 +303,15 @@ routeHub.put(
         `UPDATE routes SET
            name = $2,
            difficulty_tag = $3,
-           route_type = $4,
-           difficulty_mode = $5,
-           difficulty_switch_floor = $6,
-           target_rewards = $7,
-           floors = $8,
-           gift_order = $9,
-           pack_order = $10,
-           memo = $11,
-           verified_method = $12,
-           deck_code = $13,
+           difficulty_mode = $4,
+           difficulty_switch_floor = $5,
+           target_rewards = $6,
+           floors = $7,
+           gift_order = $8,
+           pack_order = $9,
+           memo = $10,
+           verified_method = $11,
+           deck_code = $12,
            uploaded_at = now()
          WHERE route_code = $1
          RETURNING route_code`,
@@ -331,7 +319,6 @@ routeHub.put(
           code,
           name,
           difficulty_tag,
-          route_type,
           difficulty_mode,
           difficulty_switch_floor,
           target_rewards,
