@@ -11,6 +11,7 @@ const packageJsonPath = path.resolve(__dirname, '../package.json');
 const tauriConfPath = path.resolve(__dirname, '../src-tauri/tauri.conf.json');
 const cargoTomlPath = path.resolve(__dirname, '../src-tauri/Cargo.toml');
 const cargoLockPath = path.resolve(__dirname, '../src-tauri/Cargo.lock');
+const changelogPath = path.resolve(__dirname, '../CHANGELOG.md');
 
 // Function to read and parse version
 function getCurrentVersion() {
@@ -106,6 +107,33 @@ function main() {
       console.log(`Updated Cargo.lock -> ${newVersion}`);
     } else {
       console.warn('Warning: could not find "guida" package entry in Cargo.lock; skipped.');
+    }
+  }
+
+  // 5. Update CHANGELOG.md
+  if (fs.existsSync(changelogPath)) {
+    const changelogContent = fs.readFileSync(changelogPath, 'utf8');
+    const versionRegex = new RegExp(`##\\s*\\[?${newVersion.replace(/\./g, '\\.')}\\]?`);
+    if (!versionRegex.test(changelogContent)) {
+      const today = new Date().toISOString().split('T')[0];
+      const newHeader = `## [${newVersion}] - ${today}\n### Added\n- \n\n`;
+      
+      const match = changelogContent.match(/(# Changelog\r?\n\r?(?:All notable changes to this project will be documented in this file\.)?\r?\n\r?)/);
+      let newChangelog;
+      if (match) {
+        newChangelog = changelogContent.replace(match[0], `${match[0]}${newHeader}`);
+      } else {
+        const firstHeaderIndex = changelogContent.indexOf('## ');
+        if (firstHeaderIndex !== -1) {
+          newChangelog = changelogContent.slice(0, firstHeaderIndex) + newHeader + changelogContent.slice(firstHeaderIndex);
+        } else {
+          newChangelog = changelogContent + `\n${newHeader}`;
+        }
+      }
+      fs.writeFileSync(changelogPath, newChangelog, 'utf8');
+      console.log(`Updated CHANGELOG.md -> Added header for ${newVersion}`);
+    } else {
+      console.log(`CHANGELOG.md already has header for ${newVersion}; skipped.`);
     }
   }
 

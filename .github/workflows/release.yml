@@ -45,6 +45,15 @@ jobs:
         run: npm ci
         working-directory: ./guida-client
 
+      - name: Extract Changelog
+        id: extract_changelog
+        shell: bash
+        run: |
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          node scripts/extract-changelog.js "${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        working-directory: ./guida-client
+
       - name: Build, sign, and publish release
         uses: tauri-apps/tauri-action@v0
         env:
@@ -62,7 +71,7 @@ jobs:
           # latest.json(업데이트 매니페스트)을 릴리스에 업로드한다.
           tagName: ${{ github.ref_name }}
           releaseName: 'Guida ${{ github.ref_name }}'
-          releaseBody: '자동 생성된 릴리스입니다. 설치 후 앱이 자동으로 업데이트를 확인합니다.'
+          releaseBody: ${{ steps.extract_changelog.outputs.body }}
           releaseDraft: false
           prerelease: false
           # 업데이터 매니페스트 파일명을 고정해 endpoints URL 과 일치시킨다.
