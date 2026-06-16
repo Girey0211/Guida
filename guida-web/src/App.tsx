@@ -40,12 +40,15 @@ export default function App() {
         const notes = data.body || '';
         
         let msiUrl = '';
+        let exeUrl = '';
         let zipUrl = '';
         
         if (data.assets && Array.isArray(data.assets)) {
           data.assets.forEach((asset: any) => {
             if (asset.name.endsWith('.msi')) {
               msiUrl = asset.browser_download_url;
+            } else if (asset.name.endsWith('.exe') && !asset.name.endsWith('.sig')) {
+              exeUrl = asset.browser_download_url;
             } else if (asset.name.endsWith('.zip')) {
               zipUrl = asset.browser_download_url;
             }
@@ -54,14 +57,15 @@ export default function App() {
         
         // 에셋이 없을 경우 Fallback으로 릴리즈 전체 탭 주소를 지정
         const fallbackUrl = data.html_url || 'https://github.com/Girey0211/Guida/releases';
+        const winUrl = msiUrl || exeUrl || fallbackUrl;
 
         setRelease({
           version,
           publishedAt,
-          msiUrl: msiUrl || fallbackUrl,
+          msiUrl: winUrl,
           zipUrl: zipUrl || fallbackUrl,
           notes,
-          hasAssets: !!(msiUrl || zipUrl)
+          hasAssets: !!(msiUrl || exeUrl || zipUrl)
         });
         setLoading(false);
       })
