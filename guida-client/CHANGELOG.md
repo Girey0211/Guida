@@ -1,6 +1,8 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## [0.3.5] - 2026-06-16
+### Added
+- 앱 icon 및 favicon 통일
 
 ## [0.3.4] - 2026-06-16
 
