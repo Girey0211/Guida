@@ -318,6 +318,8 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
     memo: route.memo,
     verified_method: route.verified_method,
     deck_code: route.deck_code,
+    // 멱등 키: 서명 리플레이(±5분)로 인한 중복 업로드를 서버가 무시하도록 한다.
+    idempotency_key: crypto.randomUUID(),
   };
   const bodyString = JSON.stringify(bodyObj);
   const headers = await getAuthHeaders("upload", bodyString);
@@ -406,16 +408,20 @@ export async function likeRoute(
   return getRouteByCode(upper);
 }
 
-/** 플레이 기록 (거던 클리어 시) */
+/** 플레이 기록 (거던 클리어 시) — 계정별 5분 쿨다운(서명 기반) */
 export async function recordPlay(
   _uuid: string,
   code: string,
   patch: string,
 ): Promise<SharedRoute> {
   const upper = code.toUpperCase();
+  // 플레이 집계 주체는 서버가 서명(pubkey)에서 파생하는 uploader_uuid 로 식별한다.
+  const bodyString = JSON.stringify({ patch_version: patch });
+  const headers = await getAuthHeaders("play", bodyString);
   await request(`/api/routes/${encodeURIComponent(upper)}/play`, {
     method: "POST",
-    body: JSON.stringify({ patch_version: patch }),
+    headers,
+    body: bodyString,
   });
   return getRouteByCode(upper);
 }
@@ -430,14 +436,18 @@ export function likedCodes(uuid: string, patch: string): Set<string> {
   return result;
 }
 
-/** 백업 데이터 서버 업로드 */
+/** 백업 데이터 서버 업로드 — 소유 증명(서명) 필요 */
 export async function uploadBackup(recoveryCodeHash: string, encryptedBlob: string): Promise<void> {
+  // 쓰기는 device 키를 가진 본인 기기에서만 일어나므로 서명으로 소유자를 증명한다.
+  const bodyString = JSON.stringify({
+    recovery_code_hash: recoveryCodeHash,
+    encrypted_blob: encryptedBlob,
+  });
+  const headers = await getAuthHeaders("backup", bodyString);
   await request<void>("/api/backup", {
     method: "POST",
-    body: JSON.stringify({
-      recovery_code_hash: recoveryCodeHash,
-      encrypted_blob: encryptedBlob,
-    }),
+    headers,
+    body: bodyString,
   });
 }
 

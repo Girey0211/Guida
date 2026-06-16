@@ -114,8 +114,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       await logger.info("System", "Starting application boot sequence...");
 
       // 1. 디바이스 UUID 확보 (없으면 생성)
+      // raw device_uuid 는 서명 시드이므로 로그에 값 자체를 남기지 않는다(C-3).
       const uuid = await ensureDeviceUuid();
-      await logger.info("System", `Device UUID verified: ${uuid}`);
+      await logger.info("System", "Device UUID verified");
 
       // 2. 설정 로드 (없으면 기본값)
       const stored = await readJson<Partial<UserSettings>>(SETTINGS_FILE, {});

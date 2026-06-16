@@ -13,13 +13,53 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 
-// ── 브라우저/개발 모드 폴백 암/복호화 및 해시 유틸 ──────────────────────────────
+// ── 백업 복구 코드 규격 (V2) ───────────────────────────────────────────────────
+//  - CSPRNG(crypto.getRandomValues) + 16자리(36진 ≈ 2^82) 키스페이스.
+//  - 룩업 해시/암호화 키 모두 단일 SHA-256 → 느린 KDF(PBKDF2-HMAC-SHA256, 600k)로 강화.
+//  - 암호화 키는 백업마다 임의 솔트(블롭 헤더에 포함)를 써 사전계산/레인보우를 차단.
+//  - 룩업 해시는 서버가 코드만으로 조회해야 하므로 고정 솔트 유지(대신 느린 KDF).
+//  - V1(12자리/SHA-256) 백업은 하위호환을 끊고 복원 불가(입력 검증 단계에서 반려).
+const RECOVERY_CODE_LENGTH = 16;
+const PBKDF2_ITERATIONS = 600_000;
+const BACKUP_BLOB_VERSION = 2;
+const LOOKUP_SALT = new TextEncoder().encode("guida.v2.recovery-code.lookup.salt");
+
+/** 룩업 해시: 서버 조회 키(recovery_code_hash). 고정 솔트 + 느린 KDF. */
 async function hashRecoveryCode(code: string): Promise<string> {
-  const input = code.toUpperCase().trim() + "guida.v1.recovery-code.salt";
-  const hashBuffer = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
-  return Array.from(new Uint8Array(hashBuffer))
+  const normalized = code.toUpperCase().trim();
+  const keyMaterial = await window.crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(normalized),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+  const bits = await window.crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt: LOOKUP_SALT as BufferSource, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
+    keyMaterial,
+    256
+  );
+  return Array.from(new Uint8Array(bits))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+}
+
+/** 백업마다 임의 솔트로 AES-256-GCM 키를 PBKDF2 파생(Rust 경로와 동일 규격). */
+async function deriveBackupKey(code: string, salt: Uint8Array): Promise<CryptoKey> {
+  const keyMaterial = await window.crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(code.toUpperCase().trim()),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+  return window.crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: salt as BufferSource, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
 }
 
 async function encryptBrowserBackup(
@@ -27,17 +67,19 @@ async function encryptBrowserBackup(
   payload: { device_uuid: string; settings: string; routes: string }
 ): Promise<string> {
   const plaintext = JSON.stringify(payload);
-  const rawKey = await window.crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(recoveryCode.toUpperCase().trim() + "guida.v1.backup.salt")
-  );
-  const key = await window.crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, ["encrypt"]);
+  const salt = window.crypto.getRandomValues(new Uint8Array(16));
+  const key = await deriveBackupKey(recoveryCode, salt);
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  const ciphertext = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(plaintext));
+  const ciphertext = new Uint8Array(
+    await window.crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(plaintext))
+  );
 
-  const combined = new Uint8Array(12 + ciphertext.byteLength);
-  combined.set(iv, 0);
-  combined.set(new Uint8Array(ciphertext), 12);
+  // 블롭 = version(1) || salt(16) || iv(12) || ciphertext
+  const combined = new Uint8Array(1 + 16 + 12 + ciphertext.length);
+  combined[0] = BACKUP_BLOB_VERSION;
+  combined.set(salt, 1);
+  combined.set(iv, 17);
+  combined.set(ciphertext, 29);
   return btoa(String.fromCharCode(...combined));
 }
 
@@ -45,30 +87,31 @@ async function decryptBrowserBackup(
   recoveryCode: string,
   encryptedBlob: string
 ): Promise<{ device_uuid: string; settings: string; routes: string }> {
-  const rawKey = await window.crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(recoveryCode.toUpperCase().trim() + "guida.v1.backup.salt")
-  );
-  const key = await window.crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, ["decrypt"]);
-
   const binary = atob(encryptedBlob.trim());
   const combined = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) combined[i] = binary.charCodeAt(i);
 
-  if (combined.length < 12) throw new Error("백업 데이터 길이가 유효하지 않습니다.");
-  const iv = combined.slice(0, 12);
-  const ciphertext = combined.slice(12);
+  if (combined.length < 29 || combined[0] !== BACKUP_BLOB_VERSION) {
+    throw new Error("지원하지 않는 백업 형식입니다(V2 전용).");
+  }
+  const salt = combined.slice(1, 17);
+  const iv = combined.slice(17, 29);
+  const ciphertext = combined.slice(29);
 
+  const key = await deriveBackupKey(recoveryCode, salt);
   const decrypted = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
-  const plaintext = new TextDecoder().decode(decrypted);
-  return JSON.parse(plaintext);
+  return JSON.parse(new TextDecoder().decode(decrypted));
 }
 
+/** CSPRNG 기반 16자리 복구 코드. 36진 모듈로 편향 제거를 위해 252 이상 바이트는 버린다. */
 function generateRecoveryCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
-  for (let i = 0; i < 12; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  while (result.length < RECOVERY_CODE_LENGTH) {
+    const bytes = window.crypto.getRandomValues(new Uint8Array(RECOVERY_CODE_LENGTH));
+    for (let i = 0; i < bytes.length && result.length < RECOVERY_CODE_LENGTH; i++) {
+      if (bytes[i] < 252) result += chars.charAt(bytes[i] % chars.length);
+    }
   }
   return result;
 }
@@ -129,8 +172,9 @@ export function BackupScreen() {
       return;
     }
     const cleanCode = inputCode.toUpperCase().trim();
-    if (cleanCode.length !== 12) {
-      toast.error("올바른 12자리 코드를 입력해 주세요.");
+    if (cleanCode.length !== RECOVERY_CODE_LENGTH) {
+      // V1(12자리) 코드는 하위호환 단절로 복원 불가 → 입력 검증 단계에서 반려.
+      toast.error(`올바른 ${RECOVERY_CODE_LENGTH}자리 코드를 입력해 주세요.`);
       return;
     }
 
@@ -154,6 +198,9 @@ export function BackupScreen() {
           settings: res.settings_json,
           routes: res.routes_json,
         };
+        // 복구된 신원을 권위 저장소(키체인)에 먼저 주입한다. 이후 my_routes.json
+        // 암호화·부팅(ensure_device_uuid)이 복구된 device_uuid 를 사용하게 된다(C-2).
+        await invoke("restore_device_uuid", { uuid: res.device_uuid });
       } else {
         restored = await decryptBrowserBackup(cleanCode, encryptedBlob);
       }
@@ -273,18 +320,18 @@ export function BackupScreen() {
               <Download className="size-5 text-primary" /> 계정 복구하기
             </CardTitle>
             <CardDescription>
-              기존 백업 시 발급받았던 12자리 복구 코드를 입력하여 식별키와 데이터를 이전 기기 상태로 완벽히 복원합니다.
+              기존 백업 시 발급받았던 16자리 복구 코드를 입력하여 식별키와 데이터를 이전 기기 상태로 완벽히 복원합니다.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="restore-code">복구 코드 (12자리)</Label>
+              <Label htmlFor="restore-code">복구 코드 (16자리)</Label>
               <Input
                 id="restore-code"
-                placeholder="예: X7R2B9M4K1P2"
+                placeholder="예: X7R2B9M4K1P2T6QW"
                 value={inputCode}
                 onChange={(e) => setInputCode(e.target.value)}
-                maxLength={12}
+                maxLength={RECOVERY_CODE_LENGTH}
                 className="font-mono uppercase tracking-wider placeholder:normal-case placeholder:tracking-normal"
               />
             </div>

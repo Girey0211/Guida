@@ -1,4 +1,4 @@
-import { Moon, RefreshCw, Copy, Check, RotateCcw, FolderOpen, Trash2, FileText } from "lucide-react";
+import { Moon, RefreshCw, Copy, Check, FolderOpen, Trash2, FileText } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/appStore";
@@ -21,7 +21,6 @@ export function Settings() {
   const { settings, patch, online, updateSettings, bootstrap } = useAppStore();
   const endSession = usePlayStore((s) => s.endSession);
   const loadMyRoutes = useRouteStore((s) => s.loadMyRoutes);
-  const [copied, setCopied] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -99,13 +98,6 @@ export function Settings() {
     } finally {
       setClearingLogs(false);
     }
-  };
-
-  const copyUuid = async () => {
-    await navigator.clipboard.writeText(settings.uuid);
-    setCopied(true);
-    toast.success("UUID를 복사했습니다.");
-    setTimeout(() => setCopied(false), 1500);
   };
 
   const resync = async () => {

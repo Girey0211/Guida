@@ -93,6 +93,33 @@ CREATE TABLE IF NOT EXISTS route_likes (
 );
 
 -- ─────────────────────────────────────────────
+-- route_plays — 플레이 집계 쿨다운 원장
+-- (uuid, route_code) 단위로 마지막 플레이 시각을 기록한다.
+-- 동일 계정(uploader_uuid)이 같은 루트를 5분 내 재요청하면 집계되지 않으므로
+-- 단일 curl 루프로 play_count 를 무제한 부풀리는 것을 차단한다.
+-- ※ route_likes 와 동일하게 raw device_uuid 가 아니라 uploader_uuid(단방향)만 적재한다.
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS route_plays (
+  uuid           UUID        NOT NULL,
+  route_code     CHAR(6)     NOT NULL REFERENCES routes (route_code) ON DELETE CASCADE,
+  last_played_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (uuid, route_code)
+);
+
+-- ─────────────────────────────────────────────
+-- upload_idempotency — 업로드 멱등 키
+-- 비멱등 /upload 의 서명 리플레이(±5분 창 내 재전송)로 중복 루트가
+-- 생성되는 것을 막는다. 클라가 업로드마다 생성하는 UUID 를 키로 기억하고,
+-- 동일 키 재요청이면 기존 route_code 를 그대로 반환한다.
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS upload_idempotency (
+  idempotency_key UUID        PRIMARY KEY,
+  uploader_uuid   UUID        NOT NULL,
+  route_code      CHAR(6)     NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ─────────────────────────────────────────────
 -- config — 서버 설정값
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS config (
@@ -123,6 +150,11 @@ CREATE TABLE IF NOT EXISTS backups (
   encrypted_blob     TEXT NOT NULL,
   uploaded_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- 백업 쓰기 소유 증명: owner_uuid(uploader_uuid, 단방향)를 기록한다.
+-- 기존 무소유자 행은 NULL → 첫 서명 쓰기 때 소유자를 채운다(claim-on-first-write).
+-- 덮어쓰기는 owner_uuid 가 NULL 이거나 요청자와 일치할 때만 허용(불일치 403).
+ALTER TABLE backups ADD COLUMN IF NOT EXISTS owner_uuid UUID;
 
 -- ─────────────────────────────────────────────
 -- 기존 테이블에 컬럼을 추가할 때

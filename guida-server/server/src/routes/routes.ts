@@ -260,6 +260,19 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       return reply.code(401).send({ error: (err as Error).message });
     }
 
+    // 멱등 키가 있으면 동일 키의 이전 업로드 결과를 그대로 반환(서명 리플레이 무시).
+    const idemKey =
+      typeof body.idempotency_key === 'string' && body.idempotency_key ? body.idempotency_key : null;
+    if (idemKey) {
+      const { rows } = await fastify.pg.query<{ route_code: string }>(
+        `SELECT route_code FROM upload_idempotency WHERE idempotency_key = $1 AND uploader_uuid = $2`,
+        [idemKey, uploaderUuid],
+      );
+      if (rows[0]) {
+        return reply.code(201).send({ route_code: rows[0].route_code });
+      }
+    }
+
     // 현재 패치 버전
     const { rows: cfg } = await fastify.pg.query<{ value: string }>(
       `SELECT value FROM config WHERE key = 'current_patch'`,
@@ -303,6 +316,24 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
              ON CONFLICT (route_code, patch_version) DO NOTHING`,
             [code, patchVersion],
           );
+          // 멱등 키 기록. 동시 요청이 먼저 같은 키를 선점했다면 rowCount === 0 →
+          // 방금 만든 행을 롤백하고 선점된 기존 코드를 반환한다(코드 충돌 23505 와 구분).
+          if (idemKey) {
+            const idem = await client.query(
+              `INSERT INTO upload_idempotency (idempotency_key, uploader_uuid, route_code)
+               VALUES ($1, $2, $3)
+               ON CONFLICT (idempotency_key) DO NOTHING`,
+              [idemKey, uploaderUuid, code],
+            );
+            if (idem.rowCount === 0) {
+              await client.query('ROLLBACK');
+              const { rows } = await fastify.pg.query<{ route_code: string }>(
+                `SELECT route_code FROM upload_idempotency WHERE idempotency_key = $1`,
+                [idemKey],
+              );
+              return reply.code(201).send({ route_code: rows[0]?.route_code ?? code });
+            }
+          }
           await client.query('COMMIT');
           return reply.code(201).send({ route_code: code });
         } catch (err) {
@@ -561,6 +592,15 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         return reply.code(400).send({ error: '필수 필드가 누락되었습니다.' });
       }
 
+      // 플레이 집계 주체는 서명에서 파생한 uploader_uuid 로 식별한다(무인증 → 서명).
+      // raw device_uuid 는 받지 않으므로 route_plays 에 사칭 시드가 적재되지 않는다.
+      let uploaderUuid: string;
+      try {
+        uploaderUuid = verifyRequestSignature(req, 'play');
+      } catch (err) {
+        return reply.code(401).send({ error: (err as Error).message });
+      }
+
       // 루트 존재 확인
       const { rows: exists } = await fastify.pg.query(
         `SELECT 1 FROM routes WHERE route_code = $1`,
@@ -570,17 +610,46 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         return reply.code(404).send({ error: '루트를 찾을 수 없습니다.' });
       }
 
-      // 해당 패치 통계 행에 플레이 수 +1 (행이 없으면 생성)
-      const { rows } = await fastify.pg.query<{ play_count: number }>(
-        `INSERT INTO route_stats (route_code, patch_version, likes, play_count)
-         VALUES ($1, $2, 0, 1)
-         ON CONFLICT (route_code, patch_version)
-         DO UPDATE SET play_count = route_stats.play_count + 1
-         RETURNING play_count`,
-        [code, patch_version],
-      );
+      const client = await fastify.pg.connect();
+      try {
+        await client.query('BEGIN');
 
-      return { success: true, play_count: rows[0]?.play_count ?? 1 };
+        // 계정별 5분 쿨다운: 신규 행이면 삽입, 기존 행은 5분이 지난 경우에만 갱신.
+        // 쿨다운 내 재요청이면 어떤 행도 영향받지 않아 rowCount === 0 → 429.
+        const cooldown = await client.query(
+          `INSERT INTO route_plays (uuid, route_code, last_played_at)
+           VALUES ($1, $2, now())
+           ON CONFLICT (uuid, route_code)
+           DO UPDATE SET last_played_at = now()
+           WHERE route_plays.last_played_at < now() - interval '5 minutes'`,
+          [uploaderUuid, code],
+        );
+
+        if (cooldown.rowCount === 0) {
+          await client.query('ROLLBACK');
+          return reply
+            .code(429)
+            .send({ error: '같은 루트는 5분에 한 번만 플레이로 집계됩니다.' });
+        }
+
+        // 해당 패치 통계 행에 플레이 수 +1 (행이 없으면 생성)
+        const { rows } = await client.query<{ play_count: number }>(
+          `INSERT INTO route_stats (route_code, patch_version, likes, play_count)
+           VALUES ($1, $2, 0, 1)
+           ON CONFLICT (route_code, patch_version)
+           DO UPDATE SET play_count = route_stats.play_count + 1
+           RETURNING play_count`,
+          [code, patch_version],
+        );
+
+        await client.query('COMMIT');
+        return { success: true, play_count: rows[0]?.play_count ?? 1 };
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
     },
   );
 
@@ -606,13 +675,33 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
         return reply.code(400).send({ error: '필수 필드가 누락되었습니다.' });
       }
 
-      await fastify.pg.query(
-        `INSERT INTO backups (recovery_code_hash, encrypted_blob, uploaded_at)
-         VALUES ($1, $2, now())
+      // 백업 쓰기는 항상 device 키를 가진 본인 기기에서 일어난다(blob 안에 device_uuid 포함).
+      // 서명으로 소유자(uploader_uuid)를 파생해 타인의 백업 파괴/덮어쓰기(DoS)를 막는다.
+      let ownerUuid: string;
+      try {
+        ownerUuid = verifyRequestSignature(req, 'backup');
+      } catch (err) {
+        return reply.code(401).send({ error: (err as Error).message });
+      }
+
+      // 신규 행이면 owner_uuid 기록, 기존 행은 소유자 일치(또는 미소유 claim) 시에만 덮어쓰기.
+      // 불일치 시 WHERE 가 거짓이라 어떤 행도 갱신되지 않아 rowCount === 0 → 403.
+      const result = await fastify.pg.query(
+        `INSERT INTO backups (recovery_code_hash, encrypted_blob, owner_uuid, uploaded_at)
+         VALUES ($1, $2, $3, now())
          ON CONFLICT (recovery_code_hash)
-         DO UPDATE SET encrypted_blob = EXCLUDED.encrypted_blob, uploaded_at = now()`,
-        [recovery_code_hash, encrypted_blob],
+         DO UPDATE SET encrypted_blob = EXCLUDED.encrypted_blob,
+                       owner_uuid = EXCLUDED.owner_uuid,
+                       uploaded_at = now()
+         WHERE backups.owner_uuid IS NULL OR backups.owner_uuid = EXCLUDED.owner_uuid`,
+        [recovery_code_hash, encrypted_blob, ownerUuid],
       );
+
+      if (result.rowCount === 0) {
+        return reply
+          .code(403)
+          .send({ error: '이 백업을 덮어쓸 권한이 없습니다.' });
+      }
 
       return { success: true };
     },

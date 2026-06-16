@@ -187,8 +187,22 @@ routeHub.post(
       return c.json({ error: (err as Error).message }, 401);
     }
 
+    const idemKey =
+      typeof body.idempotency_key === 'string' && body.idempotency_key ? body.idempotency_key : null;
+
     const pool = getPool(c.env);
     try {
+      // 멱등 키가 있으면 동일 키의 이전 업로드 결과를 그대로 반환(서명 리플레이 무시).
+      if (idemKey) {
+        const prev = await pool.query<{ route_code: string }>(
+          `SELECT route_code FROM upload_idempotency WHERE idempotency_key = $1 AND uploader_uuid = $2`,
+          [idemKey, uploaderUuid],
+        );
+        if (prev.rows[0]) {
+          return c.json({ route_code: prev.rows[0].route_code }, 201);
+        }
+      }
+
       const cfg = await pool.query<{ value: string }>(
         `SELECT value FROM config WHERE key = 'current_patch'`,
       );
@@ -229,6 +243,24 @@ routeHub.post(
                ON CONFLICT (route_code, patch_version) DO NOTHING`,
               [code, patchVersion],
             );
+            // 멱등 키 기록. 동시 요청이 같은 키를 선점했다면 rowCount === 0 →
+            // 롤백 후 선점된 기존 코드 반환(코드 충돌 23505 와 구분).
+            if (idemKey) {
+              const idem = await client.query(
+                `INSERT INTO upload_idempotency (idempotency_key, uploader_uuid, route_code)
+                 VALUES ($1, $2, $3)
+                 ON CONFLICT (idempotency_key) DO NOTHING`,
+                [idemKey, uploaderUuid, code],
+              );
+              if (idem.rowCount === 0) {
+                await client.query('ROLLBACK');
+                const prev = await pool.query<{ route_code: string }>(
+                  `SELECT route_code FROM upload_idempotency WHERE idempotency_key = $1`,
+                  [idemKey],
+                );
+                return c.json({ route_code: prev.rows[0]?.route_code ?? code }, 201);
+              }
+            }
             await client.query('COMMIT');
             return c.json({ route_code: code }, 201);
           } catch (err) {
@@ -466,29 +498,74 @@ routeHub.post(
 // ──────────────────────────────────────────────
 routeHub.post('/api/routes/:code/play', async (c) => {
   const code = c.req.param('code').toUpperCase();
-  const { patch_version } = await c.req.json<PlayBody>().catch(() => ({}) as PlayBody);
+  const rawBody = await c.req.text();
+  let patch_version: string | undefined;
+  try {
+    ({ patch_version } = JSON.parse(rawBody) as PlayBody);
+  } catch {
+    return c.json({ error: '필수 필드가 누락되었습니다.' }, 400);
+  }
 
   if (!patch_version) {
     return c.json({ error: '필수 필드가 누락되었습니다.' }, 400);
   }
 
-  const sql = getSql(c.env);
-  const exists = (await sql(`SELECT 1 FROM routes WHERE route_code = $1`, [code])) as
-    unknown[];
-  if (!exists[0]) {
-    return c.json({ error: '루트를 찾을 수 없습니다.' }, 404);
+  // 플레이 집계 주체는 서명에서 파생한 uploader_uuid 로 식별한다(무인증 → 서명).
+  let uploaderUuid: string;
+  try {
+    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'play');
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 401);
   }
 
-  const rows = (await sql(
-    `INSERT INTO route_stats (route_code, patch_version, likes, play_count)
-     VALUES ($1, $2, 0, 1)
-     ON CONFLICT (route_code, patch_version)
-     DO UPDATE SET play_count = route_stats.play_count + 1
-     RETURNING play_count`,
-    [code, patch_version],
-  )) as { play_count: number }[];
+  const pool = getPool(c.env);
+  try {
+    const exists = await pool.query(`SELECT 1 FROM routes WHERE route_code = $1`, [code]);
+    if (!exists.rows[0]) {
+      return c.json({ error: '루트를 찾을 수 없습니다.' }, 404);
+    }
 
-  return c.json({ success: true, play_count: rows[0]?.play_count ?? 1 });
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // 계정별 5분 쿨다운: 쿨다운 내 재요청이면 rowCount === 0 → 429.
+      const cooldown = await client.query(
+        `INSERT INTO route_plays (uuid, route_code, last_played_at)
+         VALUES ($1, $2, now())
+         ON CONFLICT (uuid, route_code)
+         DO UPDATE SET last_played_at = now()
+         WHERE route_plays.last_played_at < now() - interval '5 minutes'`,
+        [uploaderUuid, code],
+      );
+
+      if (cooldown.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return c.json({ error: '같은 루트는 5분에 한 번만 플레이로 집계됩니다.' }, 429);
+      }
+
+      const rows = (
+        await client.query(
+          `INSERT INTO route_stats (route_code, patch_version, likes, play_count)
+           VALUES ($1, $2, 0, 1)
+           ON CONFLICT (route_code, patch_version)
+           DO UPDATE SET play_count = route_stats.play_count + 1
+           RETURNING play_count`,
+          [code, patch_version],
+        )
+      ).rows as { play_count: number }[];
+
+      await client.query('COMMIT');
+      return c.json({ success: true, play_count: rows[0]?.play_count ?? 1 });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  } finally {
+    c.executionCtx.waitUntil(pool.end());
+  }
 });
 
 // ──────────────────────────────────────────────
@@ -498,23 +575,50 @@ routeHub.post(
   '/api/backup',
   rateLimit((e) => e.RL_BACKUP, '백업 저장은 1분에 최대 10회만 가능합니다.'),
   async (c) => {
-    const { recovery_code_hash, encrypted_blob } = await c.req
-      .json<{ recovery_code_hash?: string; encrypted_blob?: string }>()
-      .catch(() => ({}) as { recovery_code_hash?: string; encrypted_blob?: string });
+    const rawBody = await c.req.text();
+    let recovery_code_hash: string | undefined;
+    let encrypted_blob: string | undefined;
+    try {
+      ({ recovery_code_hash, encrypted_blob } = JSON.parse(rawBody) as {
+        recovery_code_hash?: string;
+        encrypted_blob?: string;
+      });
+    } catch {
+      return c.json({ error: '필수 필드가 누락되었습니다.' }, 400);
+    }
     if (!recovery_code_hash || !encrypted_blob) {
       return c.json({ error: '필수 필드가 누락되었습니다.' }, 400);
     }
 
-    const sql = getSql(c.env);
-    await sql(
-      `INSERT INTO backups (recovery_code_hash, encrypted_blob, uploaded_at)
-       VALUES ($1, $2, now())
-       ON CONFLICT (recovery_code_hash)
-       DO UPDATE SET encrypted_blob = EXCLUDED.encrypted_blob, uploaded_at = now()`,
-      [recovery_code_hash, encrypted_blob],
-    );
+    // 백업 쓰기 소유 증명: 서명으로 owner_uuid 를 파생해 타인 백업 파괴(DoS)를 막는다.
+    let ownerUuid: string;
+    try {
+      ownerUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'backup');
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 401);
+    }
 
-    return c.json({ success: true });
+    const pool = getPool(c.env);
+    try {
+      const result = await pool.query(
+        `INSERT INTO backups (recovery_code_hash, encrypted_blob, owner_uuid, uploaded_at)
+         VALUES ($1, $2, $3, now())
+         ON CONFLICT (recovery_code_hash)
+         DO UPDATE SET encrypted_blob = EXCLUDED.encrypted_blob,
+                       owner_uuid = EXCLUDED.owner_uuid,
+                       uploaded_at = now()
+         WHERE backups.owner_uuid IS NULL OR backups.owner_uuid = EXCLUDED.owner_uuid`,
+        [recovery_code_hash, encrypted_blob, ownerUuid],
+      );
+
+      if (result.rowCount === 0) {
+        return c.json({ error: '이 백업을 덮어쓸 권한이 없습니다.' }, 403);
+      }
+
+      return c.json({ success: true });
+    } finally {
+      c.executionCtx.waitUntil(pool.end());
+    }
   },
 );
 

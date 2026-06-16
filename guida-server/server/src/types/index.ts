@@ -71,6 +71,8 @@ export interface UploadBody {
   memo?: string;
   verified_method: VerifiedMethod;
   deck_code?: string | null;
+  /** 업로드 멱등 키(클라 생성 UUID). 서명 리플레이로 인한 중복 업로드 방지용. update 에는 미사용. */
+  idempotency_key?: string;
 }
 
 /** POST /api/routes/:code/like 요청 바디 (추천 주체는 요청 서명으로 식별) */

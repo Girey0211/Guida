@@ -71,6 +71,8 @@ fn keychain_write(uuid: &str) -> bool {
 }
 
 /// 설정 JSON 의 uuid/uuid_sig 를 주어진 값으로 맞춰 파일에 기록한다.
+/// ※ 키체인 폴백(미지원/보관 실패) 경로 전용. 키체인이 권위인 경우엔 호출하지 않으며,
+///    설령 호출되어도 `write_data_file` 의 정규화가 uuid 를 제거한다.
 fn write_settings_uuid(
     app: &tauri::AppHandle,
     settings: &mut Value,
@@ -85,6 +87,38 @@ fn write_settings_uuid(
     write_data_file(app.clone(), SETTINGS_FILE.into(), serialized)
 }
 
+/// 키체인이 권위(Found)면 평문 파일에 남은 raw uuid/uuid_sig 를 1회 제거한다(자가치유).
+/// 실제 제거는 `write_data_file` 의 정규화(strip_uuid_for_persist)가 수행하므로,
+/// 여기서는 비밀 필드가 있을 때만 재기록을 트리거한다.
+fn scrub_file_uuid(app: &tauri::AppHandle, settings: &Value) -> Result<(), String> {
+    let has_secret = settings.get("uuid").is_some() || settings.get("uuid_sig").is_some();
+    if !has_secret {
+        return Ok(());
+    }
+    let serialized =
+        serde_json::to_string_pretty(settings).map_err(|e| format!("설정 직렬화 실패: {e}"))?;
+    write_data_file(app.clone(), SETTINGS_FILE.into(), serialized)
+}
+
+/// 영구 저장용 설정 콘텐츠 정규화.
+///   - 키체인이 권위(Found)면 평문 파일에 raw uuid/uuid_sig 를 남기지 않는다(C-2).
+///   - 키체인 미지원/미보관 환경에서는 파일이 유일한 식별 소스이므로 그대로 둔다.
+/// `fs::write_data_file` 가 `user_settings.json` 기록 직전 이 함수를 통과시킨다.
+pub fn strip_uuid_for_persist(content: String) -> String {
+    if !matches!(keychain_read(), KeychainState::Found(_)) {
+        return content;
+    }
+    let mut value: Value = match serde_json::from_str(&content) {
+        Ok(v) => v,
+        Err(_) => return content,
+    };
+    if let Value::Object(map) = &mut value {
+        map.remove("uuid");
+        map.remove("uuid_sig");
+    }
+    serde_json::to_string_pretty(&value).unwrap_or(content)
+}
+
 /// 저장된 설정 JSON 문자열을 반환한다. 없으면 `None`.
 #[tauri::command]
 pub fn load_settings(app: tauri::AppHandle) -> Result<Option<String>, String> {
@@ -92,6 +126,7 @@ pub fn load_settings(app: tauri::AppHandle) -> Result<Option<String>, String> {
 }
 
 /// 설정 JSON 문자열을 저장한다.
+/// (raw uuid 정규화는 `write_data_file` 의 `strip_uuid_for_persist` 가 일괄 처리한다.)
 #[tauri::command]
 pub fn save_settings(app: tauri::AppHandle, content: String) -> Result<(), String> {
     write_data_file(app, SETTINGS_FILE.into(), content)
@@ -118,23 +153,23 @@ pub fn ensure_device_uuid(app: tauri::AppHandle) -> Result<String, String> {
         .map(|s| s.to_string());
 
     match keychain_read() {
-        // 키체인 값이 진짜다. 파일이 어긋나면 되돌린다(변조 무력화).
+        // 키체인 값이 진짜다. 평문 파일에 raw uuid 가 남아있으면 1회 제거(자가치유).
+        // 모든 소비 경로(서명·derive_key)는 키체인 값을 쓰므로 파일 uuid 는 불필요하다.
         KeychainState::Found(uuid) => {
-            let expected_sig = sign_uuid(&uuid);
-            let file_sig = settings.get("uuid_sig").and_then(|v| v.as_str());
-            let in_sync =
-                file_uuid.as_deref() == Some(uuid.as_str()) && file_sig == Some(expected_sig.as_str());
-            if !in_sync {
-                write_settings_uuid(&app, &mut settings, &uuid)?;
-            }
+            scrub_file_uuid(&app, &settings)?;
             Ok(uuid)
         }
 
         // 키체인 비어있음: 기존 파일 uuid 마이그레이션 or 신규 발급 후 키체인 보관.
         KeychainState::Empty => {
             let uuid = file_uuid.unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
-            keychain_write(&uuid);
-            write_settings_uuid(&app, &mut settings, &uuid)?;
+            if keychain_write(&uuid) {
+                // 키체인이 권위가 됨 → 평문 파일에서 raw uuid 제거.
+                scrub_file_uuid(&app, &settings)?;
+            } else {
+                // 키체인 보관 실패 → 파일이 유일한 식별 소스이므로 uuid 를 파일에 유지.
+                write_settings_uuid(&app, &mut settings, &uuid)?;
+            }
             Ok(uuid)
         }
 
@@ -189,11 +224,37 @@ pub fn reset_device_uuid(app: tauri::AppHandle) -> Result<String, String> {
     };
 
     // OS 보호 저장소 덮어쓰기 (best-effort)
-    keychain_write(&new_uuid);
-
-    // user_settings.json 파일에 서명과 함께 기록
-    write_settings_uuid(&app, &mut settings, &new_uuid)?;
+    if keychain_write(&new_uuid) {
+        // 키체인이 권위 → 파일에 raw uuid 를 남기지 않고 잔재만 제거.
+        scrub_file_uuid(&app, &settings)?;
+    } else {
+        // 키체인 미지원/실패 → 파일이 유일 소스이므로 서명과 함께 기록.
+        write_settings_uuid(&app, &mut settings, &new_uuid)?;
+    }
 
     Ok(new_uuid)
+}
+
+/// 백업 복구: 백업 페이로드의 device_uuid 를 권위 저장소(키체인)에 주입한다.
+/// 키체인이 동작하면 평문 파일에는 raw uuid 를 남기지 않고, 미지원 환경에서는
+/// 파일-서명 폴백으로 기록한다. 복구 화면에서 데이터 기록·부팅 전에 호출해야
+/// `ensure_device_uuid`/`derive_key` 가 복구된 신원을 사용한다.
+#[tauri::command]
+pub fn restore_device_uuid(app: tauri::AppHandle, uuid: String) -> Result<(), String> {
+    let existing = read_data_file(app.clone(), SETTINGS_FILE.into())?;
+    let mut settings: Value = match existing {
+        Some(raw) if !raw.trim().is_empty() => {
+            serde_json::from_str(&raw).unwrap_or_else(|_| Value::Object(Default::default()))
+        }
+        _ => Value::Object(Default::default()),
+    };
+
+    if keychain_write(&uuid) {
+        scrub_file_uuid(&app, &settings)?;
+    } else {
+        write_settings_uuid(&app, &mut settings, &uuid)?;
+    }
+
+    Ok(())
 }
 

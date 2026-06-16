@@ -3,6 +3,52 @@ import { isTauri } from "./env";
 /** 로그 기능 빌드 설정 제어 플래그 */
 export const IS_LOGGING_ENABLED = import.meta.env.VITE_ENABLE_LOGGING === "true";
 
+// ── 민감정보 레다크션 ────────────────────────────────────────────────────────
+//  open_log_dir 로 열람/공유 가능한 로그에 raw device_uuid(=서명 시드) 및 비밀
+//  필드가 평문으로 남지 않도록, 기록 직전 중앙에서 마스킹한다.
+//   - UUID 패턴 문자열 → <uuid> (uploader_uuid 도 안전측으로 함께 마스킹)
+//   - 알려진 비밀 키(device_uuid/recovery_code/signature/seed 등) → <redacted>
+//   - 과도하게 긴 문자열(요청 바디 등) → 길이 절단
+const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+const SECRET_KEYS = new Set([
+  "uuid",
+  "device_uuid",
+  "device-uuid",
+  "uuid_sig",
+  "recovery_code",
+  "recovery_code_hash",
+  "recoverycode",
+  "signature",
+  "x-guida-signature",
+  "encrypted_blob",
+  "privkey",
+  "private_key",
+  "seed",
+]);
+const MAX_LOG_STRING = 256;
+
+function redactString(s: string): string {
+  return s.replace(UUID_RE, "<uuid>");
+}
+
+/** 컨텍스트 객체를 재귀적으로 마스킹한다(비밀 키 → <redacted>, UUID 패턴 → <uuid>, 긴 문자열 절단). */
+function redactValue(value: unknown): unknown {
+  if (typeof value === "string") {
+    let out = redactString(value);
+    if (out.length > MAX_LOG_STRING) out = `${out.slice(0, MAX_LOG_STRING)}…(${out.length} chars)`;
+    return out;
+  }
+  if (Array.isArray(value)) return value.map(redactValue);
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = SECRET_KEYS.has(k.toLowerCase()) ? "<redacted>" : redactValue(v);
+    }
+    return out;
+  }
+  return value;
+}
+
 /** Tauri invoke 함수 동적 임포트 (브라우저 번들 안전성 확보) */
 async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
   const { invoke } = await import("@tauri-apps/api/core");
@@ -21,39 +67,42 @@ export const logger = {
     if (!IS_LOGGING_ENABLED) return;
 
     const timestamp = new Date().toISOString();
+    // 기록 전 메시지/컨텍스트에서 비밀(raw uuid·시드·서명 등)을 마스킹한다.
+    const safeMessage = redactString(message);
+    const safeContext = context === undefined ? undefined : redactValue(context);
     let contextStr = "";
     if (context !== undefined) {
       try {
         contextStr = ` | Context: ${
           context instanceof Error
-            ? `${context.name}: ${context.message}\nStack: ${context.stack}`
-            : typeof context === "object"
-            ? JSON.stringify(context, null, 2)
-            : String(context)
+            ? `${context.name}: ${redactString(context.message)}\nStack: ${redactString(context.stack ?? "")}`
+            : typeof safeContext === "object"
+            ? JSON.stringify(safeContext, null, 2)
+            : String(safeContext)
         }`;
       } catch {
         contextStr = " | Context: [Serialization Failed]";
       }
     }
 
-    const logLine = `[${timestamp}] [${level}] [${category}] ${message}${contextStr}`;
+    const logLine = `[${timestamp}] [${level}] [${category}] ${safeMessage}${contextStr}`;
 
-    // 1. 브라우저 콘솔 출력
+    // 1. 브라우저 콘솔 출력 (마스킹된 컨텍스트 사용)
     if (level === "INFO") {
       if (context !== undefined) {
-        console.log(logLine, context);
+        console.log(logLine, safeContext);
       } else {
         console.log(logLine);
       }
     } else if (level === "WARN") {
       if (context !== undefined) {
-        console.warn(logLine, context);
+        console.warn(logLine, safeContext);
       } else {
         console.warn(logLine);
       }
     } else {
       if (context !== undefined) {
-        console.error(logLine, context);
+        console.error(logLine, safeContext);
       } else {
         console.error(logLine);
       }

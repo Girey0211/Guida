@@ -141,6 +141,13 @@ pub fn write_data_file(app: tauri::AppHandle, name: String, content: String) -> 
     let path = safe_join(dir, &name)?;
     
     if name != "my_routes.json" {
+        // user_settings.json 은 키체인이 권위인 경우 raw device_uuid 를 평문으로
+        // 남기지 않도록 정규화한다(C-2). 그 외 파일/폴백 환경은 원본 그대로 기록.
+        let content = if name == "user_settings.json" {
+            crate::commands::settings::strip_uuid_for_persist(content)
+        } else {
+            content
+        };
         return fs::write(&path, content).map_err(|e| format!("파일 쓰기 실패({name}): {e}"));
     }
 

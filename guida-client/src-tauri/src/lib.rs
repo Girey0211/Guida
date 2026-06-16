@@ -57,6 +57,7 @@ pub fn run() {
             settings::save_settings,
             settings::ensure_device_uuid,
             settings::reset_device_uuid,
+            settings::restore_device_uuid,
             // 암호화 및 서명
             crypto::get_device_keys,
             crypto::sign_api_request,

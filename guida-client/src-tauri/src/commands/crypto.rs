@@ -8,6 +8,13 @@ use base64::{prelude::BASE64_STANDARD, Engine};
 use serde::{Deserialize, Serialize};
 use rand::RngCore;
 
+/// 백업 v2 규격. 복구 코드 → AES 키 파생에 느린 KDF(PBKDF2-HMAC-SHA256)를 쓰고
+/// 백업마다 임의 솔트를 블롭 헤더에 포함한다. 클라이언트(WebCrypto)와 동일 파라미터.
+const PBKDF2_ITERATIONS: u32 = 600_000;
+const BACKUP_BLOB_VERSION: u8 = 2;
+const BACKUP_SALT_LEN: usize = 16;
+const BACKUP_NONCE_LEN: usize = 12;
+
 #[derive(Serialize)]
 pub struct RestoreResult {
     pub device_uuid: String,
@@ -28,12 +35,13 @@ fn derive_signing_key(device_uuid: &str) -> SigningKey {
     SigningKey::from_bytes(&seed)
 }
 
-/// Helper to derive AES-256 key from recovery_code for backups
-fn derive_backup_key(recovery_code: &str) -> [u8; 32] {
-    let mut hasher = Sha256::new();
-    hasher.update(recovery_code.as_bytes());
-    hasher.update(b"guida.v1.backup.salt");
-    hasher.finalize().into()
+/// Helper to derive AES-256 key from recovery_code for backups (v2: PBKDF2-HMAC-SHA256 + 랜덤 솔트).
+/// 복구 코드는 클라이언트와 동일하게 trim + 대문자 정규화 후 사용한다.
+fn derive_backup_key(recovery_code: &str, salt: &[u8]) -> [u8; 32] {
+    let normalized = recovery_code.trim().to_uppercase();
+    let mut key = [0u8; 32];
+    pbkdf2::pbkdf2_hmac::<Sha256>(normalized.as_bytes(), salt, PBKDF2_ITERATIONS, &mut key);
+    key
 }
 
 /// Tauri command to retrieve the device public key and validation signature
@@ -89,22 +97,28 @@ pub fn encrypt_backup(
     
     let plaintext = serde_json::to_string(&payload)
         .map_err(|e| format!("백업 데이터 직렬화 실패: {e}"))?;
-        
-    let key = derive_backup_key(&recovery_code);
+
+    // 백업마다 랜덤 솔트 생성 → PBKDF2 로 AES 키 파생.
+    let mut salt = [0u8; BACKUP_SALT_LEN];
+    rand::thread_rng().fill_bytes(&mut salt);
+    let key = derive_backup_key(&recovery_code, &salt);
     let cipher = Aes256Gcm::new(&key.into());
-    
-    let mut nonce_bytes = [0u8; 12];
+
+    let mut nonce_bytes = [0u8; BACKUP_NONCE_LEN];
     rand::thread_rng().fill_bytes(&mut nonce_bytes);
     let nonce = Nonce::from_slice(&nonce_bytes);
-    
+
     let ciphertext = cipher
         .encrypt(nonce, plaintext.as_bytes())
         .map_err(|e| format!("백업 암호화 실패: {:?}", e))?;
-        
-    let mut combined = Vec::with_capacity(12 + ciphertext.len());
+
+    // 블롭 = version(1) || salt(16) || nonce(12) || ciphertext
+    let mut combined = Vec::with_capacity(1 + BACKUP_SALT_LEN + BACKUP_NONCE_LEN + ciphertext.len());
+    combined.push(BACKUP_BLOB_VERSION);
+    combined.extend_from_slice(&salt);
     combined.extend_from_slice(&nonce_bytes);
     combined.extend_from_slice(&ciphertext);
-    
+
     Ok(BASE64_STANDARD.encode(combined))
 }
 
@@ -118,17 +132,21 @@ pub fn decrypt_backup(
     let combined = BASE64_STANDARD
         .decode(encrypted_blob.trim())
         .map_err(|e| format!("Base64 디코딩 실패: {e}"))?;
-        
-    if combined.len() < 12 {
-        return Err("백업 데이터의 형식이 유효하지 않습니다(너무 짧음).".into());
+
+    // V2 전용: version(1) || salt(16) || nonce(12) || ciphertext. V1 블롭은 복원 불가.
+    let header_len = 1 + BACKUP_SALT_LEN + BACKUP_NONCE_LEN;
+    if combined.len() <= header_len || combined[0] != BACKUP_BLOB_VERSION {
+        return Err("지원하지 않는 백업 형식입니다(V2 전용).".into());
     }
-    
-    let key = derive_backup_key(&recovery_code);
+
+    let salt = &combined[1..1 + BACKUP_SALT_LEN];
+    let nonce_bytes = &combined[1 + BACKUP_SALT_LEN..header_len];
+    let ciphertext = &combined[header_len..];
+
+    let key = derive_backup_key(&recovery_code, salt);
     let cipher = Aes256Gcm::new(&key.into());
-    
-    let (nonce_bytes, ciphertext) = combined.split_at(12);
     let nonce = Nonce::from_slice(nonce_bytes);
-    
+
     let decrypted_bytes = cipher
         .decrypt(nonce, ciphertext)
         .map_err(|e| format!("백업 복호화 실패 (복구 코드가 틀렸거나 변조됨): {:?}", e))?;
