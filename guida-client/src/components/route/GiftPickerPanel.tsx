@@ -204,16 +204,16 @@ export function GiftPickerPanel({
     return [...tSet].sort((a, b) => a.localeCompare(b));
   }, [gifts]);
 
-  // gift_id → pack_id (테마팩 전용 관계는 packs.exclusive_gifts 에 들어 있다)
-  const giftPackMap = useMemo(() => buildGiftPackMap(packs), [packs]);
+  // gift_id → pack_id[] (테마팩 전용 관계는 packs.exclusive_gifts 에 들어 있다)
+  const giftPackMap = useMemo(() => buildGiftPackMap(packs, gifts), [packs, gifts]);
 
   // 기프트 추가 화면: 한정 에고기프트가 있는 모든 테마팩을 후보로 보여준다.
   const exclusivePacks = useMemo(() => {
     const packIds = new Set<string>();
     gifts.forEach((g) => {
-      const packId = giftPackMap.get(g.id);
-      if (g.pack_exclusive && packId) {
-        packIds.add(packId);
+      const packIdsForGift = giftPackMap.get(g.id) ?? [];
+      if (g.pack_exclusive) {
+        packIdsForGift.forEach((pId) => packIds.add(pId));
       }
     });
     return packs
@@ -234,7 +234,10 @@ export function GiftPickerPanel({
       if (keyword && g.keyword_type !== keyword) return false;
       if (grade && g.grade !== grade) return false;
       if (source && g.source_category !== source) return false;
-      if (source === "테마팩_전용" && selectedPackId && giftPackMap.get(g.id) !== selectedPackId) return false;
+      if (source === "테마팩_전용" && selectedPackId) {
+        const packsForGift = giftPackMap.get(g.id) ?? [];
+        if (!packsForGift.includes(selectedPackId)) return false;
+      }
       if (selectedTag && !(g.tags && g.tags.includes(selectedTag))) return false;
       if (hardOnly && !g.hard_mode_only) return false;
       if (craftableOnly && !g.is_craftable) return false;

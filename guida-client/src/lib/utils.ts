@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { Pack } from "@/types/gameData";
+import type { Pack, Gift } from "@/types/gameData";
 
 /** Tailwind 클래스 병합 (shadcn/ui 표준 헬퍼) */
 export function cn(...inputs: ClassValue[]) {
@@ -8,18 +8,74 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * gift_id → pack_id 매핑을 만든다.
+ * gift_id → pack_id[] 매핑을 만든다.
  * gifts.json 의 pack_id 필드는 비어 있고, 실제 전용 관계는
  * packs.json 의 exclusive_gifts(테마팩별 한정 에고기프트 목록)에 들어 있다.
  * 테마팩 전용 필터에서 어떤 기프트가 어느 테마팩 소속인지 알아내는 데 쓴다.
+ * 조합 기프트의 경우 하위 재료의 전용 테마팩 제한을 재귀적으로 모아 결합한다.
  */
-export function buildGiftPackMap(packs: Pack[]): Map<string, string> {
-  const map = new Map<string, string>();
+export function buildGiftPackMap(packs: Pack[], gifts?: Gift[]): Map<string, string[]> {
+  const map = new Map<string, string[]>();
   packs.forEach((p) => {
     p.exclusive_gifts?.forEach((eg) => {
-      if (eg.gift_id) map.set(eg.gift_id, p.id);
+      if (eg.gift_id) {
+        const existing = map.get(eg.gift_id) ?? [];
+        if (!existing.includes(p.id)) {
+          map.set(eg.gift_id, [...existing, p.id]);
+        }
+      }
     });
   });
+
+  if (gifts && gifts.length > 0) {
+    const giftMap = new Map<string, Gift>(gifts.map((g) => [g.id, g]));
+    const memo = new Map<string, string[]>();
+
+    const getPacksForGift = (giftId: string, visited = new Set<string>()): string[] => {
+      if (memo.has(giftId)) return memo.get(giftId)!;
+      if (visited.has(giftId)) return [];
+      visited.add(giftId);
+
+      const gift = giftMap.get(giftId);
+      if (!gift) return [];
+
+      let packIds = map.get(giftId) ? [...(map.get(giftId) ?? [])] : [];
+
+      if (gift.is_craftable && gift.craft_recipe) {
+        const recipe = gift.craft_recipe;
+        const subIds = new Set<string>();
+
+        if (recipe.type === "simple") {
+          recipe.required?.forEach((id) => subIds.add(id));
+        } else if (recipe.type === "multi_path") {
+          recipe.paths?.flat().forEach((id) => subIds.add(id));
+        } else if (recipe.type === "required_and_pick") {
+          recipe.required?.forEach((id) => subIds.add(id));
+          recipe.pick?.from.forEach((id) => subIds.add(id));
+        }
+
+        subIds.forEach((subId) => {
+          const subPacks = getPacksForGift(subId, visited);
+          subPacks.forEach((pId) => {
+            if (!packIds.includes(pId)) {
+              packIds.push(pId);
+            }
+          });
+        });
+      }
+
+      memo.set(giftId, packIds);
+      return packIds;
+    };
+
+    gifts.forEach((g) => {
+      const packsForGift = getPacksForGift(g.id);
+      if (packsForGift.length > 0) {
+        map.set(g.id, packsForGift);
+      }
+    });
+  }
+
   return map;
 }
 

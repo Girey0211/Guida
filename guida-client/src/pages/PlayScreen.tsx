@@ -54,6 +54,7 @@ export function PlayScreen() {
     () => new Map(dependencies.map((d) => [d.gift_id, d.dependencies])),
     [dependencies],
   );
+  const giftPackMap = useMemo(() => buildGiftPackMap(packs, gifts), [packs, gifts]);
 
   const route = myRoutes.find((r) => r.local_id === activeRouteId) ?? null;
 
@@ -162,6 +163,7 @@ export function PlayScreen() {
                 depsByGift={depsByGift}
                 packOrder={route.pack_order}
                 packs={packs}
+                giftPackMap={giftPackMap}
               />
             )}
             {tab === "packs" && (
@@ -169,7 +171,8 @@ export function PlayScreen() {
                 packOrder={route.pack_order}
                 packById={packById}
                 giftOrder={route.gift_order}
-                giftById={giftById}
+                gifts={gifts}
+                giftPackMap={giftPackMap}
               />
             )}
           </div>
@@ -434,6 +437,7 @@ function GiftsTab({
   depsByGift,
   packOrder,
   packs,
+  giftPackMap,
 }: {
   gifts: GiftEntity[];
   giftOrder: GiftOrderItem[];
@@ -441,6 +445,7 @@ function GiftsTab({
   depsByGift: Map<string, DependencyEdge[]>;
   packOrder: PackOrderItem[];
   packs: PackEntity[];
+  giftPackMap: Map<string, string[]>;
 }) {
   const { acquiredGifts, toggleGift, setAcquiredGifts } = usePlayStore();
 
@@ -528,17 +533,18 @@ function GiftsTab({
     return [...tSet].sort((a, b) => a.localeCompare(b));
   }, [gifts]);
 
-  // gift_id → pack_id (테마팩 전용 관계는 packs.exclusive_gifts 에 들어 있다)
-  const giftPackMap = useMemo(() => buildGiftPackMap(packs), [packs]);
-
   const exclusivePacks = useMemo(() => {
     // 플레이중에는 내 루트에 넣은 테마팩만 필터 후보에 보이게 한다.
     const routePackIds = new Set(packOrder.map((p) => p.pack_id));
     const packIds = new Set<string>();
     gifts.forEach((g) => {
-      const packId = giftPackMap.get(g.id);
-      if (g.pack_exclusive && packId && routePackIds.has(packId)) {
-        packIds.add(packId);
+      const packIdsForGift = giftPackMap.get(g.id) ?? [];
+      if (g.pack_exclusive) {
+        packIdsForGift.forEach((pId) => {
+          if (routePackIds.has(pId)) {
+            packIds.add(pId);
+          }
+        });
       }
     });
     return packs
@@ -606,7 +612,10 @@ function GiftsTab({
       if (keyword && g.keyword_type !== keyword) return false;
       if (grade && g.grade !== grade) return false;
       if (source && g.source_category !== source) return false;
-      if (source === "테마팩_전용" && selectedPackId && giftPackMap.get(g.id) !== selectedPackId) return false;
+      if (source === "테마팩_전용" && selectedPackId) {
+        const packsForGift = giftPackMap.get(g.id) ?? [];
+        if (!packsForGift.includes(selectedPackId)) return false;
+      }
       if (selectedTag && !(g.tags && g.tags.includes(selectedTag))) return false;
       if (hardOnly && !g.hard_mode_only) return false;
       if (craftableOnly && !g.is_craftable) return false;
@@ -916,12 +925,14 @@ function PacksTab({
   packOrder,
   packById,
   giftOrder,
-  giftById,
+  gifts,
+  giftPackMap,
 }: {
   packOrder: PackOrderItem[];
   packById: Map<string, PackEntity>;
   giftOrder: GiftOrderItem[];
-  giftById: Map<string, GiftEntity>;
+  gifts: GiftEntity[];
+  giftPackMap: Map<string, string[]>;
 }) {
   const { visitedPacks, togglePack, acquiredGifts } = usePlayStore();
 
@@ -952,14 +963,19 @@ function PacksTab({
         const prev = ordered[i - 1];
         // 직전 팩과 난이도가 다르면 전환 구분선
         const showDivider = prev && prev.difficulty !== item.difficulty;
-        const hasExclusive = (pack?.exclusive_gifts?.length ?? 0) > 0;
+        const hasExclusive = gifts.some((g) => {
+          const assocPacks = giftPackMap.get(g.id) ?? [];
+          return assocPacks.includes(item.pack_id);
+        });
 
         // 이 팩의 전용 기프트 중 루트에 목표로 등록된 것들 추출
         const targetGiftIds = new Set(giftOrder.map((g) => g.gift_id));
-        const exclusiveGiftsInRoute = (pack?.exclusive_gifts ?? [])
-          .filter((eg) => targetGiftIds.has(eg.gift_id))
-          .map((eg) => giftById.get(eg.gift_id))
-          .filter((g): g is GiftEntity => !!g);
+        const exclusiveGiftsInRoute = gifts
+          .filter((g) => {
+            if (!targetGiftIds.has(g.id)) return false;
+            const assocPacks = giftPackMap.get(g.id) ?? [];
+            return assocPacks.includes(item.pack_id);
+          });
 
         return (
           <div key={`${item.pack_id}__${item.floor}`}>
