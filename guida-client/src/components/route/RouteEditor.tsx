@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GiftPickerPanel } from "@/components/route/GiftPickerPanel";
 import { cn, getGiftColor } from "@/lib/utils";
+import { GiftImageOverlay } from "@/components/common/GiftImageOverlay";
 
 interface Props {
   /** 편집 시 초기값 (없으면 새 루트) */
@@ -1202,11 +1203,12 @@ export function RouteEditor({
                       className="group relative flex flex-col overflow-hidden rounded-md border border-border bg-muted/20 hover:border-primary/40 transition-colors"
                     >
                       {/* Placeholder Image (Solid Box of attribute color) */}
-                      <div 
-                        className="h-16 w-full flex items-center justify-center text-[10px] font-bold text-white/90 shadow-inner"
+                      <div
+                        className="relative aspect-square w-full flex items-center justify-center text-[10px] font-bold text-white/90 shadow-inner"
                         style={{ backgroundColor: attributeColor }}
                       >
                         {gift?.keyword_type || "일반"}
+                        <GiftImageOverlay imageKey={gift?.image_key} alt={gift?.name ?? g.gift_id} />
                       </div>
                       {/* Gift name & grade */}
                       <div className="flex flex-col p-1.5 min-h-[48px] justify-between">

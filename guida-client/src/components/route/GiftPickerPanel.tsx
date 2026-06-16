@@ -7,6 +7,7 @@ import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn, buildGiftPackMap, getGiftColor } from "@/lib/utils";
+import { GiftImageOverlay } from "@/components/common/GiftImageOverlay";
 import { useAppStore } from "@/store/appStore";
 
 interface Props {
@@ -461,14 +462,16 @@ export function GiftPickerPanel({
                     )}
                   >
                     {/* Colored Box Header */}
-                    <div 
-                      className="h-14 w-full relative flex items-center justify-center text-[10px] font-bold text-white/90 shadow-inner"
+                    <div
+                      className="aspect-square w-full relative flex items-center justify-center text-[10px] font-bold text-white/90 shadow-inner"
                       style={{ backgroundColor: attributeColor }}
                     >
                       <span>{g.keyword_type || "일반"}</span>
-                      
+
+                      <GiftImageOverlay imageKey={g.image_key} alt={g.name} />
+
                       {/* Status Overlay Badge */}
-                      <div className="absolute right-1.5 top-1.5">
+                      <div className="absolute right-1.5 top-1.5 z-10">
                         {selected ? (
                           <Badge variant="default" className="h-5 px-1.5 text-[8px] rounded gap-0.5 bg-emerald-600 text-white font-bold border-none shadow-[0_1px_3px_rgba(0,0,0,0.3)] hover:bg-emerald-600">
                             <Check className="size-2.5" /> 추가됨

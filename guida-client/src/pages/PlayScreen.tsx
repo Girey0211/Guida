@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { cn, getGiftColor, buildGiftPackMap } from "@/lib/utils";
+import { GiftImageOverlay } from "@/components/common/GiftImageOverlay";
 
 type PlayTab = "packs" | "gifts";
 
@@ -803,14 +804,16 @@ function GiftsTab({
                 )}
               >
                 {/* Colored Box Placeholder as Image */}
-                <div 
-                  className="h-20 w-full relative flex items-center justify-center text-xs font-bold text-white/90 shadow-inner"
+                <div
+                  className="aspect-square w-full relative flex items-center justify-center text-xs font-bold text-white/90 shadow-inner"
                   style={{ backgroundColor: attributeColor }}
                 >
                   <span>{gift?.keyword_type || "일반"}</span>
-                  
+
+                  <GiftImageOverlay imageKey={gift?.image_key} alt={gift?.name ?? item.gift_id} />
+
                   {/* Status Overlay Badge on the top-right corner of the image */}
-                  <div className="absolute right-1.5 top-1.5 flex gap-1">
+                  <div className="absolute right-1.5 top-1.5 z-10 flex gap-1">
                     {acquired ? (
                       <Badge variant="success" className="h-5 px-1.5 text-[9px] rounded gap-0.5">
                         <Check className="size-2.5" /> 획득
@@ -1037,22 +1040,24 @@ function PacksTab({
                         <div
                           key={eg.id}
                           className={cn(
-                            "relative flex flex-col overflow-hidden rounded border text-left bg-card w-16 h-20 transition-all",
+                            "relative flex flex-col overflow-hidden rounded border text-left bg-card w-16 transition-all",
                             acquired
                               ? "border-border opacity-[0.4]"
                               : "border-border"
                           )}
                         >
                           {/* Mini Colored Box Placeholder */}
-                          <div 
-                            className="h-8 w-full relative flex items-center justify-center text-[8px] font-bold text-white/90 shadow-inner"
+                          <div
+                            className="aspect-square w-full relative flex items-center justify-center text-[8px] font-bold text-white/90 shadow-inner"
                             style={{ backgroundColor: attributeColor }}
                           >
                             <span>{eg.keyword_type || "일반"}</span>
-                            
+
+                            <GiftImageOverlay imageKey={eg.image_key} alt={eg.name} />
+
                             {/* Checkmark overlay if acquired */}
                             {acquired && (
-                              <div className="absolute right-0.5 top-0.5 bg-success/80 text-success-foreground rounded p-0.5 flex items-center justify-center">
+                              <div className="absolute right-0.5 top-0.5 z-10 bg-success/80 text-success-foreground rounded p-0.5 flex items-center justify-center">
                                 <Check className="size-2" />
                               </div>
                             )}
