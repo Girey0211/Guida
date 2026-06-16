@@ -5,7 +5,7 @@ import type { Gift } from "@/types/gameData";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, buildGiftPackMap } from "@/lib/utils";
 import { useAppStore } from "@/store/appStore";
 
 interface Props {
@@ -120,17 +120,22 @@ export function GiftPickerPanel({
     return [...tSet].sort((a, b) => a.localeCompare(b));
   }, [gifts]);
 
+  // gift_id → pack_id (테마팩 전용 관계는 packs.exclusive_gifts 에 들어 있다)
+  const giftPackMap = useMemo(() => buildGiftPackMap(packs), [packs]);
+
+  // 기프트 추가 화면: 한정 에고기프트가 있는 모든 테마팩을 후보로 보여준다.
   const exclusivePacks = useMemo(() => {
     const packIds = new Set<string>();
     gifts.forEach((g) => {
-      if (g.pack_exclusive && g.pack_id) {
-        packIds.add(g.pack_id);
+      const packId = giftPackMap.get(g.id);
+      if (g.pack_exclusive && packId) {
+        packIds.add(packId);
       }
     });
     return packs
       .filter((p) => packIds.has(p.id))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [gifts, packs]);
+  }, [gifts, packs, giftPackMap]);
 
   const filtered = useMemo(() => {
     const k = q.trim();
@@ -139,7 +144,7 @@ export function GiftPickerPanel({
       if (keyword && g.keyword_type !== keyword) return false;
       if (grade && g.grade !== grade) return false;
       if (source && g.source_category !== source) return false;
-      if (source === "테마팩_전용" && selectedPackId && g.pack_id !== selectedPackId) return false;
+      if (source === "테마팩_전용" && selectedPackId && giftPackMap.get(g.id) !== selectedPackId) return false;
       if (selectedTag && !(g.tags && g.tags.includes(selectedTag))) return false;
       if (hardOnly && !g.hard_mode_only) return false;
       if (craftableOnly && !g.is_craftable) return false;
@@ -158,6 +163,7 @@ export function GiftPickerPanel({
     craftableOnly,
     selectedOnly,
     selectedIds,
+    giftPackMap,
   ]);
 
   const resetFilters = () => {

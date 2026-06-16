@@ -12,7 +12,7 @@ import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
-import { cn, getGiftColor } from "@/lib/utils";
+import { cn, getGiftColor, buildGiftPackMap } from "@/lib/utils";
 
 type PlayTab = "packs" | "gifts";
 
@@ -327,19 +327,23 @@ function GiftsTab({
     return [...tSet].sort((a, b) => a.localeCompare(b));
   }, [gifts]);
 
+  // gift_id → pack_id (테마팩 전용 관계는 packs.exclusive_gifts 에 들어 있다)
+  const giftPackMap = useMemo(() => buildGiftPackMap(packs), [packs]);
+
   const exclusivePacks = useMemo(() => {
-    // 플레이중에는 내 루트에 포함된 팩만 필터 후보에 보이게 하고
+    // 플레이중에는 내 루트에 넣은 테마팩만 필터 후보에 보이게 한다.
     const routePackIds = new Set(packOrder.map((p) => p.pack_id));
     const packIds = new Set<string>();
     gifts.forEach((g) => {
-      if (g.pack_exclusive && g.pack_id && routePackIds.has(g.pack_id)) {
-        packIds.add(g.pack_id);
+      const packId = giftPackMap.get(g.id);
+      if (g.pack_exclusive && packId && routePackIds.has(packId)) {
+        packIds.add(packId);
       }
     });
     return packs
       .filter((p) => packIds.has(p.id))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [gifts, packs, packOrder]);
+  }, [gifts, packs, packOrder, giftPackMap]);
 
   const resetFilters = () => {
     setQ("");
@@ -381,7 +385,7 @@ function GiftsTab({
       if (keyword && g.keyword_type !== keyword) return false;
       if (grade && g.grade !== grade) return false;
       if (source && g.source_category !== source) return false;
-      if (source === "테마팩_전용" && selectedPackId && g.pack_id !== selectedPackId) return false;
+      if (source === "테마팩_전용" && selectedPackId && giftPackMap.get(g.id) !== selectedPackId) return false;
       if (selectedTag && !(g.tags && g.tags.includes(selectedTag))) return false;
       if (hardOnly && !g.hard_mode_only) return false;
       if (craftableOnly && !g.is_craftable) return false;
@@ -401,6 +405,7 @@ function GiftsTab({
     hideAcquired,
     acquiredGifts,
     giftById,
+    giftPackMap,
   ]);
 
   // priority 순 정렬 후 [획득가능 미획득 → 잠금 → 획득완료] 로 재배치

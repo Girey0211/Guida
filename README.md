@@ -578,8 +578,62 @@ data/
 | `hard_mode_only` | 하드 난이도에서만 등장하는 기프트 여부 |
 | `pack_exclusive` | 특정 팩에서만 획득 가능한 기프트 여부 |
 | `source_type` | 기본_7키워드 / 기본_7키워드_외 / 테마팩_전용 |
-| `craft_recipe` | 합성 기프트 재료 gift_id 배열 |
-| `craft_result_of` | 이 기프트가 재료로 쓰일 때의 결과물 gift_id |
+| `is_craftable` | 합성으로만 획득 가능한 기프트 여부 |
+| `craft_recipe` | 합성 조합식. `null`이면 합성 불가. 조합 방식에 따라 `type`이 달라짐 (아래 참조) |
+| `craft_result_of` | 이 기프트가 재료로 사용될 때 만들어지는 결과 기프트의 `gift_id` 배열. `null`이면 재료로 사용되지 않음 |
+
+**`craft_recipe` 구조 — `type`별 형태**
+
+`craft_recipe`는 조합 방식에 따라 세 가지 `type`으로 구분됩니다.
+
+**① `simple` — 일반 조합 (대부분의 합성 기프트)**
+
+재료를 모두 넣으면 확정 완성되는 기본 형태입니다.
+
+```json
+"craft_recipe": {
+  "type": "simple",
+  "required": ["gift_귀신_들린_신발", "gift_얼어붙은_아우성"]
+}
+```
+
+**② `required_and_pick` — 필수 재료 + 그룹에서 N종 선택 (달의 기억)**
+
+필수 재료와 함께 지정된 그룹에서 `count`개를 자유롭게 선택해 조합합니다.
+
+```json
+"craft_recipe": {
+  "type": "required_and_pick",
+  "required": ["gift_잘려나간_기억", "gift_구멍난_기억", "gift_바스라진_기억"],
+  "pick": {
+    "count": 2,
+    "from": [
+      "gift_업화_조각", "gift_매혹_조각", "gift_타성_조각",
+      "gift_잠식_조각", "gift_교만_조각", "gift_욕망_조각", "gift_마찰_조각"
+    ]
+  }
+}
+```
+
+**③ `multi_path` — 복수 조합 경로 (피안개)**
+
+중간 합성 기프트를 경유하거나 재료를 직접 투입하는 등 여러 경로 중 하나를 선택해 조합합니다.
+
+```json
+"craft_recipe": {
+  "type": "multi_path",
+  "paths": [
+    ["gift_연기와_철조망", "gift_녹슨_입마개", "gift_치성"],
+    ["gift_연기와_철조망", "gift_녹슨_입마개", "gift_억류된_찬송", "gift_밀라르카"]
+  ]
+}
+```
+
+| `type` | 설명 |
+|---|---|
+| `simple` | 지정된 재료를 모두 투입하면 완성. 가장 일반적인 형태 |
+| `required_and_pick` | 필수 재료(`required`) + 선택 그룹(`pick.from`)에서 `pick.count`종 선택 |
+| `multi_path` | `paths` 배열 중 하나의 경로를 선택해 조합. 중간 기프트 경유 또는 재료 직접 투입 중 선택 가능 |
 
 #### `packs.json` — 팩 (118개, 실제 데이터 기준)
 

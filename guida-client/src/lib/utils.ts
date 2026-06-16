@@ -1,9 +1,26 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Pack } from "@/types/gameData";
 
 /** Tailwind 클래스 병합 (shadcn/ui 표준 헬퍼) */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * gift_id → pack_id 매핑을 만든다.
+ * gifts.json 의 pack_id 필드는 비어 있고, 실제 전용 관계는
+ * packs.json 의 exclusive_gifts(테마팩별 한정 에고기프트 목록)에 들어 있다.
+ * 테마팩 전용 필터에서 어떤 기프트가 어느 테마팩 소속인지 알아내는 데 쓴다.
+ */
+export function buildGiftPackMap(packs: Pack[]): Map<string, string> {
+  const map = new Map<string, string>();
+  packs.forEach((p) => {
+    p.exclusive_gifts?.forEach((eg) => {
+      if (eg.gift_id) map.set(eg.gift_id, p.id);
+    });
+  });
+  return map;
 }
 
 /** 6자리 영숫자 난수 코드 생성 (예: X7R2B9). 혼동 문자(0/O,1/I) 제외 */
