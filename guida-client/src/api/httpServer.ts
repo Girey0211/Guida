@@ -265,6 +265,8 @@ async function getBrowserKeys(): Promise<{ publicKey: string; privateKey: Crypto
 /** 요청 메시지에 대한 인증 헤더를 생성한다. */
 async function getAuthHeaders(action: string, bodyString: string): Promise<Record<string, string>> {
   const timestamp = Date.now().toString();
+  // 리플레이 방지 1회용 nonce(A-4). 서명 메시지에 포함되어 서버가 중복을 거부한다.
+  const nonce = crypto.randomUUID();
 
   // SHA-256 해시 계산
   const hashBuffer = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(bodyString));
@@ -272,7 +274,7 @@ async function getAuthHeaders(action: string, bodyString: string): Promise<Recor
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 
-  const message = `${action}:${timestamp}:${hashHex}`;
+  const message = `${action}:${timestamp}:${nonce}:${hashHex}`;
   let pubkey = "";
   let signature = "";
 
@@ -297,6 +299,7 @@ async function getAuthHeaders(action: string, bodyString: string): Promise<Recor
   return {
     "X-Guida-PubKey": pubkey,
     "X-Guida-Timestamp": timestamp,
+    "X-Guida-Nonce": nonce,
     "X-Guida-Signature": signature,
   };
 }
@@ -509,6 +512,35 @@ export async function updateUserProfile(nickname: string, description: string): 
       body: bodyString,
     }
   );
+}
+
+/** 신원 이관(B-1): 구 키 + 신규 키 이중 서명으로 데이터 소유권을 신규 키로 옮긴다. */
+export interface MigrationRequest {
+  body: string;
+  timestamp: string;
+  nonce: string;
+  old_pubkey: string;
+  old_signature: string;
+  new_pubkey: string;
+  new_signature: string;
+}
+
+export async function migrateIdentity(
+  req: MigrationRequest,
+): Promise<{ success: boolean; new_uuid: string }> {
+  // body 는 Rust 가 만든 정확한 문자열을 그대로 전송해야 서버 bodyHash 와 일치한다.
+  // nonce 는 구/신 서명 메시지에 함께 바인딩되어 있어 헤더로 전송한다(A-4).
+  return request<{ success: boolean; new_uuid: string }>("/api/users/migrate", {
+    method: "POST",
+    headers: {
+      "X-Guida-PubKey": req.old_pubkey,
+      "X-Guida-Timestamp": req.timestamp,
+      "X-Guida-Nonce": req.nonce,
+      "X-Guida-Signature": req.old_signature,
+      "X-Guida-New-Signature": req.new_signature,
+    },
+    body: req.body,
+  });
 }
 
 /** 기존 공유 루트 삭제 (작성자 본인만 가능) */

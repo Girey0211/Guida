@@ -1,5 +1,5 @@
-import { Moon, RefreshCw, Copy, Check, FolderOpen, Trash2, FileText } from "lucide-react";
-import { useState } from "react";
+import { Moon, RefreshCw, Copy, Check, FolderOpen, Trash2, FileText, KeyRound, ShieldAlert } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/appStore";
 import { usePlayStore } from "@/store/playStore";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { resetDeviceUuid, writeJson, readFile } from "@/lib/storage";
+import * as routesApi from "@/api/routes";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 import { IS_LOGGING_ENABLED } from "@/lib/logger";
 import { isTauri } from "@/lib/env";
@@ -24,6 +25,19 @@ export function Settings() {
   const [syncing, setSyncing] = useState(false);
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [migrateModalOpen, setMigrateModalOpen] = useState(false);
+  const [migrating, setMigrating] = useState(false);
+  // 백업 복구 직후 자동 유도로 모달이 열렸는지(추가 안내 문구 노출용).
+  const [cameFromRecovery, setCameFromRecovery] = useState(false);
+
+  // B-1: 복구 직후 진입(BackupScreen→BaseScreen→설정 탭)이면 키 갱신을 자동 권유한다.
+  useEffect(() => {
+    if (isTauri() && sessionStorage.getItem("guida:suggest-key-rotation") === "1") {
+      sessionStorage.removeItem("guida:suggest-key-rotation");
+      setCameFromRecovery(true);
+      setMigrateModalOpen(true);
+    }
+  }, []);
 
   const [copyingLogs, setCopyingLogs] = useState(false);
   const [clearingLogs, setClearingLogs] = useState(false);
@@ -105,6 +119,37 @@ export function Settings() {
     await bootstrap();
     setSyncing(false);
     toast.success("게임 데이터를 다시 동기화했습니다.");
+  };
+
+  // 보안 키 갱신 및 이관(B-1): 신규 키를 발급하고 구/신 이중 서명으로 서버 데이터
+  // 소유권을 신규 키로 옮긴 뒤, 로컬 신원/암호화 키를 신규 키로 교체한다.
+  const rotateKey = async () => {
+    if (!isTauri()) {
+      toast.error("보안 키 갱신은 데스크톱 앱에서만 지원됩니다.");
+      return;
+    }
+    setMigrating(true);
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const req = await invoke<routesApi.MigrationRequest>("begin_key_migration");
+      await routesApi.migrateIdentity(req); // 서버 이관(실패 시 throw)
+      await invoke("commit_key_migration"); // 로컬 신원 교체 + my_routes 재암호화
+      await bootstrap();
+      await loadMyRoutes();
+      setMigrateModalOpen(false);
+      toast.success("보안 키를 갱신하고 데이터를 이관했습니다.");
+    } catch (e) {
+      // 서버 이관 실패 시 임시 보관한 신규 신원을 폐기(로컬 신원 불변).
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("abort_key_migration");
+      } catch {
+        /* ignore */
+      }
+      toast.error(e instanceof Error ? e.message : "보안 키 갱신에 실패했습니다.");
+    } finally {
+      setMigrating(false);
+    }
   };
 
   return (
@@ -274,6 +319,74 @@ export function Settings() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* 보안 키 갱신 및 이관 (B-1) */}
+        {isTauri() && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-1.5">
+                <KeyRound className="size-4" /> 보안 인증 키 갱신 및 이관
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                기기 식별 키가 유출되었거나 의심될 때, 새 보안 키를 발급하고 내 루트·추천·프로필을
+                새 신원으로 안전하게 옮깁니다. 이전 키는 영구 폐기되어 더 이상 사용할 수 없습니다.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setMigrateModalOpen(true)}
+                disabled={migrating}
+                className="w-full gap-1.5"
+              >
+                <KeyRound className="size-4" />
+                {migrating ? "키 갱신 진행 중..." : "보안 키 갱신 및 이관"}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {migrateModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <Card className="w-full max-w-md border-primary/30">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-1.5">
+                  <KeyRound className="size-4" /> 보안 키 갱신 확인
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {cameFromRecovery && (
+                  <div className="flex gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-500/90">
+                    <ShieldAlert className="size-4 shrink-0" />
+                    <span>
+                      복구된 보안 키는 백업 코드를 아는 사람에게 노출됐을 수 있습니다. 안전을 위해
+                      지금 새 키로 갱신·이관하는 것을 권장합니다. 이전 키는 영구 폐기됩니다.
+                    </span>
+                  </div>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  새 보안 키를 발급하고 서버의 내 데이터(루트·추천·프로필)를 새 신원으로 이관합니다.
+                  이전 키는 <b>영구 폐기</b>되며 되돌릴 수 없습니다. 진행하기 전에 백업을 권장합니다.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Button disabled={migrating} onClick={rotateKey}>
+                    {migrating ? "진행 중..." : "갱신 및 이관 진행"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    disabled={migrating}
+                    onClick={() => {
+                      setMigrateModalOpen(false);
+                      setCameFromRecovery(false);
+                    }}
+                  >
+                    {cameFromRecovery ? "나중에 하기" : "취소"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* 로그 관리 (VITE_ENABLE_LOGGING이 true일 때만 노출) */}
         {IS_LOGGING_ENABLED && (

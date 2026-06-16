@@ -31,8 +31,11 @@ uuid = { version = "1", features = ["v4"] }
 keyring = { version = "3", features = ["windows-native"] }
 aes-gcm = "0.10.3"
 sha2 = "0.10.8"
-# 백업 v2: 복구 코드 → AES 키 파생을 단일 SHA-256 대신 느린 KDF(PBKDF2-HMAC-SHA256, 600k)로
-# 강화해 오프라인 브루트포스 비용을 높인다. 솔트는 백업마다 랜덤 생성해 블롭 헤더에 포함.
+# 백업 키 파생 KDF.
+#  - v3(현행): 메모리-하드 Argon2id 로 GPU/ASIC 병렬 오프라인 브루트포스 내성을 높인다.
+#  - v2(레거시 복호화): PBKDF2-HMAC-SHA256 600k. v2 블롭 복원 호환을 위해 유지.
+# 솔트는 백업마다 랜덤 생성해 블롭 헤더에 포함한다.
+argon2 = "0.5"
 pbkdf2 = "0.12"
 hmac = "0.12"
 rand = "0.8"

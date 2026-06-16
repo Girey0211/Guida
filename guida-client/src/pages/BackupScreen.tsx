@@ -228,6 +228,12 @@ export function BackupScreen() {
 
       setInputCode("");
       toast.success("계정이 완벽히 복구되었습니다!");
+
+      // B-1: 복구된 신원(시드)은 백업 DB 유출 시 노출됐을 수 있다. 데스크톱이면
+      // 설정 화면에서 "보안 키 갱신 및 이관"을 곧바로 권한다(자동 유도 플래그).
+      if (isTauri()) {
+        sessionStorage.setItem("guida:suggest-key-rotation", "1");
+      }
       navigate("/");
     } catch (e) {
       console.error(e);

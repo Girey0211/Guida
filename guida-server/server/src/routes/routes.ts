@@ -30,49 +30,87 @@ function uuidv5(name: string | Buffer): string {
   ].join('-');
 }
 
-function verifyRequestSignature(req: any, action: string): string {
+/** 최소 DB 인터페이스 (revoked_keys / used_nonces 조회용). fastify.pg 가 이를 만족한다. */
+type PgLike = { query: (text: string, params?: unknown[]) => Promise<{ rows: any[]; rowCount?: number | null }> };
+
+/** 서명 타임스탬프 허용 창(±60초). 리플레이 가능 구간을 좁힌다(A-4). */
+const SIGNATURE_WINDOW_MS = 60 * 1000;
+
+/**
+ * nonce 소비(A-4). 처음 보는 nonce 면 적재 후 true, 이미 쓰인 nonce 면 false.
+ * TTL 120초(타임스탬프 창보다 약간 김). 만료 행은 1% 확률로 기회적 정리한다.
+ */
+async function consumeNonce(pg: PgLike, nonce: string): Promise<boolean> {
+  if (Math.random() < 0.01) {
+    await pg.query(`DELETE FROM used_nonces WHERE expires_at < now()`);
+  }
+  const res = await pg.query(
+    `INSERT INTO used_nonces (nonce, expires_at)
+     VALUES ($1, now() + interval '120 seconds')
+     ON CONFLICT (nonce) DO NOTHING`,
+    [nonce],
+  );
+  return (res.rowCount ?? 0) > 0;
+}
+
+/** raw Ed25519 공개키(hex) 로 메시지/서명(hex)을 검증한다. 잘못된 키/서명은 false 또는 throw. */
+function ed25519Verify(pubkeyHex: string, message: string, signatureHex: string): boolean {
+  // 32바이트 raw 공개키에 12바이트 SPKI DER 헤더를 붙여 DER(spki) 키로 재구성한다.
+  const rawKeyBuffer = Buffer.from(pubkeyHex, 'hex');
+  const derHeader = Buffer.from('302a300506032b6570032100', 'hex');
+  const publicKeyDer = Buffer.concat([derHeader, rawKeyBuffer]);
+  const publicKeyObject = crypto.createPublicKey({ key: publicKeyDer, format: 'der', type: 'spki' });
+  return crypto.verify(null, Buffer.from(message), publicKeyObject, Buffer.from(signatureHex, 'hex'));
+}
+
+/** 공개키가 폐기 목록에 있으면 throw (B-1). */
+async function assertNotRevoked(pg: PgLike, pubkeyHex: string): Promise<void> {
+  const { rows } = await pg.query(`SELECT 1 FROM revoked_keys WHERE pubkey = $1`, [pubkeyHex]);
+  if (rows[0]) {
+    throw new Error('폐기된 보안 키입니다. 키 갱신(이관) 후 다시 시도하세요.');
+  }
+}
+
+/**
+ * 표준 서명 헤더(x-guida-pubkey/-timestamp/-nonce/-signature)를 검증하고 uploader_uuid 를 반환한다.
+ * 폐기된 공개키(B-1)·중복 nonce(A-4 리플레이)는 거부한다. 타임스탬프 허용 창은 ±60초.
+ * revoked_keys / used_nonces 조회가 필요하므로 async.
+ */
+async function verifyRequestSignature(pg: PgLike, req: any, action: string): Promise<string> {
   const pubkey = req.headers['x-guida-pubkey'];
   const timestampStr = req.headers['x-guida-timestamp'];
+  const nonce = req.headers['x-guida-nonce'];
   const signature = req.headers['x-guida-signature'];
 
-  if (!pubkey || !timestampStr || !signature) {
+  if (!pubkey || !timestampStr || !nonce || !signature) {
     throw new Error('보안 서명 헤더가 누락되었습니다.');
   }
 
   const timestamp = parseInt(timestampStr, 10);
   const now = Date.now();
-  if (isNaN(timestamp) || Math.abs(now - timestamp) > 5 * 60 * 1000) {
+  if (isNaN(timestamp) || Math.abs(now - timestamp) > SIGNATURE_WINDOW_MS) {
     throw new Error('요청이 만료되었거나 타임스탬프가 유효하지 않습니다.');
   }
 
   const rawBody = req.rawBody || '';
   const bodyHash = crypto.createHash('sha256').update(rawBody).digest('hex');
-  const message = `${action}:${timestampStr}:${bodyHash}`;
+  const message = `${action}:${timestampStr}:${nonce}:${bodyHash}`;
 
+  let isValid = false;
   try {
-    // 32바이트 raw Ed25519 공개키에 12바이트 SPKI DER 헤더를 접두사로 추가하여 DER 포맷 키 객체를 재구성합니다.
-    const rawKeyBuffer = Buffer.from(pubkey, 'hex');
-    const derHeader = Buffer.from('302a300506032b6570032100', 'hex');
-    const publicKeyDer = Buffer.concat([derHeader, rawKeyBuffer]);
-
-    const publicKeyObject = crypto.createPublicKey({
-      key: publicKeyDer,
-      format: 'der',
-      type: 'spki'
-    });
-
-    const isValid = crypto.verify(
-      null,
-      Buffer.from(message),
-      publicKeyObject,
-      Buffer.from(signature, 'hex')
-    );
-
-    if (!isValid) {
-      throw new Error('서명 검증에 실패했습니다.');
-    }
+    isValid = ed25519Verify(pubkey, message, signature);
   } catch (e) {
     throw new Error(`보안 검증 오류: ${(e as Error).message}`);
+  }
+  if (!isValid) {
+    throw new Error('서명 검증에 실패했습니다.');
+  }
+
+  await assertNotRevoked(pg, pubkey);
+
+  // 서명 유효성 확인 후에 nonce 를 소비한다(유효하지 않은 요청으로 nonce 가 소모되지 않게).
+  if (!(await consumeNonce(pg, nonce))) {
+    throw new Error('이미 처리된 요청입니다(리플레이가 감지되었습니다).');
   }
 
   return uuidv5(pubkey);
@@ -89,6 +127,12 @@ import type {
 } from '../types/index.js';
 
 const CODE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+// 추천 Sybil 이상탐지(A-2) 파라미터. 동일 (ip, route_code) 기준.
+const LIKE_GUARD_WINDOW_SECS = 600; // 집계 창 10분
+const LIKE_GUARD_THRESHOLD = 15; // 창 내 허용 추천 횟수(초과 시 락)
+const LIKE_GUARD_LOCK_SECS = 1200; // 초과 시 해당 (ip, route) 추천 락 지속 20분
+
 const VALID_DIFFICULTY_TAG: DifficultyTag[] = ['쉬움', '보통', '어려움'];
 const VALID_DIFFICULTY_MODE: DifficultyMode[] = ['normal', 'hard', 'extreme'];
 const VALID_VERIFIED: VerifiedMethod[] = ['self_report', 'ocr'];
@@ -255,7 +299,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
 
     let uploaderUuid: string;
     try {
-      uploaderUuid = verifyRequestSignature(req, 'upload');
+      uploaderUuid = await verifyRequestSignature(fastify.pg, req, 'upload');
     } catch (err) {
       return reply.code(401).send({ error: (err as Error).message });
     }
@@ -401,7 +445,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
 
       let uploaderUuid: string;
       try {
-        uploaderUuid = verifyRequestSignature(req, 'update');
+        uploaderUuid = await verifyRequestSignature(fastify.pg, req, 'update');
       } catch (err) {
         return reply.code(401).send({ error: (err as Error).message });
       }
@@ -473,7 +517,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
 
       let uploaderUuid: string;
       try {
-        uploaderUuid = verifyRequestSignature(req, 'delete');
+        uploaderUuid = await verifyRequestSignature(fastify.pg, req, 'delete');
       } catch (err) {
         return reply.code(401).send({ error: (err as Error).message });
       }
@@ -527,9 +571,51 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       // 를 받지 않으므로 route_likes 에 사칭 시드(서명 시드)가 적재되지 않는다.
       let uploaderUuid: string;
       try {
-        uploaderUuid = verifyRequestSignature(req, 'like');
+        uploaderUuid = await verifyRequestSignature(fastify.pg, req, 'like');
       } catch (err) {
         return reply.code(401).send({ error: (err as Error).message });
+      }
+
+      // A-2 Sybil 이상탐지(광역화): 먼저 IP 전역 락을 확인한다. 한 루트에서 임계 초과로
+      // 락이 걸리면 해당 IP 의 모든 /like 가 막혀 다른 루트로의 즉시 피벗을 차단한다.
+      const ip = req.ip || 'unknown';
+      const { rows: locked } = await fastify.pg.query(
+        `SELECT 1 FROM ip_lock WHERE ip = $1 AND locked_until > now()`,
+        [ip],
+      );
+      if (locked[0]) {
+        return reply
+          .code(429)
+          .send({ error: '비정상적인 추천 활동이 감지되어 잠시 추천이 제한됩니다.' });
+      }
+
+      // (ip, route_code) 단위 추천 횟수를 집계 창 내에서 누적한다(카운터 전용).
+      const { rows: guard } = await fastify.pg.query<{ attempts: number }>(
+        `INSERT INTO like_guard (ip, route_code, window_start, attempts)
+         VALUES ($1, $2, now(), 1)
+         ON CONFLICT (ip, route_code) DO UPDATE SET
+           attempts = CASE
+             WHEN like_guard.window_start < now() - make_interval(secs => $3) THEN 1
+             ELSE like_guard.attempts + 1
+           END,
+           window_start = CASE
+             WHEN like_guard.window_start < now() - make_interval(secs => $3) THEN now()
+             ELSE like_guard.window_start
+           END
+         RETURNING attempts`,
+        [ip, code, LIKE_GUARD_WINDOW_SECS],
+      );
+      // 임계 초과 시 해당 IP 의 전체 /like 를 광역 락하고 이번 요청도 거부한다.
+      if ((guard[0]?.attempts ?? 0) > LIKE_GUARD_THRESHOLD) {
+        await fastify.pg.query(
+          `INSERT INTO ip_lock (ip, locked_until)
+           VALUES ($1, now() + make_interval(secs => $2))
+           ON CONFLICT (ip) DO UPDATE SET locked_until = now() + make_interval(secs => $2)`,
+          [ip, LIKE_GUARD_LOCK_SECS],
+        );
+        return reply
+          .code(429)
+          .send({ error: '비정상적인 추천 활동이 감지되어 잠시 추천이 제한됩니다.' });
       }
 
       // 루트 존재 확인
@@ -596,7 +682,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       // raw device_uuid 는 받지 않으므로 route_plays 에 사칭 시드가 적재되지 않는다.
       let uploaderUuid: string;
       try {
-        uploaderUuid = verifyRequestSignature(req, 'play');
+        uploaderUuid = await verifyRequestSignature(fastify.pg, req, 'play');
       } catch (err) {
         return reply.code(401).send({ error: (err as Error).message });
       }
@@ -679,7 +765,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       // 서명으로 소유자(uploader_uuid)를 파생해 타인의 백업 파괴/덮어쓰기(DoS)를 막는다.
       let ownerUuid: string;
       try {
-        ownerUuid = verifyRequestSignature(req, 'backup');
+        ownerUuid = await verifyRequestSignature(fastify.pg, req, 'backup');
       } catch (err) {
         return reply.code(401).send({ error: (err as Error).message });
       }
@@ -748,7 +834,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   fastify.post('/api/users/me', async (req, reply) => {
     let uploaderUuid: string;
     try {
-      uploaderUuid = verifyRequestSignature(req, 'get_my_profile');
+      uploaderUuid = await verifyRequestSignature(fastify.pg, req, 'get_my_profile');
     } catch (err) {
       return reply.code(401).send({ error: (err as Error).message });
     }
@@ -858,7 +944,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
 
     let uploaderUuid: string;
     try {
-      uploaderUuid = verifyRequestSignature(req, 'update_profile');
+      uploaderUuid = await verifyRequestSignature(fastify.pg, req, 'update_profile');
     } catch (err) {
       return reply.code(401).send({ error: (err as Error).message });
     }
@@ -873,5 +959,115 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
 
     return { success: true, nickname: nickname.trim(), description: description.trim() };
   });
+
+  // ──────────────────────────────────────────────
+  // POST /api/users/migrate — 신원 이관 (B-1)
+  // 이중 서명(구 키 + 신규 키)으로 무결성 검사 후, 구 UUID 의 데이터를 신규 UUID 로
+  // 옮기고 구 공개키를 폐기 목록에 추가한다. body: { new_pubkey }.
+  //   - 구 키 서명: 표준 헤더(x-guida-pubkey/-timestamp/-signature), action 'migrate'.
+  //   - 신규 키 서명: x-guida-new-signature (구 키와 동일 메시지 서명 → 구↔신 바인딩).
+  //   body 에 new_pubkey 가 포함되므로 두 서명 모두 new_pubkey 에 묶여 리플레이/치환 불가.
+  // ──────────────────────────────────────────────
+  fastify.post<{ Body: { new_pubkey?: string } }>(
+    '/api/users/migrate',
+    {
+      config: {
+        rateLimit: {
+          max: 5,
+          timeWindow: '1 minute',
+          errorResponseBuilder: (_req, context) => ({
+            error: `키 이관은 1분에 최대 5회만 가능합니다. ${context.after} 후에 다시 시도하세요.`,
+          }),
+        },
+      },
+    },
+    async (req, reply) => {
+      const newPubkey = req.body?.new_pubkey;
+      if (!newPubkey || typeof newPubkey !== 'string') {
+        return reply.code(400).send({ error: 'new_pubkey 가 필요합니다.' });
+      }
+
+      const oldPubkey = req.headers['x-guida-pubkey'] as string | undefined;
+      const timestampStr = req.headers['x-guida-timestamp'] as string | undefined;
+      const nonce = req.headers['x-guida-nonce'] as string | undefined;
+      const newSignature = req.headers['x-guida-new-signature'] as string | undefined;
+
+      // 1) 구 키 서명 검증(+폐기 검사 + nonce 소비) → oldUuid.
+      //    nonce 는 이 1회만 소비되고, 아래 신규 키 검증은 동일 메시지를 재검증한다.
+      let oldUuid: string;
+      try {
+        oldUuid = await verifyRequestSignature(fastify.pg, req, 'migrate');
+      } catch (err) {
+        return reply.code(401).send({ error: (err as Error).message });
+      }
+
+      // 2) 신규 키 서명 검증 (구 키와 동일 메시지: nonce 포함)
+      if (!newSignature || !timestampStr || !nonce) {
+        return reply.code(400).send({ error: '신규 키 서명 헤더가 누락되었습니다.' });
+      }
+      const bodyHash = crypto.createHash('sha256').update(req.rawBody || '').digest('hex');
+      const message = `migrate:${timestampStr}:${nonce}:${bodyHash}`;
+      let newValid = false;
+      try {
+        newValid = ed25519Verify(newPubkey, message, newSignature);
+      } catch (e) {
+        return reply.code(401).send({ error: `신규 키 검증 오류: ${(e as Error).message}` });
+      }
+      if (!newValid) {
+        return reply.code(401).send({ error: '신규 키 서명 검증에 실패했습니다.' });
+      }
+      try {
+        await assertNotRevoked(fastify.pg, newPubkey);
+      } catch (err) {
+        return reply.code(401).send({ error: (err as Error).message });
+      }
+
+      const newUuid = uuidv5(newPubkey);
+      if (oldPubkey === newPubkey || oldUuid === newUuid) {
+        return reply.code(400).send({ error: '신규 키가 기존 키와 동일합니다.' });
+      }
+
+      // 3) 트랜잭션: 데이터 이관 + 구 키 폐기
+      const client = await fastify.pg.connect();
+      try {
+        await client.query('BEGIN');
+        // 루트 소유권 이전
+        await client.query(`UPDATE routes SET uploader_uuid = $1 WHERE uploader_uuid = $2`, [
+          newUuid,
+          oldUuid,
+        ]);
+        // 추천 원장: 신규가 이미 추천한 (route, patch) 와 충돌하지 않는 것만 이전, 나머지 폐기
+        await client.query(
+          `UPDATE route_likes SET uuid = $1
+           WHERE uuid = $2 AND NOT EXISTS (
+             SELECT 1 FROM route_likes rl2
+             WHERE rl2.uuid = $1
+               AND rl2.route_code = route_likes.route_code
+               AND rl2.patch_version = route_likes.patch_version
+           )`,
+          [newUuid, oldUuid],
+        );
+        await client.query(`DELETE FROM route_likes WHERE uuid = $1`, [oldUuid]);
+        // 프로필 이전 (신규 UUID 행이 없을 때만)
+        await client.query(
+          `UPDATE users SET uuid = $1
+           WHERE uuid = $2 AND NOT EXISTS (SELECT 1 FROM users WHERE uuid = $1)`,
+          [newUuid, oldUuid],
+        );
+        // 구 공개키 폐기
+        await client.query(
+          `INSERT INTO revoked_keys (pubkey) VALUES ($1) ON CONFLICT (pubkey) DO NOTHING`,
+          [oldPubkey],
+        );
+        await client.query('COMMIT');
+        return { success: true, new_uuid: newUuid };
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
+    },
+  );
 }
 

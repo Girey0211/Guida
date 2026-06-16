@@ -1,8 +1,17 @@
 import { Hono } from 'hono';
 import type { AppEnv } from '../types.js';
-import { getSql, getPool } from '../db.js';
+import { getSql, getPool, revokedChecker, nonceConsumer } from '../db.js';
 import { rateLimit } from '../ratelimit.js';
-import { generateCode, verifyRequestSignature, type SignatureHeaders } from '../crypto.js';
+import {
+  generateCode,
+  verifyRequestSignature,
+  ed25519Verify,
+  sha256Hex,
+  uuidv5,
+  type SignatureHeaders,
+  type VerifyOptions,
+} from '../crypto.js';
+import type { Context } from 'hono';
 import type {
   Route,
   UploadBody,
@@ -16,6 +25,11 @@ import type {
 const VALID_DIFFICULTY_TAG: DifficultyTag[] = ['쉬움', '보통', '어려움'];
 const VALID_DIFFICULTY_MODE: DifficultyMode[] = ['normal', 'hard', 'extreme'];
 const VALID_VERIFIED: VerifiedMethod[] = ['self_report', 'ocr'];
+
+// 추천 Sybil 이상탐지(A-2) 파라미터. 동일 (ip, route_code) 기준.
+const LIKE_GUARD_WINDOW_SECS = 600; // 집계 창 10분
+const LIKE_GUARD_THRESHOLD = 15; // 창 내 허용 추천 횟수(초과 시 락)
+const LIKE_GUARD_LOCK_SECS = 1200; // 초과 시 해당 (ip, route) 추천 락 지속 20분
 
 /**
  * routes 행 + 해당 패치 통계를 합쳐 API 응답 형태로 반환하는 SELECT.
@@ -69,8 +83,14 @@ function sigHeaders(c: { req: { header: (n: string) => string | undefined } }): 
   return {
     pubkey: c.req.header('x-guida-pubkey'),
     timestamp: c.req.header('x-guida-timestamp'),
+    nonce: c.req.header('x-guida-nonce'),
     signature: c.req.header('x-guida-signature'),
   };
+}
+
+/** 서명 검증 옵션(폐기 검사 B-1 + nonce 리플레이 차단 A-4)을 묶어 주입한다. */
+function verifyOpts(c: Context<AppEnv>): VerifyOptions {
+  return { isRevoked: revokedChecker(c.env), consumeNonce: nonceConsumer(c.env) };
 }
 
 const routeHub = new Hono<AppEnv>();
@@ -182,7 +202,7 @@ routeHub.post(
 
     let uploaderUuid: string;
     try {
-      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'upload');
+      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'upload', verifyOpts(c));
     } catch (err) {
       return c.json({ error: (err as Error).message }, 401);
     }
@@ -316,7 +336,7 @@ routeHub.put(
 
     let uploaderUuid: string;
     try {
-      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'update');
+      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'update', verifyOpts(c));
     } catch (err) {
       return c.json({ error: (err as Error).message }, 401);
     }
@@ -388,7 +408,7 @@ routeHub.delete(
 
     let uploaderUuid: string;
     try {
-      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'delete');
+      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'delete', verifyOpts(c));
     } catch (err) {
       return c.json({ error: (err as Error).message }, 401);
     }
@@ -442,13 +462,51 @@ routeHub.post(
     // 를 받지 않으므로 route_likes 에 사칭 시드(서명 시드)가 적재되지 않는다.
     let uploaderUuid: string;
     try {
-      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'like');
+      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'like', verifyOpts(c));
     } catch (err) {
       return c.json({ error: (err as Error).message }, 401);
     }
 
     const pool = getPool(c.env);
     try {
+      // A-2 Sybil 이상탐지(광역화): 먼저 IP 전역 락을 확인한다. 한 루트에서 임계 초과로
+      // 락이 걸리면 해당 IP 의 모든 /like 가 막혀 다른 루트로의 즉시 피벗을 차단한다.
+      const ip = c.req.header('CF-Connecting-IP') ?? c.req.header('X-Real-IP') ?? 'unknown';
+      const locked = await pool.query(
+        `SELECT 1 FROM ip_lock WHERE ip = $1 AND locked_until > now()`,
+        [ip],
+      );
+      if (locked.rows[0]) {
+        return c.json({ error: '비정상적인 추천 활동이 감지되어 잠시 추천이 제한됩니다.' }, 429);
+      }
+
+      // (ip, route_code) 단위 추천 횟수를 집계 창 내에서 누적한다(카운터 전용).
+      const guard = await pool.query<{ attempts: number }>(
+        `INSERT INTO like_guard (ip, route_code, window_start, attempts)
+         VALUES ($1, $2, now(), 1)
+         ON CONFLICT (ip, route_code) DO UPDATE SET
+           attempts = CASE
+             WHEN like_guard.window_start < now() - make_interval(secs => $3) THEN 1
+             ELSE like_guard.attempts + 1
+           END,
+           window_start = CASE
+             WHEN like_guard.window_start < now() - make_interval(secs => $3) THEN now()
+             ELSE like_guard.window_start
+           END
+         RETURNING attempts`,
+        [ip, code, LIKE_GUARD_WINDOW_SECS],
+      );
+      // 임계 초과 시 해당 IP 의 전체 /like 를 광역 락하고 이번 요청도 거부한다.
+      if ((guard.rows[0]?.attempts ?? 0) > LIKE_GUARD_THRESHOLD) {
+        await pool.query(
+          `INSERT INTO ip_lock (ip, locked_until)
+           VALUES ($1, now() + make_interval(secs => $2))
+           ON CONFLICT (ip) DO UPDATE SET locked_until = now() + make_interval(secs => $2)`,
+          [ip, LIKE_GUARD_LOCK_SECS],
+        );
+        return c.json({ error: '비정상적인 추천 활동이 감지되어 잠시 추천이 제한됩니다.' }, 429);
+      }
+
       const exists = await pool.query(`SELECT 1 FROM routes WHERE route_code = $1`, [code]);
       if (!exists.rows[0]) {
         return c.json({ error: '루트를 찾을 수 없습니다.' }, 404);
@@ -513,7 +571,7 @@ routeHub.post('/api/routes/:code/play', async (c) => {
   // 플레이 집계 주체는 서명에서 파생한 uploader_uuid 로 식별한다(무인증 → 서명).
   let uploaderUuid: string;
   try {
-    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'play');
+    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'play', verifyOpts(c));
   } catch (err) {
     return c.json({ error: (err as Error).message }, 401);
   }
@@ -593,7 +651,7 @@ routeHub.post(
     // 백업 쓰기 소유 증명: 서명으로 owner_uuid 를 파생해 타인 백업 파괴(DoS)를 막는다.
     let ownerUuid: string;
     try {
-      ownerUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'backup');
+      ownerUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'backup', verifyOpts(c));
     } catch (err) {
       return c.json({ error: (err as Error).message }, 401);
     }
@@ -657,7 +715,7 @@ routeHub.post('/api/users/me', async (c) => {
   const rawBody = await c.req.text();
   let uploaderUuid: string;
   try {
-    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'get_my_profile');
+    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'get_my_profile', verifyOpts(c));
   } catch (err) {
     return c.json({ error: (err as Error).message }, 401);
   }
@@ -778,7 +836,7 @@ routeHub.put('/api/users/profile', async (c) => {
 
   let uploaderUuid: string;
   try {
-    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'update_profile');
+    uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'update_profile', verifyOpts(c));
   } catch (err) {
     return c.json({ error: (err as Error).message }, 401);
   }
@@ -794,6 +852,113 @@ routeHub.put('/api/users/profile', async (c) => {
 
   return c.json({ success: true, nickname: nickname.trim(), description: description.trim() });
 });
+
+// ──────────────────────────────────────────────
+// POST /api/users/migrate — 신원 이관 (B-1)
+// 이중 서명(구 키 + 신규 키)으로 무결성 검사 후, 구 UUID 데이터를 신규 UUID 로 옮기고
+// 구 공개키를 폐기 목록에 추가한다. (server/src/routes/routes.ts 와 동일 규격)
+// ──────────────────────────────────────────────
+routeHub.post(
+  '/api/users/migrate',
+  rateLimit((e) => e.RL_UPLOAD, '키 이관 요청이 너무 잦습니다. 잠시 후 다시 시도하세요.'),
+  async (c) => {
+    const rawBody = await c.req.text();
+    let newPubkey: string | undefined;
+    try {
+      ({ new_pubkey: newPubkey } = JSON.parse(rawBody) as { new_pubkey?: string });
+    } catch {
+      return c.json({ error: 'new_pubkey 가 필요합니다.' }, 400);
+    }
+    if (!newPubkey || typeof newPubkey !== 'string') {
+      return c.json({ error: 'new_pubkey 가 필요합니다.' }, 400);
+    }
+
+    const oldPubkey = c.req.header('x-guida-pubkey');
+    const timestampStr = c.req.header('x-guida-timestamp');
+    const nonce = c.req.header('x-guida-nonce');
+    const newSignature = c.req.header('x-guida-new-signature');
+
+    const checkRevoked = revokedChecker(c.env);
+
+    // 1) 구 키 서명 검증(+폐기 검사 + nonce 소비) → oldUuid.
+    //    nonce 는 이 1회만 소비되고, 아래 신규 키 검증은 동일 메시지를 재검증한다.
+    let oldUuid: string;
+    try {
+      oldUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'migrate', {
+        isRevoked: checkRevoked,
+        consumeNonce: nonceConsumer(c.env),
+      });
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 401);
+    }
+
+    // 2) 신규 키 서명 검증 (구 키와 동일 메시지: nonce 포함)
+    if (!newSignature || !timestampStr || !nonce) {
+      return c.json({ error: '신규 키 서명 헤더가 누락되었습니다.' }, 400);
+    }
+    const bodyHash = await sha256Hex(rawBody);
+    const message = `migrate:${timestampStr}:${nonce}:${bodyHash}`;
+    let newValid = false;
+    try {
+      newValid = await ed25519Verify(newPubkey, message, newSignature);
+    } catch (e) {
+      return c.json({ error: `신규 키 검증 오류: ${(e as Error).message}` }, 401);
+    }
+    if (!newValid) {
+      return c.json({ error: '신규 키 서명 검증에 실패했습니다.' }, 401);
+    }
+    if (await checkRevoked(newPubkey)) {
+      return c.json({ error: '폐기된 보안 키입니다. 키 갱신(이관) 후 다시 시도하세요.' }, 401);
+    }
+
+    const newUuid = await uuidv5(newPubkey);
+    if (oldPubkey === newPubkey || oldUuid === newUuid) {
+      return c.json({ error: '신규 키가 기존 키와 동일합니다.' }, 400);
+    }
+
+    // 3) 트랜잭션: 데이터 이관 + 구 키 폐기
+    const pool = getPool(c.env);
+    try {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query(`UPDATE routes SET uploader_uuid = $1 WHERE uploader_uuid = $2`, [
+          newUuid,
+          oldUuid,
+        ]);
+        await client.query(
+          `UPDATE route_likes SET uuid = $1
+           WHERE uuid = $2 AND NOT EXISTS (
+             SELECT 1 FROM route_likes rl2
+             WHERE rl2.uuid = $1
+               AND rl2.route_code = route_likes.route_code
+               AND rl2.patch_version = route_likes.patch_version
+           )`,
+          [newUuid, oldUuid],
+        );
+        await client.query(`DELETE FROM route_likes WHERE uuid = $1`, [oldUuid]);
+        await client.query(
+          `UPDATE users SET uuid = $1
+           WHERE uuid = $2 AND NOT EXISTS (SELECT 1 FROM users WHERE uuid = $1)`,
+          [newUuid, oldUuid],
+        );
+        await client.query(
+          `INSERT INTO revoked_keys (pubkey) VALUES ($1) ON CONFLICT (pubkey) DO NOTHING`,
+          [oldPubkey],
+        );
+        await client.query('COMMIT');
+        return c.json({ success: true, new_uuid: newUuid });
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
+    } finally {
+      c.executionCtx.waitUntil(pool.end());
+    }
+  },
+);
 
 export default routeHub;
 

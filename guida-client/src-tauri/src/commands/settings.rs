@@ -23,6 +23,8 @@ const SETTINGS_FILE: &str = "user_settings.json";
 /// OS 키체인 식별자 (앱 번들 ID 기준).
 const KEYRING_SERVICE: &str = "com.guida.app";
 const KEYRING_USER: &str = "device_uuid";
+/// 키 이관(B-1) 준비 단계의 신규 uuid 임시 보관용. 시드를 JS 로 노출하지 않기 위함.
+const KEYRING_USER_PENDING: &str = "device_uuid_pending";
 
 /// 앱 내장 솔트. 진짜 비밀은 아니며, 키체인을 못 쓰는 폴백 경로에서 파일을
 /// 손으로 고친 "외부 변조"를 탐지하기 위한 best-effort 무결성 토큰 계산용이다.
@@ -64,9 +66,30 @@ fn keychain_read() -> KeychainState {
 
 /// OS 보호 저장소에 uuid 를 기록한다 (best-effort).
 fn keychain_write(uuid: &str) -> bool {
-    match keyring::Entry::new(KEYRING_SERVICE, KEYRING_USER) {
-        Ok(entry) => entry.set_password(uuid).is_ok(),
+    keychain_set(KEYRING_USER, uuid)
+}
+
+/// 임의 키체인 항목에 값을 기록한다 (best-effort).
+fn keychain_set(user: &str, value: &str) -> bool {
+    match keyring::Entry::new(KEYRING_SERVICE, user) {
+        Ok(entry) => entry.set_password(value).is_ok(),
         Err(_) => false,
+    }
+}
+
+/// 임의 키체인 항목을 읽는다. 비어있거나 백엔드 부재 시 None.
+fn keychain_get(user: &str) -> Option<String> {
+    let entry = keyring::Entry::new(KEYRING_SERVICE, user).ok()?;
+    match entry.get_password() {
+        Ok(s) if !s.trim().is_empty() => Some(s),
+        _ => None,
+    }
+}
+
+/// 임의 키체인 항목을 제거한다 (best-effort).
+fn keychain_clear(user: &str) {
+    if let Ok(entry) = keyring::Entry::new(KEYRING_SERVICE, user) {
+        let _ = entry.delete_credential();
     }
 }
 
@@ -235,12 +258,9 @@ pub fn reset_device_uuid(app: tauri::AppHandle) -> Result<String, String> {
     Ok(new_uuid)
 }
 
-/// 백업 복구: 백업 페이로드의 device_uuid 를 권위 저장소(키체인)에 주입한다.
-/// 키체인이 동작하면 평문 파일에는 raw uuid 를 남기지 않고, 미지원 환경에서는
-/// 파일-서명 폴백으로 기록한다. 복구 화면에서 데이터 기록·부팅 전에 호출해야
-/// `ensure_device_uuid`/`derive_key` 가 복구된 신원을 사용한다.
-#[tauri::command]
-pub fn restore_device_uuid(app: tauri::AppHandle, uuid: String) -> Result<(), String> {
+/// 주어진 uuid 를 권위 신원으로 설정한다(키체인 우선, 미지원 시 파일-서명 폴백).
+/// 키체인이 동작하면 평문 파일에는 raw uuid 를 남기지 않는다(C-2).
+fn set_authoritative_uuid(app: &tauri::AppHandle, uuid: &str) -> Result<(), String> {
     let existing = read_data_file(app.clone(), SETTINGS_FILE.into())?;
     let mut settings: Value = match existing {
         Some(raw) if !raw.trim().is_empty() => {
@@ -249,12 +269,54 @@ pub fn restore_device_uuid(app: tauri::AppHandle, uuid: String) -> Result<(), St
         _ => Value::Object(Default::default()),
     };
 
-    if keychain_write(&uuid) {
-        scrub_file_uuid(&app, &settings)?;
+    if keychain_write(uuid) {
+        scrub_file_uuid(app, &settings)?;
     } else {
-        write_settings_uuid(&app, &mut settings, &uuid)?;
+        write_settings_uuid(app, &mut settings, uuid)?;
     }
-
     Ok(())
+}
+
+/// 백업 복구: 백업 페이로드의 device_uuid 를 권위 저장소(키체인)에 주입한다.
+/// 복구 화면에서 데이터 기록·부팅 전에 호출해야 `ensure_device_uuid`/`derive_key`
+/// 가 복구된 신원을 사용한다.
+#[tauri::command]
+pub fn restore_device_uuid(app: tauri::AppHandle, uuid: String) -> Result<(), String> {
+    set_authoritative_uuid(&app, &uuid)
+}
+
+/// 키 이관(B-1) 준비 단계에서 생성한 신규 uuid 를 임시 보관한다. (시드 JS 비노출)
+pub fn stash_pending_uuid(uuid: &str) -> bool {
+    keychain_set(KEYRING_USER_PENDING, uuid)
+}
+
+/// 서버 이관이 성공한 뒤 호출. 임시 보관한 신규 uuid 로 권위 신원을 교체하고,
+/// my_routes.json 을 구 키로 복호화 → 신규 키로 재암호화한다(키 변경에 따른 재키잉).
+#[tauri::command]
+pub fn commit_key_migration(app: tauri::AppHandle) -> Result<String, String> {
+    let new_uuid = take_pending_uuid().ok_or("진행 중인 키 이관이 없습니다.")?;
+
+    // 1) 현재(구) 키로 my_routes.json 복호화(read_data_file 이 투명 복호화).
+    let routes = read_data_file(app.clone(), "my_routes.json".into())?;
+    // 2) 권위 신원을 신규 uuid 로 교체(이후 derive_key 가 신규 키 사용).
+    set_authoritative_uuid(&app, &new_uuid)?;
+    // 3) 신규 키로 재암호화 기록.
+    if let Some(content) = routes {
+        write_data_file(app.clone(), "my_routes.json".into(), content)?;
+    }
+    // 4) 임시 보관 정리.
+    keychain_clear(KEYRING_USER_PENDING);
+    Ok(new_uuid)
+}
+
+/// 진행 중이던 키 이관을 취소(임시 보관 제거). 서버 이관 실패 시 호출.
+#[tauri::command]
+pub fn abort_key_migration() {
+    keychain_clear(KEYRING_USER_PENDING);
+}
+
+/// 임시 보관한 신규 uuid 를 읽는다.
+fn take_pending_uuid() -> Option<String> {
+    keychain_get(KEYRING_USER_PENDING)
 }
 

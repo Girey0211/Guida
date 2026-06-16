@@ -80,3 +80,10 @@ export function deleteRoute(code: string): Promise<void> {
   return withServer(() => server.deleteRoute(code));
 }
 
+export type { MigrationRequest } from "./httpServer";
+
+/** 신원 이관(B-1): 구/신 이중 서명으로 데이터 소유권을 신규 키로 이전 */
+export function migrateIdentity(req: server.MigrationRequest) {
+  return withServer(() => server.migrateIdentity(req));
+}
+

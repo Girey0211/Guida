@@ -58,11 +58,14 @@ pub fn run() {
             settings::ensure_device_uuid,
             settings::reset_device_uuid,
             settings::restore_device_uuid,
+            settings::commit_key_migration,
+            settings::abort_key_migration,
             // 암호화 및 서명
             crypto::get_device_keys,
             crypto::sign_api_request,
             crypto::encrypt_backup,
             crypto::decrypt_backup,
+            crypto::begin_key_migration,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Guida application");

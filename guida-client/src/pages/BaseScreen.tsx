@@ -38,6 +38,14 @@ export function BaseScreen() {
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayClickThrough, setOverlayClickThroughState] = useState(false);
 
+  // B-1: 백업 복구 직후 진입하면 설정 탭으로 이동해 키 갱신/이관을 권한다.
+  // (플래그 소비는 Settings 가 처리하므로 여기서는 지우지 않는다.)
+  useEffect(() => {
+    if (sessionStorage.getItem("guida:suggest-key-rotation") === "1") {
+      setTab("settings");
+    }
+  }, []);
+
   useEffect(() => {
     if (!isDesktop) return;
 

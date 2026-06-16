@@ -120,6 +120,50 @@ CREATE TABLE IF NOT EXISTS upload_idempotency (
 );
 
 -- ─────────────────────────────────────────────
+-- like_guard — 추천 Sybil 이상탐지 (A-2)
+-- 동일 (ip, route_code) 추천이 집계 창 내 임계치를 초과하면 해당 키의 추천을
+-- 일시 락한다. 익명·자가발급 신원 특성상 Sybil 완전차단은 불가하므로
+-- "단일 IP에서의 랜덤 신원 대량 추천(랭킹 왜곡)"의 비용을 높이는 확률적 완화다.
+-- (uploader_uuid 중복추천은 route_likes PK 로 이미 차단됨 → 본 가드는 IP 급증 대응)
+-- 임계치/창/락 지속시간은 운영 중 튜닝한다.
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS like_guard (
+  ip           TEXT        NOT NULL,
+  route_code   CHAR(6)     NOT NULL,
+  window_start TIMESTAMPTZ NOT NULL DEFAULT now(),
+  attempts     INT         NOT NULL DEFAULT 0,
+  locked_until TIMESTAMPTZ,                          -- (구) (ip,route) 단위 락. 광역 ip_lock 도입 후 미사용(잔존 컬럼).
+  PRIMARY KEY (ip, route_code)
+);
+
+-- ─────────────────────────────────────────────
+-- ip_lock — 추천 Sybil 광역 락 (A-2 광역화)
+-- like_guard 의 (ip, route_code) 누적이 임계치를 넘으면 해당 IP 의 전체 /like 를
+-- 일시 락한다. (ip, route) 단위 락만으로는 공격자가 다른 루트로 즉시 피벗할 수 있어,
+-- 임계 초과를 트리거로 IP 전역을 잠가 루트 피벗을 차단한다.
+-- locked_until 만료 시 자연 해제되며, 정상 NAT 사용자 부수 피해를 줄이기 위해
+-- 락 지속시간은 운영 중 튜닝한다(기존 IP rate limit 15/min 과 병행).
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS ip_lock (
+  ip           TEXT        PRIMARY KEY,
+  locked_until TIMESTAMPTZ NOT NULL
+);
+
+-- ─────────────────────────────────────────────
+-- used_nonces — 서명 리플레이 방지 (A-4 nonce)
+-- 서명 메시지에 1회용 nonce 를 포함시키고, 검증 성공 시 여기에 적재한다.
+-- 동일 nonce 가 이미 있으면 리플레이로 보고 거부한다. 타임스탬프 창(±60초)을
+-- 넘어선 요청은 어차피 타임스탬프 검사에서 거부되므로, nonce 는 창보다 약간
+-- 긴 TTL(120초)만 보관하면 충분하다(만료 행은 기회적 정리).
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS used_nonces (
+  nonce      TEXT        PRIMARY KEY,
+  expires_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_used_nonces_expires ON used_nonces (expires_at);
+
+-- ─────────────────────────────────────────────
 -- config — 서버 설정값
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS config (
@@ -141,6 +185,17 @@ BEGIN
     INSERT INTO config (key, value) VALUES ('route_likes_uuid_scrubbed_v1', 'true');
   END IF;
 END $$;
+
+-- ─────────────────────────────────────────────
+-- revoked_keys — 공개키 폐기 목록 (B-1 revocation)
+-- 시드(device_uuid) 유출 시 해당 공개키를 영구 거부하기 위한 목록.
+-- 서명 검증(verifyRequestSignature) 시 헤더 공개키가 여기 있으면 요청을 거부한다.
+-- 신원 이관(/api/users/migrate) 시 구 공개키가 여기에 추가된다.
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS revoked_keys (
+  pubkey     TEXT        PRIMARY KEY,   -- hex 인코딩된 raw Ed25519 공개키(32바이트 → 64 hex)
+  revoked_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
 -- ─────────────────────────────────────────────
 -- backups — 영지식 백업
