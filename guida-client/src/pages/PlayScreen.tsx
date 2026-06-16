@@ -160,9 +160,6 @@ export function PlayScreen() {
                 giftOrder={route.gift_order}
                 giftById={giftById}
                 depsByGift={depsByGift}
-                routeTargetDepth={route.floors[0] ?? 5}
-                routeMode={route.difficulty_mode}
-                routeSwitchFloor={route.difficulty_switch_floor}
                 packOrder={route.pack_order}
                 packs={packs}
               />
@@ -241,6 +238,160 @@ export function PlayScreen() {
  * gift_order 를 priority 순으로 정렬하고, 미충족 선행조건(dependencies "before")이
  * 있으면 🔒 잠금 표시한다. 정렬: 획득가능 미획득 → 잠금 → 획득 완료(어둡게/하단).
  */
+function isGiftAvailable(
+  giftId: string,
+  acquiredGifts: string[],
+  giftById: Map<string, GiftEntity>,
+  visited: Set<string> = new Set()
+): boolean {
+  if (acquiredGifts.includes(giftId)) return true;
+  if (visited.has(giftId)) return false;
+
+  const gift = giftById.get(giftId);
+  if (!gift || !gift.is_craftable || !gift.craft_recipe) return false;
+
+  const nextVisited = new Set(visited);
+  nextVisited.add(giftId);
+
+  const checkAvailable = (id: string) => isGiftAvailable(id, acquiredGifts, giftById, nextVisited);
+
+  const recipe = gift.craft_recipe;
+  if (recipe.type === "simple") {
+    return recipe.required?.every(checkAvailable) ?? false;
+  }
+  if (recipe.type === "multi_path") {
+    return recipe.paths?.some((path: string[]) => path.every(checkAvailable)) ?? false;
+  }
+  if (recipe.type === "required_and_pick") {
+    const reqOk = recipe.required?.every(checkAvailable) ?? true;
+    const pickOk = recipe.pick
+      ? recipe.pick.from.filter(checkAvailable).length >= recipe.pick.count
+      : true;
+    return reqOk && pickOk;
+  }
+  return false;
+}
+
+function getMissingMaterials(
+  recipe: any,
+  acquiredGifts: string[],
+  giftById: Map<string, GiftEntity>,
+  visited: Set<string> = new Set()
+): string[] {
+  if (!recipe) return [];
+
+  const checkAvailable = (id: string) => isGiftAvailable(id, acquiredGifts, giftById, new Set(visited));
+
+  const getMissingFromList = (ids: string[]) => ids.filter((id) => !checkAvailable(id));
+
+  if (recipe.type === "simple") {
+    return getMissingFromList(recipe.required ?? []);
+  }
+  if (recipe.type === "multi_path") {
+    const paths = recipe.paths ?? [];
+    let minMissing: string[] = [];
+    let minCount = Infinity;
+    for (const path of paths) {
+      const missing = getMissingFromList(path);
+      if (missing.length < minCount) {
+        minCount = missing.length;
+        minMissing = missing;
+      }
+    }
+    return minMissing;
+  }
+  if (recipe.type === "required_and_pick") {
+    const missingRequired = getMissingFromList(recipe.required ?? []);
+    const pick = recipe.pick;
+    if (pick) {
+      const acquiredFromCount = pick.from.filter(checkAvailable).length;
+      const missingPickCount = Math.max(0, pick.count - acquiredFromCount);
+      if (missingPickCount > 0) {
+        const missingPick = getMissingFromList(pick.from);
+        return [...missingRequired, ...missingPick.slice(0, missingPickCount)];
+      }
+    }
+    return missingRequired;
+  }
+  return [];
+}
+
+function renderRecipe(recipe: any, giftById: Map<string, GiftEntity>, acquiredGifts: string[]) {
+  if (!recipe) return null;
+
+  const getMaterialSpan = (id: string) => {
+    const name = giftById.get(id)?.name ?? id;
+    const acquired = acquiredGifts.includes(id);
+    return (
+      <span key={id} className={cn(acquired ? "text-emerald-500 font-semibold" : "text-muted-foreground/80")}>
+        {name}{acquired && "✓"}
+      </span>
+    );
+  };
+
+  if (recipe.type === "simple") {
+    return (
+      <span className="inline-flex flex-wrap items-center gap-0.5">
+        {recipe.required?.map((id: string, idx: number) => (
+          <span key={id} className="inline-flex items-center">
+            {idx > 0 && <span className="mx-1 text-muted-foreground/60">+</span>}
+            {getMaterialSpan(id)}
+          </span>
+        ))}
+      </span>
+    );
+  }
+
+  if (recipe.type === "multi_path") {
+    return (
+      <span className="flex flex-col gap-0.5">
+        {recipe.paths?.map((path: string[], pathIdx: number) => (
+          <span key={pathIdx} className="inline-flex flex-wrap items-center gap-0.5">
+            {pathIdx > 0 && <span className="mr-1 text-[8px] text-muted-foreground/50 font-normal">또는</span>}
+            {path.map((id: string, idx: number) => (
+              <span key={id} className="inline-flex items-center">
+                {idx > 0 && <span className="mx-1 text-muted-foreground/60">+</span>}
+                {getMaterialSpan(id)}
+              </span>
+            ))}
+          </span>
+        ))}
+      </span>
+    );
+  }
+
+  if (recipe.type === "required_and_pick") {
+    const pickCount = recipe.pick?.count ?? 0;
+    return (
+      <span className="flex flex-col gap-0.5">
+        <span className="inline-flex flex-wrap items-center gap-0.5">
+          {recipe.required?.map((id: string, idx: number) => (
+            <span key={id} className="inline-flex items-center">
+              {idx > 0 && <span className="mx-1 text-muted-foreground/60">+</span>}
+              {getMaterialSpan(id)}
+            </span>
+          ))}
+        </span>
+        <span className="text-muted-foreground/80 text-[8px]">
+          + 아래 중 {pickCount}개:
+          <span className="ml-1 inline-flex flex-wrap gap-1">
+            (
+            {recipe.pick?.from.map((id: string, idx: number) => (
+              <span key={id} className="inline-flex items-center">
+                {idx > 0 && <span className="mr-1">,</span>}
+                {getMaterialSpan(id)}
+              </span>
+            ))}
+            )
+          </span>
+        </span>
+      </span>
+    );
+  }
+
+  return null;
+}
+
 function distinct<T extends string>(values: (T | null | undefined)[]): T[] {
   return [...new Set(values.filter((v): v is T => Boolean(v)))];
 }
@@ -275,9 +426,6 @@ function GiftsTab({
   giftOrder,
   giftById,
   depsByGift,
-  routeTargetDepth,
-  routeMode,
-  routeSwitchFloor,
   packOrder,
   packs,
 }: {
@@ -285,13 +433,59 @@ function GiftsTab({
   giftOrder: GiftOrderItem[];
   giftById: Map<string, GiftEntity>;
   depsByGift: Map<string, DependencyEdge[]>;
-  routeTargetDepth: number;
-  routeMode: DifficultyMode;
-  routeSwitchFloor: number | null;
   packOrder: PackOrderItem[];
   packs: PackEntity[];
 }) {
-  const { acquiredGifts, toggleGift } = usePlayStore();
+  const { acquiredGifts, toggleGift, setAcquiredGifts } = usePlayStore();
+
+  const handleToggleGift = (giftId: string) => {
+    const acquired = acquiredGifts.includes(giftId);
+    if (acquired) {
+      toggleGift(giftId);
+    } else {
+      const giftsToAcquire = new Set<string>([giftId]);
+
+      const collectCraftableIngredients = (id: string) => {
+        const gift = giftById.get(id);
+        if (!gift || !gift.is_craftable || !gift.craft_recipe) return;
+
+        const recipe = gift.craft_recipe;
+
+        const processId = (subId: string) => {
+          if (!acquiredGifts.includes(subId) && !giftsToAcquire.has(subId)) {
+            const subGift = giftById.get(subId);
+            if (subGift && subGift.is_craftable) {
+              giftsToAcquire.add(subId);
+              collectCraftableIngredients(subId);
+            }
+          }
+        };
+
+        if (recipe.type === "simple") {
+          recipe.required?.forEach(processId);
+        } else if (recipe.type === "multi_path") {
+          const satisfiedPath = recipe.paths?.find((path: string[]) =>
+            path.every((subId: string) => isGiftAvailable(subId, acquiredGifts, giftById))
+          );
+          const pathToUse = satisfiedPath ?? recipe.paths?.[0];
+          pathToUse?.forEach(processId);
+        } else if (recipe.type === "required_and_pick") {
+          recipe.required?.forEach(processId);
+          recipe.pick?.from.forEach(processId);
+        }
+      };
+
+      collectCraftableIngredients(giftId);
+
+      const newAcquired = [...acquiredGifts];
+      giftsToAcquire.forEach((id) => {
+        if (!newAcquired.includes(id)) {
+          newAcquired.push(id);
+        }
+      });
+      setAcquiredGifts(newAcquired);
+    }
+  };
 
   const [q, setQ] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -376,6 +570,25 @@ function GiftsTab({
     return unique;
   };
 
+  const isRecipeSatisfied = (giftId: string): boolean => {
+    const g = giftById.get(giftId);
+    if (!g || !g.is_craftable || !g.craft_recipe) return false;
+    return isGiftAvailable(giftId, acquiredGifts, giftById);
+  };
+
+  const getBlockerText = (giftId: string): string => {
+    const g = giftById.get(giftId);
+    if (!g) return "";
+
+    if (g.is_craftable && giftId !== "gift_달의_기억") {
+      const missingIds = getMissingMaterials(g.craft_recipe, acquiredGifts, giftById);
+      return missingIds.map((id) => giftById.get(id)?.name ?? id).join(", ");
+    } else {
+      const edges = unmetBefore(giftId);
+      return edges.map((e) => giftById.get(e.target.gift_id)?.name ?? e.target.gift_id).join(", ");
+    }
+  };
+
   const filtered = useMemo(() => {
     const k = q.trim();
     return giftOrder.filter((item) => {
@@ -408,23 +621,23 @@ function GiftsTab({
     giftPackMap,
   ]);
 
-  // priority 순 정렬 후 [획득가능 미획득 → 잠금 → 획득완료] 로 재배치
+  // priority 순 정렬 후 [조합가능 미획득 → 획득가능 미획득 → 잠금 → 획득완료] 로 재배치
   const ordered = useMemo(() => {
     const byPriority = [...filtered].sort((a, b) => a.priority - b.priority);
-    const rank = (g: GiftOrderItem) =>
-      acquiredGifts.includes(g.gift_id) ? 2 : unmetBefore(g.gift_id).length > 0 ? 1 : 0;
+    const rank = (item: GiftOrderItem) => {
+      if (acquiredGifts.includes(item.gift_id)) return 3;
+
+      const isCraftableSatisfied = isRecipeSatisfied(item.gift_id);
+      if (isCraftableSatisfied) return 0;
+
+      const blockerNames = getBlockerText(item.gift_id);
+      if (blockerNames.length > 0) return 2;
+      return 1;
+    };
     return [...byPriority].sort((a, b) => rank(a) - rank(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered, acquiredGifts, depsByGift, giftById]);
 
-  // 실제 target depth와 difficulty 계산
-  const targetDepth = routeTargetDepth;
-  const actualDiff = (() => {
-    if (targetDepth >= 11) return "extreme";
-    if (routeSwitchFloor != null) return targetDepth >= routeSwitchFloor ? "hard" : "normal";
-    if (routeMode === "hard" || routeMode === "extreme") return "hard";
-    return "normal";
-  })();
 
   if (giftOrder.length === 0) {
     return (
@@ -529,24 +742,37 @@ function GiftsTab({
           {ordered.map((item) => {
             const gift = giftById.get(item.gift_id);
             const acquired = acquiredGifts.includes(item.gift_id);
-            const blockers = acquired ? [] : unmetBefore(item.gift_id);
-            const locked = blockers.length > 0;
-            const blockerNames = blockers
-              .map((e) => giftById.get(e.target.gift_id)?.name ?? e.target.gift_id)
-              .join(", ");
+            const blockerNames = acquired ? "" : getBlockerText(item.gift_id);
+            const locked = blockerNames.length > 0;
+            const craftableSatisfied = !acquired && isRecipeSatisfied(item.gift_id);
             const attributeColor = getGiftColor(gift?.keyword_type);
+
+            const beforeDeps = (depsByGift.get(item.gift_id) ?? []).filter(
+              (e) => e.type === "before"
+            );
+            const uniqueBeforeDeps: DependencyEdge[] = [];
+            const seen = new Set<string>();
+            for (const dep of beforeDeps) {
+              if (!seen.has(dep.target.gift_id)) {
+                seen.add(dep.target.gift_id);
+                uniqueBeforeDeps.push(dep);
+              }
+            }
+
             return (
               <button
                 key={item.gift_id}
-                onClick={() => toggleGift(item.gift_id)}
+                onClick={() => handleToggleGift(item.gift_id)}
                 title={gift?.effect}
                 className={cn(
                   "group relative flex flex-col overflow-hidden rounded-lg border transition-all text-left bg-card",
                   acquired
                     ? "border-border opacity-[0.4]"
-                    : locked
-                      ? "border-dashed border-border text-muted-foreground bg-card/40"
-                      : "border-border hover:border-primary/40 hover:scale-[1.02]",
+                    : craftableSatisfied
+                      ? "border-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.25)] hover:border-amber-400 hover:scale-[1.02]"
+                      : locked
+                        ? "border-dashed border-border text-muted-foreground bg-card/40"
+                        : "border-border hover:border-primary/40 hover:scale-[1.02]",
                 )}
               >
                 {/* Colored Box Placeholder as Image */}
@@ -561,6 +787,10 @@ function GiftsTab({
                     {acquired ? (
                       <Badge variant="success" className="h-5 px-1.5 text-[9px] rounded gap-0.5">
                         <Check className="size-2.5" /> 획득
+                      </Badge>
+                    ) : craftableSatisfied ? (
+                      <Badge variant="warning" className="h-5 px-1.5 text-[9px] rounded gap-0.5 bg-amber-500 text-white border-none font-semibold">
+                        조합 가능
                       </Badge>
                     ) : locked ? (
                       <Badge variant="outline" className="h-5 px-1.5 text-[9px] rounded gap-0.5 bg-black/65 text-white border-none">
@@ -600,30 +830,44 @@ function GiftsTab({
                       )}
                     </div>
                   )}
+
+                  {/* Crafting Recipe */}
+                  {gift?.is_craftable && gift.craft_recipe && (
+                    <div className="mt-2 border-t border-border/40 pt-1.5 text-[9px] leading-tight">
+                      <div className="font-semibold text-amber-500 mb-0.5">조합식</div>
+                      {renderRecipe(gift.craft_recipe, giftById, acquiredGifts)}
+                    </div>
+                  )}
+
+                  {/* Prerequisite Gifts */}
+                  {uniqueBeforeDeps.length > 0 && (
+                    <div className="mt-2 border-t border-border/40 pt-1.5 text-[9px] leading-tight">
+                      <div className="font-semibold text-amber-500 mb-0.5">선행기프트</div>
+                      <div className="flex flex-wrap items-center gap-1">
+                        {uniqueBeforeDeps.map((dep, idx) => {
+                          const id = dep.target.gift_id;
+                          const name = giftById.get(id)?.name ?? dep.target.name ?? id;
+                          const acquired = acquiredGifts.includes(id);
+                          return (
+                            <span key={id} className="inline-flex items-center">
+                              {idx > 0 && <span className="mr-1 text-muted-foreground/60">,</span>}
+                              <span className={cn(acquired ? "text-emerald-500 font-semibold" : "text-muted-foreground/80")}>
+                                {name}{acquired && "✓"}
+                              </span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                   
-                  <div className="flex flex-col gap-1 mt-auto w-full">
-                    {/* Optional or required badge */}
-                    <div className="flex flex-wrap gap-1 items-center">
-                      {!item.required && (
-                        <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
-                          옵션
-                        </span>
-                      )}
+                  {!item.required && (
+                    <div className="flex flex-wrap gap-1 items-center mt-auto w-full">
                       <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
-                        {targetDepth}층 목표
-                      </span>
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
-                        {DIFFICULTY_LABEL[actualDiff]}
+                        옵션
                       </span>
                     </div>
-
-                    {/* Blocker text if locked */}
-                    {locked && (
-                      <span className="text-[9px] leading-tight text-amber-500 line-clamp-1" title={`${blockerNames} 먼저 필요`}>
-                        🔒 {blockerNames} 필요
-                      </span>
-                    )}
-                  </div>
+                  )}
                 </div>
               </button>
             );

@@ -48,6 +48,8 @@ interface PlayState {
   setFloor: (floor: number) => void;
   /** 목표 에고기프트 획득 여부 토글 (gift_id) */
   toggleGift: (giftId: string) => void;
+  /** 목표 에고기프트 획득 목록 설정 */
+  setAcquiredGifts: (acquiredGifts: string[]) => void;
   /** 팩 방문 여부 토글 (pack_id) */
   togglePack: (packId: string) => void;
 }
@@ -149,6 +151,13 @@ export const usePlayStore = create<PlayState>((set) => ({
       const acquiredGifts = s.acquiredGifts.includes(giftId)
         ? s.acquiredGifts.filter((g) => g !== giftId)
         : [...s.acquiredGifts, giftId];
+      const next = { ...s, acquiredGifts };
+      saveSession(next);
+      return { acquiredGifts };
+    }),
+
+  setAcquiredGifts: (acquiredGifts) =>
+    set((s) => {
       const next = { ...s, acquiredGifts };
       saveSession(next);
       return { acquiredGifts };

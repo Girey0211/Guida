@@ -110,10 +110,18 @@ export interface Gift {
   first_appeared: string | null;
   related: string | null;
   is_craftable: boolean;
-  /** 합성 재료 gift_id 배열 (없으면 null) */
-  craft_recipe: string[] | null;
-  /** 이 기프트가 재료로 쓰일 때의 결과물 gift_id (없으면 null) */
-  craft_result_of: string | null;
+  /** 합성 재료 (없으면 null) */
+  craft_recipe: {
+    type: "simple" | "multi_path" | "required_and_pick" | string;
+    required?: string[];
+    paths?: string[][];
+    pick?: {
+      count: number;
+      from: string[];
+    };
+  } | null;
+  /** 이 기프트가 재료로 쓰일 때의 결과물 gift_id 배열 (없으면 null) */
+  craft_result_of: string[] | null;
   source_type: string;
   source_category: string;
   added_patch: string | null;
