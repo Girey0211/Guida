@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FolderHeart, Map, Settings as SettingsIcon, MonitorPlay, WifiOff, ChevronRight, MousePointerClick, MousePointer2, User } from "lucide-react";
+import { FolderHeart, Map, Settings as SettingsIcon, MonitorPlay, WifiOff, ChevronRight, MousePointerClick, MousePointer2, User, ClipboardList } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { usePlayStore } from "@/store/playStore";
 import { useOverlayControl } from "@/hooks/useTauriCommand";
@@ -10,6 +10,7 @@ import { MyRoutes } from "@/pages/MyRoutes";
 import { RouteHub } from "@/pages/RouteHub";
 import { Settings } from "@/pages/Settings";
 import { UserProfile } from "@/pages/UserProfile";
+import { PatchNotesModal } from "@/components/common/PatchNotesModal";
 
 type TabId = "routes" | "hub" | "profile" | "settings";
 
@@ -29,6 +30,7 @@ export function BaseScreen() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabId>("routes");
   const [activeProfileUuid, setActiveProfileUuid] = useState<string | null>(null);
+  const [patchNotesOpen, setPatchNotesOpen] = useState(false);
   const { patch, online } = useAppStore();
   const sessionActive = usePlayStore((s) => s.sessionId != null);
   const { showOverlay, hideOverlay, setOverlayClickThrough, isDesktop } = useOverlayControl();
@@ -98,9 +100,21 @@ export function BaseScreen() {
 
       {/* 브랜드 바 (Charcoal Black) */}
       <header className="z-10 flex shrink-0 items-center gap-3 border-b border-border bg-brand/75 backdrop-blur-md px-4 py-2.5">
-        <div className="leading-none">
-          <h1 className="text-sm font-bold text-gradient-dawn">Guida</h1>
-          <p className="text-[11px] text-muted-foreground">거울 던전 길잡이</p>
+        <div className="flex items-center gap-3">
+          <div className="leading-none">
+            <h1 className="text-sm font-bold text-gradient-dawn">Guida</h1>
+            <p className="text-[11px] text-muted-foreground">거울 던전 길잡이</p>
+          </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setPatchNotesOpen(true)}
+            className="h-8 px-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/40 gap-1.5 rounded-lg border border-border/30 bg-muted/10 transition-all duration-200"
+            title="패치노트 보기"
+          >
+            <ClipboardList className="size-3.5" />
+            <span>패치노트</span>
+          </Button>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
@@ -206,6 +220,11 @@ export function BaseScreen() {
             />
           </div>
         </div>
+      )}
+
+      {/* 패치노트 모달 */}
+      {patchNotesOpen && (
+        <PatchNotesModal onClose={() => setPatchNotesOpen(false)} />
       )}
     </div>
   );
