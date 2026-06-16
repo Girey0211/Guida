@@ -577,7 +577,7 @@ data/
 | `keyword_color` | 키워드 배지 색상 (이미지 없는 Phase 1의 시각 식별 핵심) |
 | `hard_mode_only` | 하드 난이도에서만 등장하는 기프트 여부 |
 | `pack_exclusive` | 특정 팩에서만 획득 가능한 기프트 여부 |
-| `source_type` | 기본_7키워드 / 기본_7키워드_외 / 테마팩_전용 |
+| `source_type` | 기본_7키워드 / 참관타_범용 / 테마팩_전용 |
 | `is_craftable` | 합성으로만 획득 가능한 기프트 여부 |
 | `craft_recipe` | 합성 조합식. `null`이면 합성 불가. 조합 방식에 따라 `type`이 달라짐 (아래 참조) |
 | `craft_result_of` | 이 기프트가 재료로 사용될 때 만들어지는 결과 기프트의 `gift_id` 배열. `null`이면 재료로 사용되지 않음 |

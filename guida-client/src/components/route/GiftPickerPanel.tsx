@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, X } from "lucide-react";
-import type { Gift } from "@/types/gameData";
+import type { Gift, DependencyEdge } from "@/types/gameData";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { cn, buildGiftPackMap } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn, buildGiftPackMap, getGiftColor } from "@/lib/utils";
 import { useAppStore } from "@/store/appStore";
 
 interface Props {
@@ -24,6 +25,88 @@ function distinct<T extends string>(values: (T | null | undefined)[]): T[] {
   return [...new Set(values.filter((v): v is T => Boolean(v)))];
 }
 
+function renderRecipe(recipe: any, giftById: Map<string, Gift>, acquiredGifts: string[] | Set<string>) {
+  if (!recipe) return null;
+
+  const getMaterialSpan = (id: string) => {
+    const name = giftById.get(id)?.name ?? id;
+    const acquired = acquiredGifts instanceof Set ? acquiredGifts.has(id) : acquiredGifts.includes(id);
+    return (
+      <span key={id} className={cn(acquired ? "text-emerald-500 font-semibold" : "text-muted-foreground/80")}>
+        {name}{acquired && "✓"}
+      </span>
+    );
+  };
+
+  if (recipe.type === "simple") {
+    return (
+      <span className="inline-flex flex-wrap items-center gap-0.5">
+        {recipe.required?.map((id: string, idx: number) => (
+          <span key={id} className="inline-flex items-center">
+            {idx > 0 && <span className="mx-1 text-muted-foreground/60">+</span>}
+            {getMaterialSpan(id)}
+          </span>
+        ))}
+      </span>
+    );
+  }
+
+  if (recipe.type === "multi_path") {
+    const paths = recipe.paths ?? [];
+    let bestPath: string[] = [];
+    let maxLen = -1;
+    for (const p of paths) {
+      if (p.length > maxLen) {
+        maxLen = p.length;
+        bestPath = p;
+      }
+    }
+    if (bestPath.length === 0) return null;
+
+    return (
+      <span className="inline-flex flex-wrap items-center gap-0.5">
+        {bestPath.map((id: string, idx: number) => (
+          <span key={id} className="inline-flex items-center">
+            {idx > 0 && <span className="mx-1 text-muted-foreground/60">+</span>}
+            {getMaterialSpan(id)}
+          </span>
+        ))}
+      </span>
+    );
+  }
+
+  if (recipe.type === "required_and_pick") {
+    const pickCount = recipe.pick?.count ?? 0;
+    return (
+      <span className="flex flex-col gap-0.5">
+        <span className="inline-flex flex-wrap items-center gap-0.5">
+          {recipe.required?.map((id: string, idx: number) => (
+            <span key={id} className="inline-flex items-center">
+              {idx > 0 && <span className="mx-1 text-muted-foreground/60">+</span>}
+              {getMaterialSpan(id)}
+            </span>
+          ))}
+        </span>
+        <span className="text-muted-foreground/80 text-[8px]">
+          + 아래 중 {pickCount}개:
+          <span className="ml-1 inline-flex flex-wrap gap-1">
+            (
+            {recipe.pick?.from.map((id: string, idx: number) => (
+              <span key={id} className="inline-flex items-center">
+                {idx > 0 && <span className="mr-1">,</span>}
+                {getMaterialSpan(id)}
+              </span>
+            ))}
+            )
+          </span>
+        </span>
+      </span>
+    );
+  }
+
+  return null;
+}
+
 /**
  * 목표 에고기프트 선택용 오른쪽 드로어 패널.
  * 상단 필터(검색/키워드/등급/출처/태그/하드 전용) + 박스형 목록.
@@ -38,7 +121,7 @@ export function GiftPickerPanel({
   onDeselectMultiple,
   onClose,
 }: Props) {
-  const { packs } = useAppStore();
+  const { packs, dependencies } = useAppStore();
   const [q, setQ] = useState("");
   const [keyword, setKeyword] = useState("");
   const [grade, setGrade] = useState("");
@@ -48,6 +131,7 @@ export function GiftPickerPanel({
   const [hardOnly, setHardOnly] = useState(false);
   const [craftableOnly, setCraftableOnly] = useState(false);
   const [selectedOnly, setSelectedOnly] = useState(false);
+  const [noPrereqOrMaterial, setNoPrereqOrMaterial] = useState(false);
 
   // 드래그 다중 선택 상태
   const [isDragging, setIsDragging] = useState(false);
@@ -137,6 +221,12 @@ export function GiftPickerPanel({
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [gifts, packs, giftPackMap]);
 
+  const giftById = useMemo(() => new Map(gifts.map((g) => [g.id, g])), [gifts]);
+  const depsByGift = useMemo(
+    () => new Map(dependencies.map((d) => [d.gift_id, d.dependencies])),
+    [dependencies],
+  );
+
   const filtered = useMemo(() => {
     const k = q.trim();
     return gifts.filter((g) => {
@@ -149,6 +239,11 @@ export function GiftPickerPanel({
       if (hardOnly && !g.hard_mode_only) return false;
       if (craftableOnly && !g.is_craftable) return false;
       if (selectedOnly && !selectedIds.has(g.id)) return false;
+      if (noPrereqOrMaterial) {
+        const hasPrereq = (depsByGift.get(g.id) ?? []).some((e) => e.type === "before");
+        const hasMaterial = g.is_craftable;
+        if (hasPrereq || hasMaterial) return false;
+      }
       return true;
     });
   }, [
@@ -164,6 +259,8 @@ export function GiftPickerPanel({
     selectedOnly,
     selectedIds,
     giftPackMap,
+    noPrereqOrMaterial,
+    depsByGift,
   ]);
 
   const resetFilters = () => {
@@ -176,6 +273,7 @@ export function GiftPickerPanel({
     setHardOnly(false);
     setCraftableOnly(false);
     setSelectedOnly(false);
+    setNoPrereqOrMaterial(false);
   };
 
   return createPortal(
@@ -268,6 +366,9 @@ export function GiftPickerPanel({
             <FilterChip active={selectedOnly} onClick={() => setSelectedOnly((v) => !v)}>
               선택한 것만
             </FilterChip>
+            <FilterChip active={noPrereqOrMaterial} onClick={() => setNoPrereqOrMaterial((v) => !v)}>
+              선행 없음
+            </FilterChip>
             <button
               type="button"
               onClick={resetFilters}
@@ -323,6 +424,19 @@ export function GiftPickerPanel({
             <div className="grid grid-cols-2 gap-2 select-none">
               {filtered.map((g) => {
                 const selected = selectedIds.has(g.id);
+                const beforeDeps = (depsByGift.get(g.id) ?? []).filter(
+                  (e) => e.type === "before"
+                );
+                const uniqueBeforeDeps: DependencyEdge[] = [];
+                const seen = new Set<string>();
+                for (const dep of beforeDeps) {
+                  if (!seen.has(dep.target.gift_id)) {
+                    seen.add(dep.target.gift_id);
+                    uniqueBeforeDeps.push(dep);
+                  }
+                }
+                const attributeColor = getGiftColor(g.keyword_type);
+
                 return (
                   <button
                     key={g.id}
@@ -337,27 +451,99 @@ export function GiftPickerPanel({
                     }}
                     title={g.effect}
                     className={cn(
-                      "relative flex flex-col gap-1 rounded-md border p-2 text-left transition-colors",
+                      "group relative flex flex-col overflow-hidden rounded-lg border transition-all text-left bg-card",
                       selected
-                        ? "border-primary bg-primary/15"
-                        : "border-border bg-muted/30 hover:border-primary/40",
+                        ? "border-emerald-500 bg-emerald-500/[0.03] shadow-[0_0_10px_rgba(16,185,129,0.25)] ring-1 ring-emerald-500/30 hover:scale-[1.02]"
+                        : "border-border bg-card/60 hover:border-primary/40 hover:scale-[1.02]",
                     )}
                   >
-                    {selected && (
-                      <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                        <Check className="size-3" />
-                      </span>
-                    )}
-                    <span className="line-clamp-2 pr-5 text-xs font-medium">{g.name}</span>
-                    <span className="flex items-center gap-1">
-                      <span
-                        className="rounded px-1.5 py-0.5 text-[10px] font-medium text-white"
-                        style={{ backgroundColor: g.keyword_color }}
-                      >
-                        {g.keyword_type}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">{g.grade}등급</span>
-                    </span>
+                    {/* Colored Box Header */}
+                    <div 
+                      className="h-14 w-full relative flex items-center justify-center text-[10px] font-bold text-white/90 shadow-inner"
+                      style={{ backgroundColor: attributeColor }}
+                    >
+                      <span>{g.keyword_type || "일반"}</span>
+                      
+                      {/* Status Overlay Badge */}
+                      <div className="absolute right-1.5 top-1.5">
+                        {selected ? (
+                          <Badge variant="default" className="h-5 px-1.5 text-[8px] rounded gap-0.5 bg-emerald-600 text-white font-bold border-none shadow-[0_1px_3px_rgba(0,0,0,0.3)] hover:bg-emerald-600">
+                            <Check className="size-2.5" /> 추가됨
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="h-5 px-1.5 text-[8px] rounded bg-black/60 text-white/90 border-none font-medium">
+                            미추가
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Info Container */}
+                    <div className="flex-1 flex flex-col p-2.5 justify-between w-full gap-1.5 min-h-[78px]">
+                      {/* Top Block: Name, Grade, Tags */}
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold text-xs leading-tight text-foreground line-clamp-2" title={g.name}>
+                          {g.name}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">{g.grade}등급</span>
+
+                        {/* Tag list */}
+                        {(g.tags || g.pack_exclusive) && (
+                          <div className="flex flex-wrap gap-1 mt-0.5">
+                            {g.tags
+                              ?.filter((t) => t !== g.keyword_type && t !== "범용")
+                              .map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="rounded bg-primary/10 px-1.5 py-0.5 text-[8px] font-medium text-primary animate-fade-in"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            {g.pack_exclusive && (
+                              <span className="rounded bg-amber-500/10 text-amber-600 border border-amber-500/20 px-1.5 py-0.5 text-[8px] font-semibold animate-fade-in">
+                                테마팩한정
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bottom Block: Crafting Recipe and Prerequisites */}
+                      {(g.is_craftable || uniqueBeforeDeps.length > 0) && (
+                        <div className="flex flex-col gap-1.5 border-t border-border/40 pt-1.5">
+                          {/* Crafting Recipe */}
+                          {g.is_craftable && g.craft_recipe && (
+                            <div className="text-[8px] leading-tight">
+                              <div className="font-semibold text-amber-500 mb-0.5">조합식</div>
+                              {renderRecipe(g.craft_recipe, giftById, selectedIds)}
+                            </div>
+                          )}
+
+                          {/* Prerequisite Gifts */}
+                          {uniqueBeforeDeps.length > 0 && (
+                            <div className="text-[8px] leading-tight">
+                              <div className="font-semibold text-amber-500 mb-0.5">선행기프트</div>
+                              <div className="flex flex-wrap items-center gap-1">
+                                {uniqueBeforeDeps.map((dep, idx) => {
+                                  const id = dep.target.gift_id;
+                                  const name = giftById.get(id)?.name ?? dep.target.name ?? id;
+                                  const acquired = selectedIds.has(id);
+                                  return (
+                                    <span key={id} className="inline-flex items-center">
+                                      {idx > 0 && <span className="mr-1 text-muted-foreground/60">,</span>}
+                                      <span className={cn(acquired ? "text-emerald-500 font-semibold" : "text-muted-foreground/80")}>
+                                        {name}{acquired && "✓"}
+                                      </span>
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </button>
                 );
               })}

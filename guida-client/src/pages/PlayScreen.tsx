@@ -343,17 +343,23 @@ function renderRecipe(recipe: any, giftById: Map<string, GiftEntity>, acquiredGi
   }
 
   if (recipe.type === "multi_path") {
+    const paths = recipe.paths ?? [];
+    let bestPath: string[] = [];
+    let maxLen = -1;
+    for (const p of paths) {
+      if (p.length > maxLen) {
+        maxLen = p.length;
+        bestPath = p;
+      }
+    }
+    if (bestPath.length === 0) return null;
+
     return (
-      <span className="flex flex-col gap-0.5">
-        {recipe.paths?.map((path: string[], pathIdx: number) => (
-          <span key={pathIdx} className="inline-flex flex-wrap items-center gap-0.5">
-            {pathIdx > 0 && <span className="mr-1 text-[8px] text-muted-foreground/50 font-normal">또는</span>}
-            {path.map((id: string, idx: number) => (
-              <span key={id} className="inline-flex items-center">
-                {idx > 0 && <span className="mx-1 text-muted-foreground/60">+</span>}
-                {getMaterialSpan(id)}
-              </span>
-            ))}
+      <span className="inline-flex flex-wrap items-center gap-0.5">
+        {bestPath.map((id: string, idx: number) => (
+          <span key={id} className="inline-flex items-center">
+            {idx > 0 && <span className="mx-1 text-muted-foreground/60">+</span>}
+            {getMaterialSpan(id)}
           </span>
         ))}
       </span>
@@ -496,6 +502,7 @@ function GiftsTab({
   const [hardOnly, setHardOnly] = useState(false);
   const [craftableOnly, setCraftableOnly] = useState(false);
   const [hideAcquired, setHideAcquired] = useState(false);
+  const [noPrereqOrMaterial, setNoPrereqOrMaterial] = useState(false);
 
   // distinct values for filters
   const keywords = useMemo(() => distinct(gifts.map((g) => g.keyword_type)), [gifts]);
@@ -549,6 +556,7 @@ function GiftsTab({
     setHardOnly(false);
     setCraftableOnly(false);
     setHideAcquired(false);
+    setNoPrereqOrMaterial(false);
   };
 
   /** 미충족 선행조건: type "before"(이 기프트는 대상보다 나중에 획득) 중 대상 미획득 */
@@ -603,6 +611,11 @@ function GiftsTab({
       if (hardOnly && !g.hard_mode_only) return false;
       if (craftableOnly && !g.is_craftable) return false;
       if (hideAcquired && acquiredGifts.includes(item.gift_id)) return false;
+      if (noPrereqOrMaterial) {
+        const hasPrereq = (depsByGift.get(g.id) ?? []).some((e) => e.type === "before");
+        const hasMaterial = g.is_craftable;
+        if (hasPrereq || hasMaterial) return false;
+      }
       return true;
     });
   }, [
@@ -619,6 +632,8 @@ function GiftsTab({
     acquiredGifts,
     giftById,
     giftPackMap,
+    noPrereqOrMaterial,
+    depsByGift,
   ]);
 
   // priority 순 정렬 후 [조합가능 미획득 → 획득가능 미획득 → 잠금 → 획득완료] 로 재배치
@@ -721,6 +736,9 @@ function GiftsTab({
           <FilterChip active={hideAcquired} onClick={() => setHideAcquired((v) => !v)}>
             미획득만 보기
           </FilterChip>
+          <FilterChip active={noPrereqOrMaterial} onClick={() => setNoPrereqOrMaterial((v) => !v)}>
+            선행 없음
+          </FilterChip>
           <button
             type="button"
             onClick={resetFilters}
@@ -805,67 +823,76 @@ function GiftsTab({
                 </div>
 
                 {/* Info Container below */}
-                <div className="flex-1 flex flex-col p-2.5 justify-between min-h-[78px] gap-1 w-full">
-                  <span className="font-semibold text-xs line-clamp-2 leading-tight text-foreground" title={gift?.name ?? item.gift_id}>
-                    {gift?.name ?? item.gift_id}
-                  </span>
+                <div className="flex-1 flex flex-col p-2.5 justify-between min-h-[78px] gap-1.5 w-full">
+                  {/* Top Block: Name, Tags */}
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold text-xs line-clamp-2 leading-tight text-foreground" title={gift?.name ?? item.gift_id}>
+                      {gift?.name ?? item.gift_id}
+                    </span>
 
-                  {/* Tag list */}
-                  {(gift?.tags || gift?.pack_exclusive) && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {gift?.tags
-                        ?.filter((t) => t !== gift?.keyword_type && t !== "범용")
-                        .map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary animate-fade-in"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      {gift?.pack_exclusive && (
-                        <span className="rounded bg-amber-500/10 text-amber-600 border border-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold animate-fade-in">
-                          테마팩한정
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Crafting Recipe */}
-                  {gift?.is_craftable && gift.craft_recipe && (
-                    <div className="mt-2 border-t border-border/40 pt-1.5 text-[9px] leading-tight">
-                      <div className="font-semibold text-amber-500 mb-0.5">조합식</div>
-                      {renderRecipe(gift.craft_recipe, giftById, acquiredGifts)}
-                    </div>
-                  )}
-
-                  {/* Prerequisite Gifts */}
-                  {uniqueBeforeDeps.length > 0 && (
-                    <div className="mt-2 border-t border-border/40 pt-1.5 text-[9px] leading-tight">
-                      <div className="font-semibold text-amber-500 mb-0.5">선행기프트</div>
-                      <div className="flex flex-wrap items-center gap-1">
-                        {uniqueBeforeDeps.map((dep, idx) => {
-                          const id = dep.target.gift_id;
-                          const name = giftById.get(id)?.name ?? dep.target.name ?? id;
-                          const acquired = acquiredGifts.includes(id);
-                          return (
-                            <span key={id} className="inline-flex items-center">
-                              {idx > 0 && <span className="mr-1 text-muted-foreground/60">,</span>}
-                              <span className={cn(acquired ? "text-emerald-500 font-semibold" : "text-muted-foreground/80")}>
-                                {name}{acquired && "✓"}
-                              </span>
+                    {/* Tag list */}
+                    {(gift?.tags || gift?.pack_exclusive) && (
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {gift?.tags
+                          ?.filter((t) => t !== gift?.keyword_type && t !== "범용")
+                          .map((tag) => (
+                            <span
+                              key={tag}
+                              className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary animate-fade-in"
+                            >
+                              {tag}
                             </span>
-                          );
-                        })}
+                          ))}
+                        {gift?.pack_exclusive && (
+                          <span className="rounded bg-amber-500/10 text-amber-600 border border-amber-500/20 px-1.5 py-0.5 text-[9px] font-semibold animate-fade-in">
+                            테마팩한정
+                          </span>
+                        )}
                       </div>
-                    </div>
-                  )}
-                  
-                  {!item.required && (
-                    <div className="flex flex-wrap gap-1 items-center mt-auto w-full">
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
-                        옵션
-                      </span>
+                    )}
+                  </div>
+
+                  {/* Bottom Block: Crafting Recipe, Prerequisites, Option badge */}
+                  {(gift?.is_craftable || uniqueBeforeDeps.length > 0 || !item.required) && (
+                    <div className="flex flex-col gap-1.5 border-t border-border/40 pt-1.5 w-full">
+                      {/* Crafting Recipe */}
+                      {gift?.is_craftable && gift.craft_recipe && (
+                        <div className="text-[9px] leading-tight">
+                          <div className="font-semibold text-amber-500 mb-0.5">조합식</div>
+                          {renderRecipe(gift.craft_recipe, giftById, acquiredGifts)}
+                        </div>
+                      )}
+
+                      {/* Prerequisite Gifts */}
+                      {uniqueBeforeDeps.length > 0 && (
+                        <div className="text-[9px] leading-tight">
+                          <div className="font-semibold text-amber-500 mb-0.5">선행기프트</div>
+                          <div className="flex flex-wrap items-center gap-1">
+                            {uniqueBeforeDeps.map((dep, idx) => {
+                              const id = dep.target.gift_id;
+                              const name = giftById.get(id)?.name ?? dep.target.name ?? id;
+                              const acquired = acquiredGifts.includes(id);
+                              return (
+                                <span key={id} className="inline-flex items-center">
+                                  {idx > 0 && <span className="mr-1 text-muted-foreground/60">,</span>}
+                                  <span className={cn(acquired ? "text-emerald-500 font-semibold" : "text-muted-foreground/80")}>
+                                    {name}{acquired && "✓"}
+                                  </span>
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Option Badge */}
+                      {!item.required && (
+                        <div className="flex flex-wrap gap-1 items-center mt-0.5 w-full">
+                          <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground w-max">
+                            옵션
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
