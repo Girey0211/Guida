@@ -176,40 +176,6 @@ export function Settings() {
           </CardContent>
         </Card>
 
-        {/* 디바이스 */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">디바이스</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Label>디바이스 UUID</Label>
-            <p className="text-xs text-muted-foreground">
-              익명 식별자입니다. 루트 추천 중복 방지에만 사용되며 개인정보를 포함하지 않습니다.
-            </p>
-            <button
-              onClick={copyUuid}
-              className="flex w-full items-center justify-between gap-2 rounded-md border border-border bg-muted px-3 py-2 font-mono text-xs hover:border-primary/40"
-            >
-              <span className="truncate">{settings.uuid || "(생성 중)"}</span>
-              {copied ? (
-                <Check className="size-4 shrink-0 text-emerald-400" />
-              ) : (
-                <Copy className="size-4 shrink-0 text-muted-foreground" />
-              )}
-            </button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={resetting}
-              onClick={() => setResetModalOpen(true)}
-              className="mt-2 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive w-full gap-1.5"
-            >
-              <RotateCcw className="size-4" />
-              디바이스 초기화
-            </Button>
-          </CardContent>
-        </Card>
-
       {/* 초기화 확인 모달 */}
       {resetModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">

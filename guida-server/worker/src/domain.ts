@@ -41,7 +41,6 @@ export interface Route {
 }
 
 export interface UploadBody {
-  uuid: string;
   name: string;
   difficulty_tag: DifficultyTag;
   difficulty_mode: DifficultyMode;
@@ -56,7 +55,6 @@ export interface UploadBody {
 }
 
 export interface LikeBody {
-  uuid: string;
   patch_version: string;
 }
 

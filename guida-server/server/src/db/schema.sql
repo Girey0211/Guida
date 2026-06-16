@@ -101,6 +101,21 @@ CREATE TABLE IF NOT EXISTS config (
 );
 
 -- ─────────────────────────────────────────────
+-- 보안 마이그레이션 (1회): route_likes.uuid 스크럽
+--   과거에는 route_likes.uuid 에 raw device_uuid(= Ed25519 서명 시드)가
+--   평문 저장됐다. DB 유출 시 작성자 사칭에 악용될 수 있으므로 1회 비운다.
+--   이후 추천은 uploader_uuid(uuidv5(pubkey), 단방향)만 기록한다.
+--   ※ 통계 수치(route_stats.likes)는 보존되며, 중복방지 원장만 초기화된다.
+-- ─────────────────────────────────────────────
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM config WHERE key = 'route_likes_uuid_scrubbed_v1') THEN
+    TRUNCATE route_likes;
+    INSERT INTO config (key, value) VALUES ('route_likes_uuid_scrubbed_v1', 'true');
+  END IF;
+END $$;
+
+-- ─────────────────────────────────────────────
 -- backups — 영지식 백업
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS backups (

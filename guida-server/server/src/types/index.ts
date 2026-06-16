@@ -58,9 +58,8 @@ export interface Stats {
   play_count: number;
 }
 
-/** POST /api/routes/upload 요청 바디 */
+/** POST /api/routes/upload 요청 바디 (작성자는 요청 서명으로 식별) */
 export interface UploadBody {
-  uuid: string;
   name: string;
   difficulty_tag: DifficultyTag;
   difficulty_mode: DifficultyMode;
@@ -74,9 +73,8 @@ export interface UploadBody {
   deck_code?: string | null;
 }
 
-/** POST /api/routes/:code/like 요청 바디 */
+/** POST /api/routes/:code/like 요청 바디 (추천 주체는 요청 서명으로 식별) */
 export interface LikeBody {
-  uuid: string;
   patch_version: string;
 }
 

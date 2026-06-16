@@ -153,9 +153,8 @@ export const useRouteStore = create<RouteState>((set, get) => ({
       throw new Error("공유하려면 먼저 '실제로 플레이했습니다' 확인이 필요합니다.");
     }
 
-    const { uuid, settings } = useAppStore.getState();
+    const { settings } = useAppStore.getState();
     const payload = {
-      uuid,
       patch_version: settings.current_patch,
       route: {
         name: route.name,

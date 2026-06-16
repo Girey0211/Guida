@@ -23,7 +23,6 @@ import { logger } from "@/lib/logger";
 
 /** 루트 업로드 요청 페이로드 */
 export interface UploadPayload {
-  uuid: string;
   patch_version: string;
   route: Omit<SharedRoute, "route_code" | "stats" | "uploaded_at" | "patch_version" | "uploader_uuid" | "uploader_nickname">;
 }
@@ -306,9 +305,8 @@ async function getAuthHeaders(action: string, bodyString: string): Promise<Recor
 
 /** 루트 업로드 → 6자리 코드 발급 */
 export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> {
-  const { uuid, route } = payload;
+  const { route } = payload;
   const bodyObj = {
-    uuid,
     name: route.name,
     difficulty_tag: route.difficulty_tag,
     difficulty_mode: route.difficulty_mode,
@@ -341,9 +339,8 @@ export async function uploadRoute(payload: UploadPayload): Promise<SharedRoute> 
  * 서버가 uploader_uuid 와 요청 uuid 불일치 시 403(FORBIDDEN) 으로 차단한다.
  */
 export async function updateRoute(code: string, payload: UploadPayload): Promise<SharedRoute> {
-  const { route, uuid } = payload;
+  const { route } = payload;
   const bodyObj = {
-    uuid,
     name: route.name,
     difficulty_tag: route.difficulty_tag,
     difficulty_mode: route.difficulty_mode,
@@ -394,10 +391,16 @@ export async function likeRoute(
   patch: string,
 ): Promise<SharedRoute> {
   const upper = code.toUpperCase();
+  // 추천 주체는 서버가 서명(pubkey)에서 파생하는 uploader_uuid 로 식별한다.
+  // raw device_uuid 는 더 이상 서버로 전송하지 않는다(사칭 시드 유출 방지).
+  const bodyString = JSON.stringify({ patch_version: patch });
+  const headers = await getAuthHeaders("like", bodyString);
   await request(`/api/routes/${encodeURIComponent(upper)}/like`, {
     method: "POST",
-    body: JSON.stringify({ uuid, patch_version: patch }),
+    headers,
+    body: bodyString,
   });
+  // uuid 는 로컬에서 "내가 추천한 코드" 표시용으로만 쓴다(전송 안 함).
   rememberLike(uuid, upper, patch);
   // like 응답은 { success } 뿐이므로 갱신된 통계를 위해 재조회
   return getRouteByCode(upper);

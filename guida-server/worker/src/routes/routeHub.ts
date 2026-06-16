@@ -52,7 +52,6 @@ const ROUTE_SELECT = `
 /** UploadBody 필수 필드 검증 (upload / update 공통). */
 function isValidRouteBody(body: UploadBody): boolean {
   return !(
-    !body.uuid ||
     !body.name ||
     !VALID_DIFFICULTY_TAG.includes(body.difficulty_tag) ||
     !VALID_DIFFICULTY_MODE.includes(body.difficulty_mode) ||
@@ -395,12 +394,25 @@ routeHub.post(
   rateLimit((e) => e.RL_LIKE, '추천은 1분에 최대 15회만 가능합니다.'),
   async (c) => {
     const code = c.req.param('code').toUpperCase();
-    const { uuid, patch_version } = await c.req
-      .json<LikeBody>()
-      .catch(() => ({}) as LikeBody);
-
-    if (!uuid || !patch_version) {
+    const rawBody = await c.req.text();
+    let patch_version: string | undefined;
+    try {
+      ({ patch_version } = JSON.parse(rawBody) as LikeBody);
+    } catch {
       return c.json({ error: '필수 필드가 누락되었습니다.' }, 400);
+    }
+
+    if (!patch_version) {
+      return c.json({ error: '필수 필드가 누락되었습니다.' }, 400);
+    }
+
+    // 추천 주체는 서명에서 파생한 uploader_uuid 로 식별한다. raw device_uuid
+    // 를 받지 않으므로 route_likes 에 사칭 시드(서명 시드)가 적재되지 않는다.
+    let uploaderUuid: string;
+    try {
+      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'like');
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 401);
     }
 
     const pool = getPool(c.env);
@@ -419,7 +431,7 @@ routeHub.post(
           `INSERT INTO route_likes (uuid, route_code, patch_version)
            VALUES ($1, $2, $3)
            ON CONFLICT (uuid, route_code, patch_version) DO NOTHING`,
-          [uuid, code, patch_version],
+          [uploaderUuid, code, patch_version],
         );
 
         if (inserted.rowCount === 0) {

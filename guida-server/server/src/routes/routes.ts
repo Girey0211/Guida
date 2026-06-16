@@ -224,7 +224,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   }, async (req, reply) => {
     const body = req.body ?? ({} as UploadBody);
     const {
-      uuid,
       name,
       difficulty_tag,
       difficulty_mode,
@@ -240,7 +239,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
 
     // 필수 필드 검증
     if (
-      !uuid ||
       !name ||
       !VALID_DIFFICULTY_TAG.includes(difficulty_tag) ||
       !VALID_DIFFICULTY_MODE.includes(difficulty_mode) ||
@@ -341,7 +339,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
       const code = req.params.code.toUpperCase();
       const body = req.body ?? ({} as UploadBody);
       const {
-        uuid,
         name,
         difficulty_tag,
         difficulty_mode,
@@ -357,7 +354,6 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
 
       // 필수 필드 검증 (업로드와 동일 규칙)
       if (
-        !uuid ||
         !name ||
         !VALID_DIFFICULTY_TAG.includes(difficulty_tag) ||
         !VALID_DIFFICULTY_MODE.includes(difficulty_mode) ||
@@ -490,10 +486,19 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
     },
     async (req, reply) => {
       const code = req.params.code.toUpperCase();
-      const { uuid, patch_version } = req.body ?? ({} as LikeBody);
+      const { patch_version } = req.body ?? ({} as LikeBody);
 
-      if (!uuid || !patch_version) {
+      if (!patch_version) {
         return reply.code(400).send({ error: '필수 필드가 누락되었습니다.' });
+      }
+
+      // 추천 주체는 서명에서 파생한 uploader_uuid 로 식별한다. raw device_uuid
+      // 를 받지 않으므로 route_likes 에 사칭 시드(서명 시드)가 적재되지 않는다.
+      let uploaderUuid: string;
+      try {
+        uploaderUuid = verifyRequestSignature(req, 'like');
+      } catch (err) {
+        return reply.code(401).send({ error: (err as Error).message });
       }
 
       // 루트 존재 확인
@@ -514,7 +519,7 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
           `INSERT INTO route_likes (uuid, route_code, patch_version)
            VALUES ($1, $2, $3)
            ON CONFLICT (uuid, route_code, patch_version) DO NOTHING`,
-          [uuid, code, patch_version],
+          [uploaderUuid, code, patch_version],
         );
 
         if (inserted.rowCount === 0) {
