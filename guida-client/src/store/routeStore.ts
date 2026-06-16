@@ -39,6 +39,8 @@ interface RouteState {
   shareRoute: (localId: string) => Promise<string>;
   /** 가져온 루트 서버 버전 동기화 */
   syncRoute: (localId: string) => Promise<void>;
+  /** 공유 허브의 공유 루트 삭제 */
+  deleteSharedRoute: (code: string) => Promise<void>;
 
   /** 허브 전체 루트 로드 */
   loadHub: () => Promise<void>;
@@ -279,6 +281,23 @@ export const useRouteStore = create<RouteState>((set, get) => ({
             verified_method: shared.verified_method,
           }
         : r,
+    );
+    set({ myRoutes: next });
+    await persist(next);
+  },
+
+  deleteSharedRoute: async (code) => {
+    // 1. 서버에서 루트 삭제
+    await routesApi.deleteRoute(code);
+
+    // 2. 허브 로컬 캐시 목록에서 제거
+    set({
+      hubRoutes: get().hubRoutes.filter((r) => r.route_code !== code),
+    });
+
+    // 3. 내 로컬 루트 중 이 코드를 가진 경우 shared_code 지우기
+    const next = get().myRoutes.map((r) =>
+      r.shared_code === code ? { ...r, shared_code: undefined } : r
     );
     set({ myRoutes: next });
     await persist(next);

@@ -437,6 +437,42 @@ export default async function routeHubRoutes(fastify: FastifyInstance) {
   );
 
   // ──────────────────────────────────────────────
+  // DELETE /api/routes/:code — 루트 삭제 (작성자 UUID 일치 시에만 허용)
+  // ──────────────────────────────────────────────
+  fastify.delete<{ Params: { code: string } }>(
+    '/api/routes/:code',
+    async (req, reply) => {
+      const code = req.params.code.toUpperCase();
+
+      let uploaderUuid: string;
+      try {
+        uploaderUuid = verifyRequestSignature(req, 'delete');
+      } catch (err) {
+        return reply.code(401).send({ error: (err as Error).message });
+      }
+
+      // 루트 존재 + 작성자 확인
+      const { rows: owner } = await fastify.pg.query<{ uploader_uuid: string }>(
+        `SELECT uploader_uuid FROM routes WHERE route_code = $1`,
+        [code],
+      );
+      if (!owner[0]) {
+        return reply.code(404).send({ error: '루트를 찾을 수 없습니다.' });
+      }
+      if (owner[0].uploader_uuid !== uploaderUuid) {
+        return reply.code(403).send({ error: '본인이 업로드한 루트만 삭제할 수 있습니다.' });
+      }
+
+      await fastify.pg.query(
+        `DELETE FROM routes WHERE route_code = $1`,
+        [code],
+      );
+
+      return { success: true };
+    },
+  );
+
+  // ──────────────────────────────────────────────
   // POST /api/routes/:code/like — 추천 (패치 버전당 UUID 1회)
   // ──────────────────────────────────────────────
   fastify.post<{ Params: { code: string }; Body: LikeBody }>(

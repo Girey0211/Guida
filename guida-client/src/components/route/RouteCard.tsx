@@ -1,4 +1,4 @@
-import { ThumbsUp, Play, Download, Layers, ShieldCheck, User } from "lucide-react";
+import { ThumbsUp, Play, Download, Layers, ShieldCheck, User, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { SharedRoute } from "@/types/route";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,10 @@ interface Props {
   onImport: (code: string) => void;
   likeBusy?: boolean;
   buttonsOnNewLine?: boolean;
+  onShowProfile?: (uuid: string) => void;
+  onDelete?: (code: string) => void;
+  deleteBusy?: boolean;
+  hideUploader?: boolean;
 }
 
 /** 탐색 화면의 루트 카드 */
@@ -32,6 +36,10 @@ export function RouteCard({
   onImport,
   likeBusy,
   buttonsOnNewLine,
+  onShowProfile,
+  onDelete,
+  deleteBusy,
+  hideUploader,
 }: Props) {
   const navigate = useNavigate();
 
@@ -54,11 +62,15 @@ export function RouteCard({
               검증
             </Badge>
           )}
-          {route.uploader_nickname && (
+          {!hideUploader && route.uploader_nickname && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/user/${route.uploader_uuid}`);
+                if (onShowProfile) {
+                  onShowProfile(route.uploader_uuid);
+                } else {
+                  navigate(`/user/${route.uploader_uuid}`);
+                }
               }}
               className="ml-auto flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors cursor-pointer bg-transparent border-0 p-0"
               title="작성자 프로필 보기"
@@ -98,7 +110,20 @@ export function RouteCard({
                 {route.route_code}
               </code>
             </div>
-            <div className="flex gap-1.5 justify-end">
+            <div className="flex items-center gap-1.5 justify-end">
+              {onDelete && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={deleteBusy}
+                  onClick={() => onDelete(route.route_code)}
+                  title="공유 중지 (서버에서 삭제)"
+                  className="mr-auto gap-1.5"
+                >
+                  <Trash2 className="size-3.5" />
+                  공유 삭제
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant={liked ? "secondary" : "outline"}
@@ -136,7 +161,20 @@ export function RouteCard({
                 {route.route_code}
               </code>
             </div>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5 items-center">
+              {onDelete && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={deleteBusy}
+                  onClick={() => onDelete(route.route_code)}
+                  title="공유 중지 (서버에서 삭제)"
+                  className="mr-2"
+                >
+                  <Trash2 className="size-3.5" />
+                  공유 삭제
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant={liked ? "secondary" : "outline"}

@@ -347,6 +347,47 @@ routeHub.put(
 );
 
 // ──────────────────────────────────────────────
+// DELETE /api/routes/:code — 루트 삭제 (작성자 UUID 일치 시에만 허용)
+// ──────────────────────────────────────────────
+routeHub.delete(
+  '/api/routes/:code',
+  async (c) => {
+    const code = c.req.param('code').toUpperCase();
+    const rawBody = await c.req.text();
+
+    let uploaderUuid: string;
+    try {
+      uploaderUuid = await verifyRequestSignature(sigHeaders(c), rawBody, 'delete');
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 401);
+    }
+
+    const pool = getPool(c.env);
+    try {
+      const owner = await pool.query<{ uploader_uuid: string }>(
+        `SELECT uploader_uuid FROM routes WHERE route_code = $1`,
+        [code],
+      );
+      if (!owner.rows[0]) {
+        return c.json({ error: '루트를 찾을 수 없습니다.' }, 404);
+      }
+      if (owner.rows[0].uploader_uuid !== uploaderUuid) {
+        return c.json({ error: '본인이 업로드한 루트만 삭제할 수 있습니다.' }, 403);
+      }
+
+      await pool.query(
+        `DELETE FROM routes WHERE route_code = $1`,
+        [code],
+      );
+
+      return c.json({ success: true });
+    } finally {
+      c.executionCtx.waitUntil(pool.end());
+    }
+  },
+);
+
+// ──────────────────────────────────────────────
 // POST /api/routes/:code/like — 추천 (패치 버전당 UUID 1회)
 // ──────────────────────────────────────────────
 routeHub.post(

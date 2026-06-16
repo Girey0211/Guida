@@ -75,3 +75,8 @@ export function updateUserProfile(nickname: string, description: string) {
   return withServer(() => server.updateUserProfile(nickname, description));
 }
 
+/** 기존 공유 루트 삭제 (작성자 본인만, 서버가 uuid 검증) */
+export function deleteRoute(code: string): Promise<void> {
+  return withServer(() => server.deleteRoute(code));
+}
+

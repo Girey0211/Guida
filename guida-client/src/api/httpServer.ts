@@ -498,3 +498,15 @@ export async function updateUserProfile(nickname: string, description: string): 
   );
 }
 
+/** 기존 공유 루트 삭제 (작성자 본인만 가능) */
+export async function deleteRoute(code: string): Promise<void> {
+  const headers = await getAuthHeaders("delete", "");
+  await request<void>(
+    `/api/routes/${encodeURIComponent(code.toUpperCase())}`,
+    {
+      method: "DELETE",
+      headers,
+    },
+  );
+}
+

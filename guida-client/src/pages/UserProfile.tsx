@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, ThumbsUp, Map, Copy, Check, Edit3, Save, X, Loader2 } from "lucide-react";
+import { ArrowLeft, User, ThumbsUp, Map, Copy, Check, Edit3, Save, X, Loader2, Trash2 } from "lucide-react";
+import type { SharedRoute } from "@/types/route";
 import { useAppStore } from "@/store/appStore";
 import { useRouteStore } from "@/store/routeStore";
 import { getMyProfile, getUserProfile, updateUserProfile, likedCodes, ApiError } from "@/api/routes";
@@ -10,12 +11,20 @@ import { routeStats } from "@/hooks/useRouteFilter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/toast";
 import { ServerUnavailableError } from "@/api/client";
 
-export function UserProfile() {
-  const { uuid: routeUuid } = useParams<{ uuid: string }>();
+interface UserProfileProps {
+  uuid?: string;
+  onClose?: () => void;
+  isTab?: boolean;
+  onShowProfile?: (uuid: string) => void;
+}
+
+export function UserProfile({ uuid: propUuid, onClose, isTab = false, onShowProfile }: UserProfileProps = {}) {
+  const { uuid: paramUuid } = useParams<{ uuid: string }>();
+  const routeUuid = propUuid || paramUuid;
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);
@@ -33,9 +42,13 @@ export function UserProfile() {
   const [likeBusy, setLikeBusy] = useState<string | null>(null);
   const [copiedUuid, setCopiedUuid] = useState(false);
 
-  const { myRoutes, likeHubRoute, importByCode, loadMyRoutes } = useRouteStore();
+  const { myRoutes, likeHubRoute, importByCode, loadMyRoutes, deleteSharedRoute } = useRouteStore();
   const { uuid: deviceUuid, settings } = useAppStore();
   const currentPatch = settings.current_patch;
+
+  // Delete Shared Route State
+  const [deletingCode, setDeletingCode] = useState<string | null>(null);
+  const [routeToDelete, setRouteToDelete] = useState<SharedRoute | null>(null);
 
   useEffect(() => {
     void loadMyRoutes();
@@ -186,22 +199,24 @@ export function UserProfile() {
     return (
       <div className="mx-auto max-w-xl p-6 text-center">
         <p className="mb-4 text-sm text-destructive">{error || "프로필을 불러오지 못했습니다."}</p>
-        <Button onClick={() => navigate(-1)} variant="outline">
+        <Button onClick={onClose || (() => navigate(-1))} variant="outline">
           <ArrowLeft className="mr-2 size-4" />
-          뒤로 가기
+          {onClose ? "닫기" : "뒤로 가기"}
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
+    <div className="mx-auto max-w-5xl p-6">
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} title="뒤로 가기">
-          <ArrowLeft className="size-5" />
-        </Button>
-        <h2 className="text-xl font-bold">유저 프로필</h2>
+        {!isTab && (
+          <Button variant="ghost" size="icon" onClick={onClose || (() => navigate(-1))} title={onClose ? "닫기" : "뒤로 가기"}>
+            <ArrowLeft className="size-5" />
+          </Button>
+        )}
+        <h2 className="text-xl font-bold">{routeUuid === "me" ? "내 프로필" : "유저 프로필"}</h2>
       </div>
 
       <div className="grid gap-6 md:grid-cols-[300px_1fr]">
@@ -336,6 +351,10 @@ export function UserProfile() {
                     onLike={handleLike}
                     onImport={handleImport}
                     buttonsOnNewLine={true}
+                    onShowProfile={onShowProfile}
+                    onDelete={isMe ? () => setRouteToDelete(route) : undefined}
+                    deleteBusy={deletingCode === route.route_code}
+                    hideUploader={true}
                   />
                 );
               })}
@@ -343,6 +362,62 @@ export function UserProfile() {
           )}
         </div>
       </div>
+
+      {/* 공유 루트 삭제 확인 모달 */}
+      {routeToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-md border border-border bg-card/95 shadow-xl animate-in fade-in zoom-in-95 duration-150">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-destructive text-base">
+                <Trash2 className="size-5" /> 공유 루트 삭제 확인
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-foreground">
+                <span className="font-semibold text-primary">'{routeToDelete.name}'</span> 루트를 정말로 공유 허브에서 삭제하시겠습니까?
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                이 작업은 되돌릴 수 없으며, 서버에 공개된 이 루트가 영구적으로 삭제됩니다. (추천 및 플레이수 통계도 삭제됩니다)
+              </p>
+              <div className="flex gap-2 justify-end pt-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setRouteToDelete(null)}
+                  className="px-4 text-xs h-9"
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    const code = routeToDelete.route_code;
+                    setRouteToDelete(null);
+                    setDeletingCode(code);
+                    try {
+                      await deleteSharedRoute(code);
+                      toast.success("공유 루트를 삭제했습니다.");
+                      if (profile) {
+                        setProfile({
+                          ...profile,
+                          routes: profile.routes.filter((r) => r.route_code !== code),
+                        });
+                      }
+                    } catch (e) {
+                      toast.error("공유 루트 삭제 중 오류가 발생했습니다.");
+                    } finally {
+                      setDeletingCode(null);
+                    }
+                  }}
+                  className="px-4 gap-1.5 text-xs h-9"
+                >
+                  <Trash2 className="size-3.5" />
+                  삭제
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

@@ -14,8 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
 
+interface RouteHubProps {
+  onShowProfile: (uuid: string) => void;
+}
+
 /** 루트 공유 허브 (탐색) 페이지 */
-export function RouteHub() {
+export function RouteHub({ onShowProfile }: RouteHubProps) {
   const { uuid, settings } = useAppStore();
   const { hubRoutes, myRoutes, loadingHub, hubError, loadHub, loadMyRoutes, likeHubRoute, importByCode } =
     useRouteStore();
@@ -146,6 +150,7 @@ export function RouteHub() {
                     likeBusy={likeBusy === route.route_code}
                     onLike={handleLike}
                     onImport={handleImport}
+                    onShowProfile={onShowProfile}
                   />
                 );
               })}

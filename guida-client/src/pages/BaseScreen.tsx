@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import { MyRoutes } from "@/pages/MyRoutes";
 import { RouteHub } from "@/pages/RouteHub";
 import { Settings } from "@/pages/Settings";
+import { UserProfile } from "@/pages/UserProfile";
 
-type TabId = "routes" | "hub" | "settings";
+type TabId = "routes" | "hub" | "profile" | "settings";
 
 const TABS: { id: TabId; label: string; icon: typeof FolderHeart }[] = [
   { id: "routes", label: "내 루트", icon: FolderHeart },
   { id: "hub", label: "루트 탐색", icon: Map },
+  { id: "profile", label: "내 프로필", icon: User },
   { id: "settings", label: "설정", icon: SettingsIcon },
 ];
 
@@ -26,6 +28,7 @@ const TABS: { id: TabId; label: string; icon: typeof FolderHeart }[] = [
 export function BaseScreen() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabId>("routes");
+  const [activeProfileUuid, setActiveProfileUuid] = useState<string | null>(null);
   const { patch, online } = useAppStore();
   const sessionActive = usePlayStore((s) => s.sessionId != null);
   const { showOverlay, hideOverlay, setOverlayClickThrough, isDesktop } = useOverlayControl();
@@ -167,48 +170,43 @@ export function BaseScreen() {
 
       {/* 탭 네비게이션 */}
       <nav className="z-10 flex shrink-0 gap-1 border-b border-border bg-brand/40 backdrop-blur-md px-3">
-        {TABS.map(({ id, label, icon: Icon }) => {
-          const tabButton = (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={cn(
-                "flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
-                tab === id
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <Icon className="size-4" />
-              {label}
-            </button>
-          );
-
-          if (id === "hub") {
-            return (
-              <div key="hub-group" className="flex gap-1">
-                {tabButton}
-                <button
-                  onClick={() => navigate("/user/me")}
-                  className="flex items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <User className="size-4" />
-                  내 프로필
-                </button>
-              </div>
-            );
-          }
-
-          return tabButton;
-        })}
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={cn(
+              "flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+              tab === id
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground transition-colors",
+            )}
+          >
+            <Icon className="size-4" />
+            {label}
+          </button>
+        ))}
       </nav>
 
       {/* 탭 콘텐츠 */}
       <main className="z-10 flex-1 overflow-y-auto">
         {tab === "routes" && <MyRoutes />}
-        {tab === "hub" && <RouteHub />}
+        {tab === "hub" && <RouteHub onShowProfile={setActiveProfileUuid} />}
+        {tab === "profile" && <UserProfile uuid="me" isTab={true} onShowProfile={setActiveProfileUuid} />}
         {tab === "settings" && <Settings />}
       </main>
+
+      {/* 타인 프로필 모달 팝업 */}
+      {activeProfileUuid && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto border border-border bg-background/95 backdrop-blur-md rounded-xl shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
+            <UserProfile
+              uuid={activeProfileUuid}
+              onClose={() => setActiveProfileUuid(null)}
+              onShowProfile={setActiveProfileUuid}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
