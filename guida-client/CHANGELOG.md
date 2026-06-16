@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.4] - 2026-06-16
+
+### Added
+
+- Sybil IP 기반 좋아요 락 기능 추가
+- Revocation/이관 API 추가
+
+### Fixed
+
+- Revocation 추가에 따른 대규모 구조 변경
+
 ## [0.3.3] - 2026-06-16
 
 ### Added
