@@ -19,7 +19,9 @@ app.use(
       'Content-Type',
       'x-guida-pubkey',
       'x-guida-timestamp',
+      'x-guida-nonce',
       'x-guida-signature',
+      'x-guida-new-signature',
     ],
   }),
 );
