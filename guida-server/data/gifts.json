@@ -4110,7 +4110,8 @@
     "added_patch": null,
     "tags": [
       "충전",
-      "조건"
+      "키워드부여",
+      "피해량증가"
     ]
   },
   {
@@ -4139,7 +4140,8 @@
     "source_category": "기본_7키워드",
     "added_patch": null,
     "tags": [
-      "충전"
+      "충전",
+      "키워드부여"
     ]
   },
   {
@@ -5229,7 +5231,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -5339,7 +5342,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -5394,7 +5398,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -5587,7 +5592,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -5614,7 +5620,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -5727,7 +5734,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -5754,7 +5762,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -5863,7 +5872,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -6169,7 +6179,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -6298,7 +6309,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -6353,7 +6365,9 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "추가피해",
+      "디버프"
     ]
   },
   {
@@ -6380,7 +6394,8 @@
     "source_category": "참관타_범용",
     "added_patch": null,
     "tags": [
-      "범용"
+      "범용",
+      "코스트"
     ]
   },
   {
@@ -13409,7 +13424,8 @@
     "added_patch": null,
     "tags": [
       "범용",
-      "피해량증가"
+      "피해량증가",
+      "코스트"
     ]
   },
   {
