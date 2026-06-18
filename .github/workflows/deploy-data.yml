@@ -1,0 +1,91 @@
+name: Deploy Data to Cloudflare Pages
+
+# guida-server/data 의 게임 데이터·이미지와 Phase 2 인식 인덱스를 cdn.girey.org(Pages)로
+# 배포한다. 빌드 산출물(phash_index.json·manifest.json)은 git 에 두지 않고 여기서 생성한다.
+#
+# 흐름:
+#   1) Rust 로 phash_index.json 생성 (matching-core build_phash_index)
+#   2) Node 로 manifest.json 생성 (generate-manifest.mjs — phash_index 포함 + 이미지 해시)
+#   3) wrangler pages deploy 로 guida-server/data 를 Pages 프로젝트에 Direct Upload
+#
+# 클라이언트 경로 규약(이미 .env 에 설정됨):
+#   VITE_DATA_BASE_URL = https://cdn.girey.org          → manifest.json·*.json 루트
+#   VITE_IMAGE_CDN_URL = https://cdn.girey.org/images   → images/<key>.webp (소스 폴더와 동일)
+#   따라서 guida-server/data 를 그대로 Pages 루트로 올리면 경로가 맞는다(변환 불필요).
+#
+# ── 사전 준비 (Settings → Secrets and variables → Actions) ───────────────────
+#   Secrets:
+#     CLOUDFLARE_API_TOKEN   : Pages 편집 권한 토큰 (Account › Cloudflare Pages › Edit)
+#     CLOUDFLARE_ACCOUNT_ID  : Cloudflare 계정 ID
+#   Variables:
+#     CF_PAGES_PROJECT       : cdn.girey.org 에 연결된 Pages 프로젝트 이름
+# ────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'guida-server/data/**'
+      - 'guida-server/scripts/generate-manifest.mjs'
+      - 'guida-client/matching-core/**'
+      - '.github/workflows/deploy-data.yml'
+  workflow_dispatch:
+
+# 데이터 배포는 1개만 동시에. 중간 푸시는 최신만 반영.
+concurrency:
+  group: deploy-data
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust (matching-core)
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './guida-client/matching-core -> target'
+
+      # 1) phash_index.json 생성 (SSOT 해시). 인자: gifts / images / out / patch_version
+      - name: Build phash_index.json
+        run: >
+          cargo run --release
+          --manifest-path guida-client/matching-core/Cargo.toml
+          --bin build_phash_index --
+          guida-server/data/gifts.json
+          guida-server/data/images
+          guida-server/data/phash_index.json
+          guida-server/data/patch_version.json
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 2) manifest.json 생성 (generate-manifest 는 node 내장 모듈만 사용 → npm install 불필요)
+      - name: Generate manifest.json
+        run: node guida-server/scripts/generate-manifest.mjs
+
+      # 산출 확인 (배포 전 가드)
+      - name: Verify build outputs
+        run: |
+          test -f guida-server/data/phash_index.json || { echo "phash_index.json 없음"; exit 1; }
+          test -f guida-server/data/manifest.json   || { echo "manifest.json 없음"; exit 1; }
+          echo "phash_index: $(wc -c < guida-server/data/phash_index.json) bytes"
+          echo "manifest:    $(wc -c < guida-server/data/manifest.json) bytes"
+
+      # 3) Cloudflare Pages 로 Direct Upload (guida-server/data 가 사이트 루트)
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >
+            pages deploy guida-server/data
+            --project-name=${{ vars.CF_PAGES_PROJECT }}
+            --branch=main
