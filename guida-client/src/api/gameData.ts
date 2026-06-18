@@ -1,15 +1,20 @@
 /**
- * 게임 데이터 동기화 API.
+ * 게임 데이터 동기화 API (phase2 dev plan §3·§7 S1).
  *
- * 동작 (README 데이터 흐름도 7.1):
- *  1. CDN(여기서는 public/data, 추후 GitHub Raw → Cloudflare)에서 최신
- *     game_data.json + patch_version.json + dungeon_meta.json 을 가져온다.
- *  2. 성공 시 로컬에 캐시한다.
- *  3. 서버 다운/오프라인 시 마지막 로컬 캐시본으로 100% 동작한다.
+ * 동작:
+ *  1. patch_version.json 을 받아 패치 라벨/최소 앱 버전(업데이트 게이트)을 확정한다.
+ *     (이 파일은 콘텐츠 해시 매니페스트 밖의 작은 신호라 매번 받는다.)
+ *  2. CDN `manifest.json` 만 받아(ETag/304) `manifest.local.json` 과 항목별 해시를
+ *     diff 하고, 변경된 JSON 만 다운로드 → 콘텐츠 해시 무결성 검증 후 캐시에 반영한다.
+ *  3. 검증·적용이 끝나면 `manifest.local.json` 을 새 매니페스트로 교체한다.
+ *  4. 어느 단계든 네트워크 실패 시 마지막 캐시 + 로컬 매니페스트로 100% 동작한다.
  *
- * dungeon_meta.json 은 시즌 메타(시작 기프트 / 가호 / EXTREME 제약)로,
- * 패치마다 바뀌지 않고 시즌 교체 시에만 갱신되지만(README §8.5) 로딩/캐시
- * 흐름은 동일하게 다룬다. 없으면 null 로 폴백(루트 작성기에서 선택지 비표시).
+ * 매니페스트 적용 실패(검증 실패/부분 전송)는 비치명적이다 — 이번 회차만 롤백하고
+ * 기존 캐시로 계속 동작하며 다음 트리거에 재시도한다(phase2 dev plan §6).
+ *
+ * dungeon_meta.json 은 시즌 메타(시작 기프트 / 가호 / EXTREME 제약)로, 패치마다
+ * 바뀌지 않고 시즌 교체 시에만 갱신되지만(README §8.5) 매니페스트 diff 로 동일하게
+ * 다룬다. 없으면 null 로 폴백(루트 작성기에서 선택지 비표시).
  */
 
 import type {
@@ -21,12 +26,17 @@ import type {
   PatchInfo,
   Sinner,
 } from "@/types/gameData";
-import { readJson, writeJson } from "@/lib/storage";
+import { readJson, writeFile, writeJson } from "@/lib/storage";
 import { logger } from "@/lib/logger";
-
-/** 추후 GitHub Raw / Cloudflare 로 교체될 데이터 베이스 경로 */
-const DATA_BASE =
-  (import.meta.env.VITE_DATA_BASE_URL as string | undefined) ?? "/data";
+import {
+  DATA_BASE,
+  diffDataFiles,
+  downloadAndVerify,
+  fetchRemoteManifest,
+  loadLocalManifest,
+  saveLocalManifest,
+} from "@/api/manifestSync";
+import { runOrphanImageGc } from "@/api/imageCache";
 
 const GAME_DATA_CACHE = "game_data.cache.json";
 const PATCH_CACHE = "patch_version.cache.json";
@@ -35,6 +45,22 @@ const GIFTS_CACHE = "gifts.cache.json";
 const PACKS_CACHE = "packs.cache.json";
 const DEPENDENCIES_CACHE = "dependencies.cache.json";
 const PRISONERS_CACHE = "prisoners.cache.json";
+
+/** 매니페스트 data 파일명 → 로컬 캐시 파일명. */
+const CACHE_NAME: Record<string, string> = {
+  "gifts.json": GIFTS_CACHE,
+  "packs.json": PACKS_CACHE,
+  "dependencies.json": DEPENDENCIES_CACHE,
+  "dungeon_meta.json": DUNGEON_META_CACHE,
+  "prisoners.json": PRISONERS_CACHE,
+  "events.json": "events.cache.json",
+  "phash_index.json": "phash_index.cache.json",
+};
+
+/** 매니페스트 data 파일의 로컬 캐시 파일명을 해석한다(미지정 파일은 원래 이름). */
+function cacheNameFor(file: string): string {
+  return CACHE_NAME[file] ?? file;
+}
 
 async function fetchJson<T>(path: string): Promise<T> {
   const startTime = Date.now();
@@ -130,46 +156,92 @@ export interface SyncResult {
 }
 
 /**
- * 게임 데이터와 패치 정보, 시즌 메타, 기프트/팩 카탈로그를 동기화한다 (README §8.5).
- * 네트워크 실패 시 캐시 폴백, 핵심 데이터(게임 데이터/패치) 캐시도 없으면 throw.
- * 시즌 메타·카탈로그는 부가 데이터라 개별 실패 시 비어도 앱은 동작한다.
+ * 메모리에 올릴 게임 데이터 묶음을 로컬 캐시에서 조립한다.
+ * 매니페스트 diff 로 방금 갱신된 파일은 새 내용이, 나머지는 기존 캐시가 읽힌다.
+ */
+async function assembleFromCache(
+  patch: PatchInfo,
+  gameData: GameData | null,
+  fromNetwork: boolean,
+): Promise<SyncResult> {
+  const [gifts, packs, dependencies, dungeonMeta, prisoners] = await Promise.all([
+    readJson<Gift[]>(GIFTS_CACHE, []),
+    readJson<Pack[]>(PACKS_CACHE, []),
+    readJson<GiftDependency[]>(DEPENDENCIES_CACHE, []),
+    readJson<DungeonMeta | null>(DUNGEON_META_CACHE, null),
+    readJson<Sinner[]>(PRISONERS_CACHE, []),
+  ]);
+  return { gameData, patch, dungeonMeta, gifts, packs, dependencies, prisoners, fromNetwork };
+}
+
+/**
+ * 매니페스트 한 회차를 적용한다(checking → diff → downloading → applying).
+ * 실패는 throw 하여 호출자가 이번 회차만 롤백하도록 한다(기존 캐시·매니페스트 유지).
+ */
+async function applyManifestSync(): Promise<void> {
+  const local = await loadLocalManifest();
+  const mf = await fetchRemoteManifest(local?.etag ?? null);
+  if (mf.status === "not-modified") return; // 변경 없음 — 본문 전송 0
+
+  const changed = diffDataFiles(local?.manifest ?? null, mf.manifest);
+
+  // 변경된 data 파일이 있으면 모두 다운로드·검증한 뒤에야 일괄 반영(부분 적용 방지).
+  // (이미지만 바뀐 패치는 changed 가 비어도 매니페스트 자체는 갱신·적용된다.)
+  if (changed.length > 0) {
+    const downloaded = await Promise.all(
+      changed.map(async (file) => ({
+        name: cacheNameFor(file),
+        text: await downloadAndVerify(file, mf.manifest.data[file].hash),
+      })),
+    );
+    await Promise.all(downloaded.map((d) => writeFile(d.name, d.text)));
+  }
+
+  // applying: 매니페스트 교체가 성공해야 "적용됨"으로 간주.
+  await saveLocalManifest(mf.manifest, mf.etag);
+  if (changed.length > 0) {
+    await logger.info("Sync", `Data sync applied: ${changed.length} file(s)`, { changed });
+  }
+
+  // orphan GC: 적용 성공 이후로만 게이팅(중단 시 캐시 무손상). 실패는 비치명적.
+  await runOrphanImageGc(mf.manifest);
+}
+
+/**
+ * 게임 데이터와 패치 정보, 시즌 메타, 기프트/팩 카탈로그를 동기화한다.
+ * 네트워크 실패 시 캐시 폴백, 패치 캐시도 없으면 throw.
  */
 export async function syncGameData(): Promise<SyncResult> {
+  // 1. 패치/게임데이터(매니페스트 밖, 작은 신호) — 이 fetch 실패는 곧 오프라인 신호.
+  let patch: PatchInfo;
+  let gameData: GameData | null;
   try {
-    const [gameData, patch, dungeonMeta, gifts, packs, dependencies, prisoners] = await Promise.all([
+    [patch, gameData] = await Promise.all([
+      fetchJson<PatchInfo>("patch_version.json"),
       // 이벤트/선택지 가이드 데이터는 아직 미배포 → 없으면 null 로 폴백 (앱 부팅 비차단)
       fetchOptional<GameData | null>("game_data.json", null),
-      fetchJson<PatchInfo>("patch_version.json"),
-      fetchOptional<DungeonMeta | null>("dungeon_meta.json", null),
-      fetchOptional<Gift[]>("gifts.json", []),
-      fetchOptional<Pack[]>("packs.json", []),
-      fetchOptional<GiftDependency[]>("dependencies.json", []),
-      fetchOptional<Sinner[]>("prisoners.json", []),
     ]);
-    // 캐시 갱신
-    await Promise.all([
-      gameData ? writeJson(GAME_DATA_CACHE, gameData) : Promise.resolve(),
-      writeJson(PATCH_CACHE, patch),
-      dungeonMeta ? writeJson(DUNGEON_META_CACHE, dungeonMeta) : Promise.resolve(),
-      writeJson(GIFTS_CACHE, gifts),
-      writeJson(PACKS_CACHE, packs),
-      writeJson(DEPENDENCIES_CACHE, dependencies),
-      writeJson(PRISONERS_CACHE, prisoners),
-    ]);
-    return { gameData, patch, dungeonMeta, gifts, packs, dependencies, prisoners, fromNetwork: true };
   } catch (err) {
     await logger.warn("CDN", "Network synchronization failed - attempting local cache fallback", err);
-    const gameData = await readJson<GameData | null>(GAME_DATA_CACHE, null);
-    const patch = await readJson<PatchInfo | null>(PATCH_CACHE, null);
-    const dungeonMeta = await readJson<DungeonMeta | null>(DUNGEON_META_CACHE, null);
-    const gifts = await readJson<Gift[]>(GIFTS_CACHE, []);
-    const packs = await readJson<Pack[]>(PACKS_CACHE, []);
-    const dependencies = await readJson<GiftDependency[]>(DEPENDENCIES_CACHE, []);
-    const prisoners = await readJson<Sinner[]>(PRISONERS_CACHE, []);
-    // 패치 정보만 있으면 부팅 가능 (gameData 는 선택적)
-    if (patch) {
-      return { gameData, patch, dungeonMeta, gifts, packs, dependencies, prisoners, fromNetwork: false };
+    const cachedPatch = await readJson<PatchInfo | null>(PATCH_CACHE, null);
+    if (!cachedPatch) {
+      throw new Error("게임 데이터를 불러올 수 없습니다 (네트워크 실패 + 캐시 없음).");
     }
-    throw new Error("게임 데이터를 불러올 수 없습니다 (네트워크 실패 + 캐시 없음).");
+    const cachedGameData = await readJson<GameData | null>(GAME_DATA_CACHE, null);
+    return assembleFromCache(cachedPatch, cachedGameData, false);
   }
+
+  // 여기까지 왔으면 네트워크 정상. patch/gameData 캐시 갱신.
+  await writeJson(PATCH_CACHE, patch);
+  if (gameData) await writeJson(GAME_DATA_CACHE, gameData);
+
+  // 2. 매니페스트 동기화 — 적용 실패는 비치명적(이번 회차만 롤백, 기존 캐시 유지).
+  try {
+    await applyManifestSync();
+  } catch (err) {
+    await logger.warn("Sync", "Manifest application failed — rolled back this round, keeping caches", err);
+  }
+
+  // 3. (방금 갱신된 + 기존) 캐시로 메모리 데이터 조립.
+  return assembleFromCache(patch, gameData, true);
 }
