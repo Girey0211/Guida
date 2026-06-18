@@ -1,0 +1,1829 @@
+{
+  "schema_version": "1.0",
+  "patch_version": "1.107.0",
+  "generated_at": "2026-06-18T04:32:50.510Z",
+  "data": {
+    "gifts.json": {
+      "hash": "sha256:4e0fafecdf9937a6ce16b3391f852498657f03e4c74ecda12e644aaf1c3f09bc",
+      "size": 575745
+    },
+    "packs.json": {
+      "hash": "sha256:3818260012e8f03f49f3b44062061d7755ebd0843258444904e9796aa3ac6ec5",
+      "size": 417774
+    },
+    "events.json": {
+      "hash": "sha256:37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "dependencies.json": {
+      "hash": "sha256:35446fb8c0796de1f99193f6dcc05c393c2240384ea18506e8feb8eed8d5e37d",
+      "size": 6046
+    },
+    "dungeon_meta.json": {
+      "hash": "sha256:f11d4e7908b7d599c18a7dfe76c80b3b23510b9650ebdb9c3e868f92f01e4288",
+      "size": 14274
+    },
+    "prisoners.json": {
+      "hash": "sha256:b6713da3cb9e68111cf43e0b078e30683525c061c5c2024c380794a008a1b58b",
+      "size": 242753
+    }
+  },
+  "images": {
+    "gift_1B_타입_팔각_볼트": {
+      "hash": "sha256:ca245c699b52c14cc3d2cf6037028e1791c7a10620df8dab977de1f318362e4f",
+      "size": 3170
+    },
+    "gift_C형_정리_요원_장비_세트": {
+      "hash": "sha256:20c8cd7844a753c7a65d0f5e7cca504e666e9453981b23217095dd936bb8aac3",
+      "size": 4264
+    },
+    "gift_E식_차원_단검": {
+      "hash": "sha256:da63adc6465aca45f1d096135a6b91a5c1962014a810db769ffce7147f1c32f1",
+      "size": 3008
+    },
+    "gift_W사_보급_모자": {
+      "hash": "sha256:a509b620dda207d6910f474392096a3a163710212e4b6f3a3e9eacdb8f6aa451",
+      "size": 2426
+    },
+    "gift_가능성": {
+      "hash": "sha256:64bcc7fbf172c724913be5052d5601e458a43c48eccdeaef1bdeaf8b8e056ee1",
+      "size": 5882
+    },
+    "gift_가시_올가미": {
+      "hash": "sha256:87c58b43bfe72063fa4ddbf48813745504452fd1edf065050d16bb8d68bda612",
+      "size": 5112
+    },
+    "gift_가시_전투화": {
+      "hash": "sha256:ddc36230ec8d2d83b1c43075a0ad3812e93d9c60856a2e7687bd887a8204eab9",
+      "size": 4604
+    },
+    "gift_가시나무_관": {
+      "hash": "sha256:6d316fb4520253def21367add37dcb8e5eabab4408823a0b805de7681578b103",
+      "size": 3612
+    },
+    "gift_가시밭길": {
+      "hash": "sha256:493e860ba55e2ab72e4d98f5e41cbdf69f3f98a2fcca752dfd7a5770bebe8d90",
+      "size": 5996
+    },
+    "gift_가시오랏줄": {
+      "hash": "sha256:df629200f8b0825312bd6048504cec8f3b4c00d352968810c1bf94ee6a00527e",
+      "size": 6334
+    },
+    "gift_가장_낮은_별": {
+      "hash": "sha256:bcaff8ef24625453bf22e1e54b80b4b2ce8cf1a1ff68739567326b54213828e0",
+      "size": 4992
+    },
+    "gift_가족의_원망": {
+      "hash": "sha256:3da071ec657f34458404a6ef93d6b13d64bd67bcd7f8c444a407718e93556a00",
+      "size": 5016
+    },
+    "gift_가치처분": {
+      "hash": "sha256:b2ce8eae5c11c184ca95d393131ff7a9cc385ea6af4624d02334962ae56a1ef9",
+      "size": 5020
+    },
+    "gift_갇힌_구더기": {
+      "hash": "sha256:3e809c0e05049ed93770ebd41242041dfc4eda01b24776f95532741b5d48dbc7",
+      "size": 4562
+    },
+    "gift_감합된_톱니바퀴": {
+      "hash": "sha256:84c865adfb60c1b714a763beb21e026447f7cfea904d494044bf4eaa1db2cb9a",
+      "size": 5454
+    },
+    "gift_강요된_무게": {
+      "hash": "sha256:d4bed6fa2213080bd319912102f7ae46d6fd73d3ea5f8bc4c355ec023409f4d4",
+      "size": 5104
+    },
+    "gift_강인환": {
+      "hash": "sha256:a1c6de8790b074be9dc0e30a5e58e9f0cd541c193e842d19c543399bc370d625",
+      "size": 5286
+    },
+    "gift_강제_얽힘_시퀀스_장치": {
+      "hash": "sha256:1c6fd200ebf3a0f805464db1b1a58486c5d655bb0f0e09516013d314221c6c4a",
+      "size": 3886
+    },
+    "gift_강화_문신___중지": {
+      "hash": "sha256:198955710fb766aa2f2040c34f7977563c606579be104b44af7c691f1fa93074",
+      "size": 6376
+    },
+    "gift_강화제_Mk_4": {
+      "hash": "sha256:c2a31c2d4fc4a02da2652b6d3f6789ebbe6d66f8f0b6ca13dbc79d035d3ef8b0",
+      "size": 6480
+    },
+    "gift_거대한_선물_보따리": {
+      "hash": "sha256:0a41e732074784476117a6cc3f8da652e347ce3e00d7bcfd5643916bfeeba36f",
+      "size": 4492
+    },
+    "gift_거미줄": {
+      "hash": "sha256:7969e588b4368303d1befae7128f614bdf124e59affc81c32ffc133d3f12d91e",
+      "size": 5120
+    },
+    "gift_거울_속의_꽃": {
+      "hash": "sha256:5bde62b8671b1d06ad3082dd9f5eb7e80ae9fc3bb387faed9c449efb3f8ed6ac",
+      "size": 5174
+    },
+    "gift_거울_촉각_공감각": {
+      "hash": "sha256:ecdc76e2189d7ca988be8d0fa9e25c4f078ff368c7a66e7564650cbf21049d9d",
+      "size": 4222
+    },
+    "gift_거짓_광배": {
+      "hash": "sha256:8610aaa57646e0d1268e3f0b60d8bfff80646fd89c18b68fd6d6991c009aa799",
+      "size": 4000
+    },
+    "gift_검은_악보": {
+      "hash": "sha256:d22c23751d799d9aeb91cc1b0422c0540287192ec581ad46c59e1b0760fdc458",
+      "size": 4568
+    },
+    "gift_검은_장부": {
+      "hash": "sha256:f68b31051af9e09718fe47d85536f44e617cbf6b53b280c7f7bae85efca68f9e",
+      "size": 3188
+    },
+    "gift_게걸스러운_망치": {
+      "hash": "sha256:62f2a3fd479866da8e1d10329c2e54c205aec4c299c16d8a7ec5d43658d7672d",
+      "size": 3734
+    },
+    "gift_결의": {
+      "hash": "sha256:5a4274c65629be9bfd8d2f33f7903179095070d321c328801c58915ff86736e2",
+      "size": 6918
+    },
+    "gift_결정화된_혈액": {
+      "hash": "sha256:93b220af72eff322012b3a0879c595c35377167040980fe5fca2f4873c5a44ce",
+      "size": 3376
+    },
+    "gift_경고장": {
+      "hash": "sha256:aa0a394c887bf642586797555c91d303330b9833c5f6bd22ebeb17d46519d357",
+      "size": 4638
+    },
+    "gift_경멸의_시선의_경멸": {
+      "hash": "sha256:c13bfbd1d0b706dd626f7fe458e1fbe8bb411e0cf383a68a08b2a36cd2388406",
+      "size": 6366
+    },
+    "gift_경외심": {
+      "hash": "sha256:7df1661b6879db7fd6bf39827ff6ff3041df0b4debc432a32a76b38eaa71c3da",
+      "size": 7380
+    },
+    "gift_경혈식_글레이브": {
+      "hash": "sha256:303d132978e76712005df5926734c87ac8bd6f2ee91feff25252d8b03aeda749",
+      "size": 7226
+    },
+    "gift_고래의_심장": {
+      "hash": "sha256:0c4ab1061b3a7020937cedb5622de3266f1d82714325c97c1af8dbec3eed9bb1",
+      "size": 5118
+    },
+    "gift_고목_함정": {
+      "hash": "sha256:693d084a7aa3660759616c991ad7d48cc3e386888a76591b574541994eb3cfbc",
+      "size": 7086
+    },
+    "gift_고위험_작전용_장비": {
+      "hash": "sha256:71ceea635651704767b8a60fe200eaadd898d9f055bde54177fd12e8e49ac75f",
+      "size": 4702
+    },
+    "gift_고장난_나침반": {
+      "hash": "sha256:bc7a35e75373220e05dec8de65c92429a205edbf3f0dcb5594726a6403dc4eef",
+      "size": 3960
+    },
+    "gift_고초": {
+      "hash": "sha256:379116d95dcb2b2ee0ea456435d0a7965cc19a4b0178dcb833dbc9d90c367d03",
+      "size": 6616
+    },
+    "gift_고탄성강_신발": {
+      "hash": "sha256:02a953af6a8570b2769e34501d7a15ade91fb323b5a293ebaea89902f3fd93c6",
+      "size": 4750
+    },
+    "gift_고풍스러운_페이퍼_나이프": {
+      "hash": "sha256:09ce97a298f98e729f50d61e9025e451b1c0f9c6040a0cf5f22ca2f08054fc5f",
+      "size": 2610
+    },
+    "gift_고혈": {
+      "hash": "sha256:93c9de012218e0907406442c36ab396627860b64699bc729868f9fd3d88eb3c7",
+      "size": 4084
+    },
+    "gift_과충전된_배터리": {
+      "hash": "sha256:8afcbd39f490e436ca0b9e7473202d66468aa26c55141c65c92ee83b5d88fe96",
+      "size": 7524
+    },
+    "gift_괴문자_부적": {
+      "hash": "sha256:096615c31f3ee8193a6ade16c73de1696bdd002f71e4175bcb594e5f492d1d8c",
+      "size": 3452
+    },
+    "gift_교만_조각": {
+      "hash": "sha256:3a27fdeda977c19cf867b67bf057a1c05a4e092719368874caa9b17063487bc8",
+      "size": 2706
+    },
+    "gift_구름무늬_호리병": {
+      "hash": "sha256:9698d0b06947215c343e06555deeb876e19fbeb246b23277bb1fefc07ca9d6d0",
+      "size": 3714
+    },
+    "gift_구멍난_기억": {
+      "hash": "sha256:9e07b945217e09d271f7c5a3740fdec27f1d7eb660bf648031bb5cbc5e1c81ab",
+      "size": 3538
+    },
+    "gift_굳게_쥔_상": {
+      "hash": "sha256:1092759bff1d648c97baf1b7ad4fda85a5c52fec6cc1db13cfa309fbb0c4d8d2",
+      "size": 1900
+    },
+    "gift_굴레": {
+      "hash": "sha256:fe3ee842d086d3ebe5a510a55703b8853a0afc92e0a8ba2dd313bf12efd723c2",
+      "size": 5360
+    },
+    "gift_굴절_유리관": {
+      "hash": "sha256:28a16e58c8f24bddc3b8ad50e00e56213d8762f4a61b939d515c55d04d5b9daa",
+      "size": 4428
+    },
+    "gift_귀기_서린_환도": {
+      "hash": "sha256:4676ac28fd69a063e4c586f8da343765d3315abab5686ca3549e8954061001ea",
+      "size": 4138
+    },
+    "gift_귀로": {
+      "hash": "sha256:775d00058158ebe914e7e284f94de762c342eff8a867b2d042046712315dcd89",
+      "size": 2996
+    },
+    "gift_귀신_들린_신발": {
+      "hash": "sha256:c2992fdc31dc0138e5d222a9d8889e3b65acdc07ed902dbd95e042bd3d87b068",
+      "size": 4330
+    },
+    "gift_그날의_기록": {
+      "hash": "sha256:24f07fa610179b556d0f122908fe0472b3af754099c1dd15c16c74128dca3735",
+      "size": 5852
+    },
+    "gift_그림자_괴물": {
+      "hash": "sha256:540cb010a599d4cb89abea7271dee12bf6259872922303494ab840f0893f5236",
+      "size": 5434
+    },
+    "gift_그림자_삿갓": {
+      "hash": "sha256:6a485324c5472e67f1507185e70d541810105f354233f15f826586f9586520e8",
+      "size": 3840
+    },
+    "gift_그을린_원반": {
+      "hash": "sha256:f38fb0e8dd19390ed00ceb0c64fe21b7a15fa8e78fd42c0eb1971f3e73804a98",
+      "size": 5442
+    },
+    "gift_극독성_외피": {
+      "hash": "sha256:ac10d4299a7934da5e444e9ac5509a2a16ac96b2213ab9664bba1b50f8136950",
+      "size": 3770
+    },
+    "gift_근무용_통상_배터리": {
+      "hash": "sha256:47957cd94b3707e203df5fd5051c20083f3f0e3191c421e50c240c172963baa8",
+      "size": 2660
+    },
+    "gift_근접_전술_교본": {
+      "hash": "sha256:ad5582dac8790f221afed4537d96cd2f7fbe7c86aa7e22a63bb91b1f035cbc72",
+      "size": 3824
+    },
+    "gift_금빛_입장권": {
+      "hash": "sha256:6b3155dbf602cfb43c644f4936a107669070a3f91db2ed08eec9950ac26071e3",
+      "size": 5452
+    },
+    "gift_금속_구성체": {
+      "hash": "sha256:a05c3188a5145956dae186b8b3047b585264b594a5080181f28fd5b88bdd6082",
+      "size": 2564
+    },
+    "gift_기괴한_석상": {
+      "hash": "sha256:602d47b5fcdf75631f3b5ae8dd92bbea0c18f8d54ba3eae9994d45e8ea7b9b15",
+      "size": 6782
+    },
+    "gift_기름때_찌든_스패너": {
+      "hash": "sha256:5384b14e57fd422273b85700bf31075d1f032688cb48a7bd6c1d4dc39d1794c1",
+      "size": 3210
+    },
+    "gift_기쁜_봉제인형": {
+      "hash": "sha256:d6a23c7a03d93ba4d2fd3a69340f7ba226b84b6b9f21373ededdb1b5ffff8f86",
+      "size": 5548
+    },
+    "gift_긴급_부여형_수사관_배지": {
+      "hash": "sha256:1cfd8447ee0999f3e5b750229218aada5731ecf57989b60d25a0e0bfdccb1724",
+      "size": 6304
+    },
+    "gift_깨어진_대검": {
+      "hash": "sha256:19e5104cd58c6aca16e28ea61e6cb5c6584589e28ee4ae52e7a8e4b7990c1d91",
+      "size": 4134
+    },
+    "gift_깨어질_화포": {
+      "hash": "sha256:6426a641f846228b1f64b69c12319f854638d2e3ce2018569066c0e3fae1fb91",
+      "size": 10166
+    },
+    "gift_깨진_안경": {
+      "hash": "sha256:a70bb6dd78ac712a9ca69ece39bceb1e1802b7e7fc0b8c1e8a79509cca002ef2",
+      "size": 4802
+    },
+    "gift_꼬미의_작은_선물": {
+      "hash": "sha256:ce22c99ed21cac9170cf967a4fae95fadfec6df3af927b9e00257091250faba1",
+      "size": 9270
+    },
+    "gift_꿈을_꾸는_전기양": {
+      "hash": "sha256:33e00de331f88dd2d313a2de8ae283cca6d05df8fa172007bc8e7347d1ae8b72",
+      "size": 7930
+    },
+    "gift_끈적거리는_진액": {
+      "hash": "sha256:649b5513f5ac39ffaefcd73be96a4224b17e3158a2a59cce39f6e797a32184da",
+      "size": 4298
+    },
+    "gift_낙수의_잔": {
+      "hash": "sha256:6754dce38ca6e622fe8ffe7848dbdffa1c65bc7675def69b9c02641bf698d271",
+      "size": 5552
+    },
+    "gift_날카로운_실과_바늘": {
+      "hash": "sha256:3f0dd2f406926e906d0171f805b7d37e77cebeb2b25b748ce4c42b457db32b7f",
+      "size": 5674
+    },
+    "gift_낡은_도포": {
+      "hash": "sha256:9699ddc4565eeaeb009f80cd90bf9ab3c04b4a69b15485cb06df8d826c103538",
+      "size": 3402
+    },
+    "gift_낡은_목각_인형": {
+      "hash": "sha256:e45a7eec8a561042ef77dbb289f232a940821de945312ae3206707d6e2ea674c",
+      "size": 3622
+    },
+    "gift_낡은_칼자루": {
+      "hash": "sha256:623e97d432daa3abea8cf8daada4a63437ff40b07a9d7d8d131cbf2160dfd871",
+      "size": 4068
+    },
+    "gift_남겨진_신탁": {
+      "hash": "sha256:5a5c0f78e3283bfc462f24364d7fc51b826fb7d07ea500f8caabb1c0d412a092",
+      "size": 5562
+    },
+    "gift_남겨진_차원_건틀릿": {
+      "hash": "sha256:9e75544cb9d508673265517813f29305d18beffdf6587e3202de12ea4cb7c8c9",
+      "size": 4218
+    },
+    "gift_내일의_운세": {
+      "hash": "sha256:463f920a5e2192c2e0ca12107de5454455ea0536a957482e5615f54406b27cfb",
+      "size": 4364
+    },
+    "gift_넝마": {
+      "hash": "sha256:8d43119477db4c95227544752739c167fb7a30ca72bf8e480a2bb9bb3dea103e",
+      "size": 3974
+    },
+    "gift_네뷸라이저": {
+      "hash": "sha256:2023575d471eac0081980e9849147a08cd659cc1eaa1439414a30cd50aa254cf",
+      "size": 3824
+    },
+    "gift_네잎클로버": {
+      "hash": "sha256:9aa2fb797e6f8f5600ceb75802f3aeb1277726eed64f5ebc415ecbffeeb3ba05",
+      "size": 3086
+    },
+    "gift_노이즈_섞인_무전기": {
+      "hash": "sha256:5222783a4c3dec77f0273d73a16b4779797da1ed689530752a656f3d0f8bc53e",
+      "size": 5310
+    },
+    "gift_녹빛_겉날개": {
+      "hash": "sha256:675c868e29b38f5a6f96bf6db2312be38ec205204623a1449fbe6f9158ed9686",
+      "size": 6040
+    },
+    "gift_녹슨_기념_주화": {
+      "hash": "sha256:9da4c800dfe4e19a20995fd1fe6269cb825271a957a7675158b8d24188c32cc1",
+      "size": 3318
+    },
+    "gift_녹슨_시계침": {
+      "hash": "sha256:13f53a07fa1f5c9d788fc6688ce1c0255ed4955db72a2d095866218c658582ce",
+      "size": 3572
+    },
+    "gift_녹슨_입마개": {
+      "hash": "sha256:c45bf8db37896a69c9d5f06f1704e6059e176436cb46f0229ad9cab7283975a6",
+      "size": 4284
+    },
+    "gift_녹슨_칼자루": {
+      "hash": "sha256:f4cba7e6d08afe2f8805cfe12488ffec5239bc3e3dca96203084d62d1ac654d0",
+      "size": 2708
+    },
+    "gift_녹슨_커터_나이프": {
+      "hash": "sha256:4d6def139f839c12624bec5e5b26bc05e5c17f1b83c8800415ae418c8679cedf",
+      "size": 2280
+    },
+    "gift_녹아내린_눈알": {
+      "hash": "sha256:f0ee7f2994abafd61dd3ad6aea4583ba0efd5e56b3fa3025a0cd18722521fc5d",
+      "size": 3214
+    },
+    "gift_녹아내린_시계태엽": {
+      "hash": "sha256:dc96bf859395e71b7c15f660e08ed7e1d3a5d073ac920d18e93e0abecab113fc",
+      "size": 5820
+    },
+    "gift_누군가_놓쳐버린_사원증": {
+      "hash": "sha256:f5acb9bb8a40854ed1deec650a39d40d684d25b55210e69f0468dc6cdfba993e",
+      "size": 10004
+    },
+    "gift_누군가의_단말기": {
+      "hash": "sha256:42a5ad800eb98c4e768e0bb59c78a0aa9b5c48fb706ea115e7a385022edc7686",
+      "size": 4500
+    },
+    "gift_누군가의_푸른_검": {
+      "hash": "sha256:78e862669dc96fb4e7052ba44bdf6150dd0db4c2d5c845105e0f559266e10ede",
+      "size": 3664
+    },
+    "gift_눈물로_벼려낸_검": {
+      "hash": "sha256:c3f15ae78ca72b449736907427f1c95d5aeea16b1744ef0070391aa6508f821e",
+      "size": 2076
+    },
+    "gift_늘어붙은_쇠말뚝": {
+      "hash": "sha256:cf9b14a7cc1d3e22b79ee83992b9d6a7261844eef08a77894ea0e5da9c655b2c",
+      "size": 2304
+    },
+    "gift_닉시_다이버전스": {
+      "hash": "sha256:036eec02ced1cd44dd97b4c5da4b06cf65f3fba3dd4e752b3428f196d80fa7c8",
+      "size": 7218
+    },
+    "gift_다한_쓸모__맺힌_증오": {
+      "hash": "sha256:e4ee1ecf78701aa0a7b40655ba7221e2ba121abac619b61f84b039466aff9004",
+      "size": 5340
+    },
+    "gift_달궈진_놋쇠": {
+      "hash": "sha256:55c0f1462c3f844f492d087bee962f400a6d006d26ca3f7b9bcea0332fe6dcb5",
+      "size": 5258
+    },
+    "gift_달궈진_망치": {
+      "hash": "sha256:f7a4b64083db98d6253049996670124f166968e2307cc7f0d02757e83c361028",
+      "size": 4568
+    },
+    "gift_달을_담은_술잔": {
+      "hash": "sha256:a87eaf1c3398e46efe997bc42d177f50dbf6667a5b782750972ca9484491c1c2",
+      "size": 5364
+    },
+    "gift_달의_기억": {
+      "hash": "sha256:31b05c4867877b39a7e0fae50a9236caa27e5f181bf4cd544d049814383e9812",
+      "size": 6352
+    },
+    "gift_달의_잔영": {
+      "hash": "sha256:df3d722d8e92b0922637176348ca19e9d22e5d7ab47c1dff2d15535241be1415",
+      "size": 7332
+    },
+    "gift_닳고_닳은_숫돌": {
+      "hash": "sha256:d3428a63281c2de65fe7721588e44eb5c81646c167009900d1eba42ee6b5b5ac",
+      "size": 3752
+    },
+    "gift_대기만성형_타투": {
+      "hash": "sha256:8f986df2041b754ae39bd90c946f9778fdb967a64e29d021ed25aa29b4cf9200",
+      "size": 6636
+    },
+    "gift_대양전_접지_플러그": {
+      "hash": "sha256:39ae180c52575a13654572a43bc177b6a007655fc6c19bec05101af88b3638c6",
+      "size": 5682
+    },
+    "gift_덕목___용_勇": {
+      "hash": "sha256:efe95edbd0a7e1d746e11fe6a555941b9ace2cc93ccc41709a2cc8606f61edbf",
+      "size": 6894
+    },
+    "gift_덕목___인_仁": {
+      "hash": "sha256:b7b9dc412e85f4a6acacd5792ac64ef88c9160a692074f9c16e2d2a690cef5fc",
+      "size": 6472
+    },
+    "gift_덕목___지_智": {
+      "hash": "sha256:ac4c46da2639f74e9445ba79dd469aa21bad5275e08d3bdf9cdf7bc7082475a7",
+      "size": 6738
+    },
+    "gift_덧붙인_반창고": {
+      "hash": "sha256:62e48548191504c5f748159814af459b71a683092c8adc88b5ce49fce2a0c794",
+      "size": 5656
+    },
+    "gift_덮칠_파도": {
+      "hash": "sha256:c89a724b0cedacbf13927386d4a0bb9e4dfb56b6b08b60ded68eee638bc6111d",
+      "size": 7646
+    },
+    "gift_데블스_셰어": {
+      "hash": "sha256:fca7104aa49dcc83f012afc5203c4e5573f1c2d4a877f4157bf170b7e641e301",
+      "size": 6494
+    },
+    "gift_데스페라도": {
+      "hash": "sha256:8b6f580e7ccd46d5f7970544f4f96ead7ec4dfb457ed0e9814fd4adb6f0276ce",
+      "size": 7102
+    },
+    "gift_도둑맞은_해결사_잡지": {
+      "hash": "sha256:d1a1f5401b7dd10a0644ee80a1652dca78098d3828b22f61cba9ef0fd4cb0a8f",
+      "size": 5100
+    },
+    "gift_도시를_사랑하는_당신을_위한": {
+      "hash": "sha256:6c971eac09c737b13f068849349e98042b34fb523e686dcd40f224cdbfaba7a2",
+      "size": 5946
+    },
+    "gift_도착증": {
+      "hash": "sha256:0c058f8b6b0d3f223385f0c84ad921d6c790b05088c675707935ee113e290b9a",
+      "size": 5332
+    },
+    "gift_돌무덤": {
+      "hash": "sha256:6ba03df908628011f9c970fa928bc744ee93f7ea16eeb45289287b6e0e705759",
+      "size": 2806
+    },
+    "gift_동티": {
+      "hash": "sha256:739dbd12850e0552aff0ae156d6a40814818958e4ff52c86892c558cea8c44ce",
+      "size": 2656
+    },
+    "gift_뒤엉킨_뼛조각": {
+      "hash": "sha256:32e22783d686298aff10d4b7da6fca03265159369bf6f9b2d1c94942342453df",
+      "size": 7120
+    },
+    "gift_듀엘교본_3권": {
+      "hash": "sha256:782869408701a89d12a188f32160ea3e4880af272fc947f0d4fe1b70e81ff620",
+      "size": 3920
+    },
+    "gift_등장_전용_붐박스": {
+      "hash": "sha256:d0fb98cc15a64f810ad73d1af126173ca52840aef81c256b2cf8afc31b4ee398",
+      "size": 5996
+    },
+    "gift_디스크_파편": {
+      "hash": "sha256:5f8284d15aefd485a2d3dec8736602dafc8ee590c58a6b8140f1bcee34a60b6b",
+      "size": 2868
+    },
+    "gift_떨어진_한_방울": {
+      "hash": "sha256:0afcbbc81cb9d500e6cc64196630c0b7ec77e7964a721971f87e2f3bffca95e0",
+      "size": 4096
+    },
+    "gift_떼구름": {
+      "hash": "sha256:7248fdf4c2e45093ed0c58cda8b1264aa3c9428950d19f3e3fd9f8f63dc0d7de",
+      "size": 4368
+    },
+    "gift_뜨거운_육즙_다리살": {
+      "hash": "sha256:c03d32af57d6773d3fd9a8fdc11547b766e91b1b8e0a7a4bddd27ec54f1c5f8b",
+      "size": 2612
+    },
+    "gift_라만차랜드_자유이용권": {
+      "hash": "sha256:7a1dd865da201e97d52b2f4929e3e78325d5b7510840a63f28f31f163b51ecf2",
+      "size": 5174
+    },
+    "gift_로열_젤리_퍼퓸": {
+      "hash": "sha256:6c259ee12a29be36b6056cd84d8b4b0d6249c9495a455c017125b15a33420849",
+      "size": 5264
+    },
+    "gift_리뉴얼_굿즈": {
+      "hash": "sha256:963277b9f6467b62dcf875be0a9050995ffaedf7341aed2209a764f12bb7c90c",
+      "size": 3814
+    },
+    "gift_리베이트_토큰": {
+      "hash": "sha256:75210824b83afa11551f2343a53526c55825ed7c77c76441f7a0b4c84c8c10b2",
+      "size": 4400
+    },
+    "gift_마법소녀의_애정_어린_선물": {
+      "hash": "sha256:e61b5967c4d64249dfea5e0bb1f251c7d8a2df8933894b3b33ca4618a9a7c203",
+      "size": 5600
+    },
+    "gift_마을을_지킬_작살": {
+      "hash": "sha256:4c2e82f7570d58084170d20ea9cc9dd6d4a9c20f4e45bfaf0bada1d7b6d59d1b",
+      "size": 2898
+    },
+    "gift_마음을_닫는_붉은_천": {
+      "hash": "sha256:c586aeb0021cbb8c2e547abfae4cba1c7c3d11b7cfb8135eb052fd872c26709b",
+      "size": 5566
+    },
+    "gift_마찰_조각": {
+      "hash": "sha256:ed18f40fa1d40149ea676c5f17b4f0deb9f6be4f7c71b26e9f3c0a413f69f0d0",
+      "size": 2928
+    },
+    "gift_만년_동안_끓는_솥": {
+      "hash": "sha256:915b93b578597ef18189edd37ef321b78a40c8c1d8cb6969bebb2899ea7619bf",
+      "size": 4806
+    },
+    "gift_만년_화롯불": {
+      "hash": "sha256:822099142cf98e8592857ff1ce4b073dba3b9f35b5fed210b154c7c346edb197",
+      "size": 6906
+    },
+    "gift_만능_도구": {
+      "hash": "sha256:a85da756e0a6a0eb67b8bb2b9eaf1ea3cc1017c67fdf20c46e7d6565721d7196",
+      "size": 7238
+    },
+    "gift_만화경": {
+      "hash": "sha256:c15b4cd395081d68a78d1f6e446b498151a82d8e0acfbd4172b36b154da1f964",
+      "size": 8942
+    },
+    "gift_말린_시테러": {
+      "hash": "sha256:de49de90cc1ebc6e5f83359ce6d59a78c8b1927434d8020b402f75f349bc9c6a",
+      "size": 4580
+    },
+    "gift_매혹_조각": {
+      "hash": "sha256:71ca1dad373f27543b243c163736606dba8ac922a6a3ded4bdc4ff753a2cc20d",
+      "size": 2768
+    },
+    "gift_머나먼_별": {
+      "hash": "sha256:c56f99d8392de085fca39198c735e740b5cc26d2243a9e00ef423e18a1b18d5e",
+      "size": 10422
+    },
+    "gift_머리_없는_초상화": {
+      "hash": "sha256:6c2c38e905f7ab641d089f6caad7e977b7c7f0eb5b68947b3e5e71f988835259",
+      "size": 3712
+    },
+    "gift_먹어치우는_큐브": {
+      "hash": "sha256:d28a6374ae5ee83e983daedf02d0fdb49a04d7eb28f28711e4da86f9c7fe090b",
+      "size": 5808
+    },
+    "gift_먹장구름": {
+      "hash": "sha256:d65cbc63f6555ba7d3122e76fe8e5372d288753f70d27dfeb82b47301b4c1817",
+      "size": 4146
+    },
+    "gift_먼지에서_먼지로": {
+      "hash": "sha256:5886e400e2f145af5306ac4fcca28adcb06ce2529665489a7dd69f291c6d78c8",
+      "size": 7726
+    },
+    "gift_메트로놈": {
+      "hash": "sha256:258d482e26caabcd901bced332a573fe13e67278fbaa2116e3c54bd82b587f4b",
+      "size": 5740
+    },
+    "gift_명경지수": {
+      "hash": "sha256:0b17af6ba00b4b2eb1127e43de9364923c1c5972405877d0b4d2f85a4701d799",
+      "size": 4376
+    },
+    "gift_모든_것의_본능": {
+      "hash": "sha256:573f8870d66838c1225a9ef65aa605c7b9b8a369c2791f32883116b32af636f5",
+      "size": 3004
+    },
+    "gift_모든_것의_뼈대": {
+      "hash": "sha256:93df11346ec6200dc8f2c711722a44eacd2fd16d699f1dbd54d49c821c3c1a18",
+      "size": 3092
+    },
+    "gift_모든_악의_끝": {
+      "hash": "sha256:d3249cc92b21cb65cf5a5606150795e4449ada2859ef353d8f6bce0ce9f67757",
+      "size": 5506
+    },
+    "gift_모조발전기": {
+      "hash": "sha256:f1e9deae1a64a043932fe5085fc8365d26f949aee1769d149e2faf371a301cf6",
+      "size": 4360
+    },
+    "gift_모형_저택_오르골": {
+      "hash": "sha256:14cc0eea9dcd3ea1e49a9c73d93db203522614cb135478db0e3c0a3ffe9afa20",
+      "size": 7282
+    },
+    "gift_목공용_대못": {
+      "hash": "sha256:d5288e0056ac5d09cd41641f6b01420b8090bd9c6d93d485e3b246012e755fee",
+      "size": 3136
+    },
+    "gift_목이_뻑뻑_가슴살": {
+      "hash": "sha256:2c1b568e5d01fb6559f6159234e63c57b8d8253f904bccac1e17d64dc9598756",
+      "size": 2370
+    },
+    "gift_못과_망치": {
+      "hash": "sha256:a957d774a7f16e3d90acc5f18d43030b7f21bf6e396e143c7e297af17b746010",
+      "size": 5028
+    },
+    "gift_못과_망치의_책": {
+      "hash": "sha256:9083bba73d637469ca2feedee890f3911cd0c8a1b608a6559918f18a4bac1d7a",
+      "size": 3388
+    },
+    "gift_묘각": {
+      "hash": "sha256:4d9b9ac50698e46a6eb32e9508059c549be0805ab87e0c5fa23406e92a749d8f",
+      "size": 4394
+    },
+    "gift_무정전_전원장치": {
+      "hash": "sha256:2269435df4b0bac2a2753ca31c671f62857cabdbd4c1f8fcabfb7371472a4169",
+      "size": 5406
+    },
+    "gift_무진팔방종": {
+      "hash": "sha256:cfab4076b63a82971fa517d758086391b1fe4c7bc34687cd80c9e863b036ae69",
+      "size": 16084
+    },
+    "gift_묵시적_계약_갱신": {
+      "hash": "sha256:9613a68a5d0d740ab4ade01ef76ed7d9855f6965c86fb1aa78b97f3fb3a13c19",
+      "size": 6048
+    },
+    "gift_문자_석판": {
+      "hash": "sha256:fe4fb077ec7c6834be5f082613250aad0b8281fbe3f52bb1f25c88414ed6d190",
+      "size": 5358
+    },
+    "gift_물_속의_달": {
+      "hash": "sha256:f24bc05bbce9be8a988e85596c506c023575d9202c5555e1ec582919e84402bd",
+      "size": 4712
+    },
+    "gift_물리_간섭_보호장": {
+      "hash": "sha256:26270a1e20cf4344d43965f28d4138e67f4bf24f5f8e4177b2303dc1c6b0e628",
+      "size": 6032
+    },
+    "gift_물부리": {
+      "hash": "sha256:70908132cdce9c9bbc6a5bd0545c72a1cdc7d3504a42f607ff9cfc0d822cca1a",
+      "size": 3192
+    },
+    "gift_미니어처_대관람차": {
+      "hash": "sha256:b99e5feedb67145f795c09297c6f6d13cc5529917cd486d4cba585379ce1204c",
+      "size": 6838
+    },
+    "gift_미니어처_전봇대": {
+      "hash": "sha256:d0ceb6e51f3f4b114d3517d1f1d025276246f95afb3603d5b60a43d088c3aaab",
+      "size": 8804
+    },
+    "gift_미련": {
+      "hash": "sha256:0b5b336c6a5138b1a34ea2db28105abb7355dd0139476a2ce446f2bba5e256af",
+      "size": 5008
+    },
+    "gift_미적_감각": {
+      "hash": "sha256:23b77dcec7cf0bccd1e2cd71f697887ce9c491305d991dc6a884bc785952b72d",
+      "size": 5584
+    },
+    "gift_믿음": {
+      "hash": "sha256:4a67c0950a83559478bd0a7f381a3de92359746100bdfb342a96daa994ba9b62",
+      "size": 3936
+    },
+    "gift_밀라르카": {
+      "hash": "sha256:2fb4a5da60973b876c534c219696957ab7301aa0de450ec58344b20947277cd2",
+      "size": 5346
+    },
+    "gift_바스라진_기억": {
+      "hash": "sha256:1649255e8d02b0e9df2cb9176e410ba92c970c60d4f7aaaff1e34288d63b2bd9",
+      "size": 5120
+    },
+    "gift_박수_짝짝": {
+      "hash": "sha256:40383d1d40dcb7fb408b74917f19eca45a1cb670e4ab6e4d84483efc0a93b734",
+      "size": 4298
+    },
+    "gift_반짝이는_폐품": {
+      "hash": "sha256:d53622ccbccdd9625a26627494356ea9a2780164033997c6f73f2c25ec0b72c2",
+      "size": 4016
+    },
+    "gift_밝게_빛나는_등불": {
+      "hash": "sha256:381bf29d342e1798435765af39c10ad1fd752a58244e123777537fcb1a389c78",
+      "size": 7310
+    },
+    "gift_뱀_허물": {
+      "hash": "sha256:9ff05b121ba7c8a4456ac7d58d790bc70e1e58f7e5a4eae702b3e674d162a2d3",
+      "size": 4494
+    },
+    "gift_버틀러식_포박술": {
+      "hash": "sha256:271022703a8c3d06742dd1d9dc26879f36f85b0971b39dae632f0192b3a845f9",
+      "size": 5438
+    },
+    "gift_범작": {
+      "hash": "sha256:e3eb7e5b9135e1b22bdbabbbf1068a80e7cc3a07c7db6ee3f1ace83971759685",
+      "size": 4418
+    },
+    "gift_벼락가지": {
+      "hash": "sha256:0dbb6f637d9665741a52f574b5f869e4b261b73df809a3c90e49e13247d11593",
+      "size": 2944
+    },
+    "gift_벼려진_가지": {
+      "hash": "sha256:ea9d3397c5e47ce28cd5faee5c111aa9e170641455c1734fea1a99755953be92",
+      "size": 2704
+    },
+    "gift_변형_추출___AEDD": {
+      "hash": "sha256:4baf72e6098e79bef68bc86c39aff121958c8af484dd35e26ea2ebc8c148d011",
+      "size": 5042
+    },
+    "gift_보급형_K사_앰플": {
+      "hash": "sha256:1ec3c7d7b92e283565e0588ad73208d5ae0bb3dba5ce9d2302372fe99a557fe7",
+      "size": 4368
+    },
+    "gift_보석_진동자": {
+      "hash": "sha256:f9d70facde827b8837ebd11f1158f6abdffae33cbed5e75df5a06570aa5253ac",
+      "size": 8486
+    },
+    "gift_복주머니": {
+      "hash": "sha256:d697afe7467b0d23319be322fc2af7f5596602d1979ea516ba70cb13a5d786ab",
+      "size": 3974
+    },
+    "gift_봉이_인형": {
+      "hash": "sha256:a41bcceaa2932e3fac32ffa0f7475b2e3297ecceaf5e1b4f11ac5fba648b95f1",
+      "size": 5214
+    },
+    "gift_부": {
+      "hash": "sha256:e7a07f1c57473796739609e2bd52751444b49b7aab67197dadcebde9630b6b4a",
+      "size": 7330
+    },
+    "gift_부동": {
+      "hash": "sha256:b1a202929e576f432960ea4619686e8b5f237b06fa91ce56e8d6683d0745d4d1",
+      "size": 2246
+    },
+    "gift_부리_모양_목걸이": {
+      "hash": "sha256:7dded299488d0859af6cb8efd88766360f9f35fd5e969840f8ce808acacb8ecd",
+      "size": 4550
+    },
+    "gift_부서진_리볼버": {
+      "hash": "sha256:984dcf960ba8b53c2866da278fbdf5220ad006e7b4c5d37ff0d6dd9f1d8e8f4b",
+      "size": 4184
+    },
+    "gift_부서진_바이올린": {
+      "hash": "sha256:8e85ac64073fe3e796de238efee99620e55705a8ca8522fb0b73550781226909",
+      "size": 7428
+    },
+    "gift_부서진_칼날": {
+      "hash": "sha256:1e7e6b728122accb2fc46728a2ebcc868ce1e00b97a2d82512d68b00cd532005",
+      "size": 2662
+    },
+    "gift_부적_묶음": {
+      "hash": "sha256:4fde0520c5be1a3f53a4bdfdc3a1a1e69633fbfebbde69f2a00a6ce87becbfa8",
+      "size": 3940
+    },
+    "gift_부치지_못한_편지": {
+      "hash": "sha256:ada1cf0f0f692868799a2808b7efe071da0945c3de1c63d26824532442dbcdfe",
+      "size": 4134
+    },
+    "gift_부화하지_않은_불씨": {
+      "hash": "sha256:b1139678e92bcdfe87461cf9ce89a0730c5c6dae7040b74d105cd8ec87247d79",
+      "size": 5022
+    },
+    "gift_분홍_꽃잎": {
+      "hash": "sha256:38cbcda9fdb248d6e81c08ea813445fc76aa183fff5e3d1053a82bbfc06f8a4a",
+      "size": 10354
+    },
+    "gift_분홍빛_꽃잎다발": {
+      "hash": "sha256:6ecd2cd2926ac5677f118f9f98bcff130a9c4292b5c53956c31d77c3537ee426",
+      "size": 6724
+    },
+    "gift_불_꺼진_랜턴": {
+      "hash": "sha256:6485e0bc625c227cd073258537485df24c6a6d89f2bc59af8d34800a4078e974",
+      "size": 4342
+    },
+    "gift_불_꺼진_촛대": {
+      "hash": "sha256:159fbe3302bc7a91eff8232d32c729eae5db4ea991441edc5b3fd3c3618dcc37",
+      "size": 6182
+    },
+    "gift_불결함": {
+      "hash": "sha256:86a8578c698c4fb646c390374a38d0e85afd6dc7fddcc4d256b19e420b7fa574",
+      "size": 4114
+    },
+    "gift_불꽃의_편린": {
+      "hash": "sha256:5673332e9bf7f1a8746731cc80b0d3a58367183f126ea5469fb7f85a6f349b6e",
+      "size": 4686
+    },
+    "gift_불빛꽃": {
+      "hash": "sha256:1092e06b2ab51aea40f5a842174ebf7214e757c20979ac0ee5c6517119b47070",
+      "size": 9684
+    },
+    "gift_불완전한_예지안": {
+      "hash": "sha256:8fa0f95383101994a91ff24d0452dc608cb21109c42d0ef4aa0bca9f0f69b840",
+      "size": 8054
+    },
+    "gift_불타는_운명": {
+      "hash": "sha256:b369cca6c98ef64c90e69ce240f69ee1f8709f3e56c4594492b56311334fbc6c",
+      "size": 6142
+    },
+    "gift_붉게_물든_목화": {
+      "hash": "sha256:6803d68b5278803f472f20362a2ba40b53b4ccea6a209fd0fadc0137a851f387",
+      "size": 3838
+    },
+    "gift_붉게_얽힌_거미집": {
+      "hash": "sha256:f1125ab9c45a676cef71a98423f5d79ddf3fd31bb65b538552f1db7f3216cc04",
+      "size": 6146
+    },
+    "gift_붉은_색술": {
+      "hash": "sha256:06f6c8469bd846837d08e165ce7e69cf250997bac166c185c132b94f520f2489",
+      "size": 5778
+    },
+    "gift_붉은색_넥타이": {
+      "hash": "sha256:92b105b1e030906747a117391cbc92ca7d3d1b090b566ec1058bb83e78dc5c82",
+      "size": 3260
+    },
+    "gift_블러디_가젯": {
+      "hash": "sha256:f7cd00e7f0bd2f1a87fc50947c9d16c600927a72cb9c41b781b57607c41a26cc",
+      "size": 2026
+    },
+    "gift_비밀_유지_서약서": {
+      "hash": "sha256:39b837df50f5092346a9f2c1243157fc9d9bc09d404f4c280a0045cab6e03f23",
+      "size": 4194
+    },
+    "gift_빛나는_잔영": {
+      "hash": "sha256:4f78f025b1ab46abcf3d7d379f7a8a371244b51aefa085dca3507e86abfd9617",
+      "size": 7264
+    },
+    "gift_빛바랜_건틀릿": {
+      "hash": "sha256:0b6ffea71a7049baedf456e89876d9e62a7bd0dc0f43db1378964483f3317cfb",
+      "size": 4662
+    },
+    "gift_빛바랜_시계_케이스": {
+      "hash": "sha256:843c73353b245e8aaf2ce06ea1071770e5f0814ebb3157362565bf45cc021558",
+      "size": 5802
+    },
+    "gift_빛바랜_외투": {
+      "hash": "sha256:27cb7d28d96fb455cc33c55b2696a8c79639c79bcc236119b295631b754f095e",
+      "size": 3872
+    },
+    "gift_뼈_말뚝": {
+      "hash": "sha256:09df70c50fe7d6552975779d540cf68e994316e2f28496bc804a6cc78c1e5563",
+      "size": 2820
+    },
+    "gift_사원증": {
+      "hash": "sha256:84e08a753a66e5b3d6ae1603647935bd228957fc2f622a52dcbc5c119608da7b",
+      "size": 4030
+    },
+    "gift_사전_예약_할인권": {
+      "hash": "sha256:c1955861f7550a7f1a525a176e4213906294743cca6a6695b5cb6ac4c8a7b3cb",
+      "size": 2478
+    },
+    "gift_상처붙이": {
+      "hash": "sha256:713928eba443f9008ab03d444356528ddddffb12a30d096b3e2338ab7466c33c",
+      "size": 3566
+    },
+    "gift_새겨넣어진_괴문자": {
+      "hash": "sha256:8c59b6f23091b5aaa988e3f24713bb5b074c7680ba2af9bfd5cb7d79fb8b5010",
+      "size": 3216
+    },
+    "gift_새하얀_캔버스": {
+      "hash": "sha256:2f849a23cce980ccc92aa690a0384d2875926f6f8ed627587eabbc53f7d65ba9",
+      "size": 3888
+    },
+    "gift_생강꽃__안경_그리고_전해진_편지": {
+      "hash": "sha256:7d6cfb66cefdd6ec98d484f511bd5db91d02a0f1ff1f98d44b25c5a041696a23",
+      "size": 7498
+    },
+    "gift_생강꽃_가지": {
+      "hash": "sha256:461b75e6fa7442b4693c4acff8a256eeb9768813a917559f80c955decb3c0502",
+      "size": 6296
+    },
+    "gift_생존의_이정표": {
+      "hash": "sha256:593712ddd55f86e09583748c82bc2fc760940557f47a8c597be20d413342eb61",
+      "size": 4750
+    },
+    "gift_생체_맹독_바이알": {
+      "hash": "sha256:e5c4e31ba860ce2c6bef7640325243f4bab5d2c6e0d2da3f2acc41b290f6287f",
+      "size": 3592
+    },
+    "gift_생체_발전형_배터리": {
+      "hash": "sha256:9b0e3cf3a518a41c2f9a293b418186ceebfef8535507f5c16e2c95102c8d371b",
+      "size": 4274
+    },
+    "gift_서릿발_발자국": {
+      "hash": "sha256:dab533bec66c14c240ed19680f083048ff9aaf9a15705fe1264c388e72f7cf54",
+      "size": 3594
+    },
+    "gift_서지_글로브": {
+      "hash": "sha256:2144d70eb23835b03192af1b9e7482d1f7bbccd55eb03be6935176e7aa906c8d",
+      "size": 5208
+    },
+    "gift_선고의_순간": {
+      "hash": "sha256:322a8f3eda9ff30eabb2e64f366124fb66ae9ffb057018d172c02f07ba68d19e",
+      "size": 2320
+    },
+    "gift_선물": {
+      "hash": "sha256:861372e5adb239d3640a021b5d5c1d5192d7d5fef5b369ebde69a85c76834bdf",
+      "size": 5732
+    },
+    "gift_선불_시간_영수증": {
+      "hash": "sha256:29ccc46541b1e7977f45a51aac44337c384606f08dc4edd2f309e4b57da64894",
+      "size": 6262
+    },
+    "gift_선택_받지_못한_자": {
+      "hash": "sha256:e584c7ac3cec7a2b1febf3a4ca847bc9180d663ca1316b9177668139956ed125",
+      "size": 2240
+    },
+    "gift_성대한_환대": {
+      "hash": "sha256:4228217af7b6f351f5caad93f26456fecc0afc8ca07c5a3ecc354f3b0bf34b5e",
+      "size": 4038
+    },
+    "gift_소흥주": {
+      "hash": "sha256:f4d21d81c3f0e4e3a625c11899d563422b8ed8245636a5b44b9cd2ef429576ab",
+      "size": 4172
+    },
+    "gift_손거울": {
+      "hash": "sha256:c81e88f34024c59707dcc72ec42c2f19d66f7cfb1877e2c84e28b63fb80daf54",
+      "size": 3210
+    },
+    "gift_손목_보호대": {
+      "hash": "sha256:96ea47722d1ba117cb9c40635d360bc6f2d6181d4546e7fd0bb3986b6959d454",
+      "size": 2926
+    },
+    "gift_수술용_메스": {
+      "hash": "sha256:1f17eb462530afdd105f3b75d8dbda164cac868029a3fcecb2193db03ddb3611",
+      "size": 2312
+    },
+    "gift_수작": {
+      "hash": "sha256:0aee617b181ebe28ccd1c213c4e76d21d3ce46ce0559eeb199fe94e6ace3bacf",
+      "size": 9926
+    },
+    "gift_수작___박제된_야성": {
+      "hash": "sha256:7a7635786e52f03bd1119abc6268c7aeaaf363f70f8a9ff4937025cea9a97f41",
+      "size": 10400
+    },
+    "gift_수작___진화하는_약동": {
+      "hash": "sha256:21b7f483b9de597f0f2cbf8859ed28bd0795e270cce84b6975cb07aadf3e9799",
+      "size": 6254
+    },
+    "gift_수집하는_해골": {
+      "hash": "sha256:28fd1b776972d423420b8266c8200c8baf1decad083bc305362071f2d882bac8",
+      "size": 2000
+    },
+    "gift_순찰용_손전등": {
+      "hash": "sha256:f48b4ab317ca1d87ac47d0cc28239e860adaebba279c1d34453603d32e2c7910",
+      "size": 3158
+    },
+    "gift_슬픈_봉제인형": {
+      "hash": "sha256:dc2d4fe19814552e222c0c96c668e73aae35b2c6baa9f2aeb37a406598825d53",
+      "size": 6268
+    },
+    "gift_승리의_증표": {
+      "hash": "sha256:6a54ee54250cd2f0232b11f5796f166c75b17b7a9e4b9ef4c136bf20a21775f5",
+      "size": 5712
+    },
+    "gift_시간_굴레": {
+      "hash": "sha256:ba8c4f4550e9f8cb1feb2e956ecbc9a7a5bb54a508f30d2939556e4c9c50e62c",
+      "size": 3972
+    },
+    "gift_시큼한_주향": {
+      "hash": "sha256:efb486b81f44b1a14d3437129314eaf37d8e588da71fa6b0f2ad1bf9aa331af6",
+      "size": 8252
+    },
+    "gift_시테러_연구집": {
+      "hash": "sha256:838d27d71a7ea7de1183c396fc77ecf7e07ce29c6c98c3eff5b64e88e0056d1c",
+      "size": 5382
+    },
+    "gift_시험_추출___초롱": {
+      "hash": "sha256:2c3eb814745289bd33976018fb7dded79679bda127ae5f4622bd3ef3e7eee3cd",
+      "size": 4146
+    },
+    "gift_시험_추출___홍염살": {
+      "hash": "sha256:2cc0c94ca0dd9e9bdb0790bc2a0736fa122463e9113cb93bb7784f82d693cf0c",
+      "size": 4824
+    },
+    "gift_신검합일": {
+      "hash": "sha256:7dd428b74e52dd951cfbfffa0f3fae61584185a1c9e637734f543de70b24a349",
+      "size": 5348
+    },
+    "gift_신상품_팜플렛": {
+      "hash": "sha256:b991631db292e3422fa52350ee7831eee481950d42ae6c6507df43e2d7ac1ac8",
+      "size": 4758
+    },
+    "gift_신속한_지휘": {
+      "hash": "sha256:80b12164afdf4abfe5119c1ac4f5f851fb7b89d4022b14b9a9062e7fe2ebc9f4",
+      "size": 3874
+    },
+    "gift_심장_리액트_모듈": {
+      "hash": "sha256:2bf1bbe831996f94e161836f4f8a5b2d170b7ec756b284c3bb61d5c59060f5cf",
+      "size": 4460
+    },
+    "gift_아스라한_잔영": {
+      "hash": "sha256:63b68696a7f02a491565144238439b2b1a46989c43698a29718ed2b279c2181f",
+      "size": 6558
+    },
+    "gift_아이스크림_통조림": {
+      "hash": "sha256:333568cfc41414be4330bc498bf6304c11e3dbee377a4d1c1817dccf91da727b",
+      "size": 4992
+    },
+    "gift_아직_따뜻한_커피": {
+      "hash": "sha256:abd19ef05dab8224c394cdf96310a7c9d0f8c1290174c07cf1c09c577ebf39c0",
+      "size": 4548
+    },
+    "gift_안식": {
+      "hash": "sha256:036d28ffa78c6f0c4df7e77a52b339349b72bc95831db106f72351807cf71d9c",
+      "size": 6622
+    },
+    "gift_안식처": {
+      "hash": "sha256:7066f2247ec49f785d95807c30a080d254eedf9a9afcd576379b4320f45fe6f5",
+      "size": 5444
+    },
+    "gift_암약": {
+      "hash": "sha256:b4852117a7ea230d3f72bc0e98d6f44f69995142993baa7bbded1a20d79d28d3",
+      "size": 5264
+    },
+    "gift_압박_붕대": {
+      "hash": "sha256:9be4ec72533ca086143feb028523041ac12851a332c38232a260f25f939505a1",
+      "size": 4416
+    },
+    "gift_앙갚음_장부": {
+      "hash": "sha256:9719381511e986029f40b60cde2eae6cd0d7b64c65c4083de5030be53fb4bded",
+      "size": 6456
+    },
+    "gift_앙갚음_장부___번외": {
+      "hash": "sha256:a86344c348e2bfa990967aaa60711affcd29ff8df70233139c1352ec241e187b",
+      "size": 6858
+    },
+    "gift_앞을_비추는_가스등": {
+      "hash": "sha256:7dd931997995db7c82672c1e52a782b33afcbffdddb2fdb76aedc8dbc5feac10",
+      "size": 5036
+    },
+    "gift_애달픈_날숨": {
+      "hash": "sha256:a2597b765bae4f44ba76322c00536da41d26decd4db99659ef1c006089bbb11d",
+      "size": 5248
+    },
+    "gift_야간투시경": {
+      "hash": "sha256:2ea29c59fc23558f2b19099732fb3f02665c1068e5235e80a55c26f63f2a9569",
+      "size": 4108
+    },
+    "gift_어긋난_트랜지스터": {
+      "hash": "sha256:5f40e410b76247c8a30ee0394f1f2c0b4f2182e2334b94f903dd90f76eef1a50",
+      "size": 3718
+    },
+    "gift_어느_날의_기억": {
+      "hash": "sha256:d937cab4562c544c78c71c59ebcac675984913890e6d0628830ee8a7929cc0ac",
+      "size": 2960
+    },
+    "gift_어두운_잔영": {
+      "hash": "sha256:32b3a14edd3b28d3a28893121ca41a2a2c9fee4e92fb7a2ce1af90e85a22fecf",
+      "size": 6212
+    },
+    "gift_어떤_철학": {
+      "hash": "sha256:5db1724027bc2d48c24591c91dd3df6290c6485fab1c553a99b2f97f838a8741",
+      "size": 4632
+    },
+    "gift_억류된_찬송": {
+      "hash": "sha256:f292ba83138098ea893c6d35eae5bc74e9a51869bc841481145f8c12cb14ee45",
+      "size": 4720
+    },
+    "gift_얼어붙은_아우성": {
+      "hash": "sha256:fd686e0c3b85e1c24bd4868a45510c7657677e5793db58d4c95cd47eff2c0f6a",
+      "size": 6000
+    },
+    "gift_업화_조각": {
+      "hash": "sha256:03fa31fb7eb1cd6aa972c63e67a7bb0c3bc0b044da5cd2ed2c1179f27bc7392a",
+      "size": 3030
+    },
+    "gift_엇낀_시간": {
+      "hash": "sha256:9e82697a329c80d49ba9fd5895f541f0410deb4953a71d9f76577c41d683b90e",
+      "size": 5100
+    },
+    "gift_에칭_시계침": {
+      "hash": "sha256:1565a8f8254c1dcb8440654ef21ac769cc4a8236b2d18f8327b5d5977a1cd8e4",
+      "size": 5774
+    },
+    "gift_엔도르핀_키트": {
+      "hash": "sha256:dfdc6906e98d2fbd991cd3d5879f60cf641cf11ecee70bd54469bbe3c4615d38",
+      "size": 3110
+    },
+    "gift_엔젤스_컷": {
+      "hash": "sha256:df1da40067b4fbadf54106350dc64e7e89421ed62e209e10f42bcdaa414c0693",
+      "size": 3340
+    },
+    "gift_여우비": {
+      "hash": "sha256:642ff333e7a9b01c15a74bbe06a97a83b45870f52961a76314a3e270532a0a33",
+      "size": 5064
+    },
+    "gift_연기와_철조망": {
+      "hash": "sha256:91b7a45a105b94d328555baceb9eefa91af60a6190fa27b062146f52372f76cc",
+      "size": 10082
+    },
+    "gift_연성진동": {
+      "hash": "sha256:a4ca3e6992b762a2b33c14f8a755a2937b1f6e4ee9a7289afb61fea9a2a9cd3a",
+      "size": 5370
+    },
+    "gift_연육_망치": {
+      "hash": "sha256:c7aeb681c4860771bbf413f24652419ff2a3920d39e11f97f52c355da4c4eea5",
+      "size": 2576
+    },
+    "gift_열선_무기": {
+      "hash": "sha256:e3453f9bc9c5672992706fd3e47dae19b2698e1e47b6447ca9ad6f00d6b4c965",
+      "size": 6560
+    },
+    "gift_영구동력_서보모터": {
+      "hash": "sha256:1a687147873a5345a8abb2ad4a4f722c4b4bcb1f15af9a17ae55a7e8ef3f0a66",
+      "size": 6620
+    },
+    "gift_영속하는_인연_사슬": {
+      "hash": "sha256:51724a370681089b3c1450ac9376461ac353b2e79d3016274441cc9be9ffc151",
+      "size": 9902
+    },
+    "gift_오늘의_표정": {
+      "hash": "sha256:0ac7a10f10bf98d126313725416c3a367c75a48dd8a3d1547fad62b1985844f0",
+      "size": 3414
+    },
+    "gift_오더메이드": {
+      "hash": "sha256:61bb2f897bfb39e10a063fdf0a51063e9a9c4753282a2431ae38f83887a3567f",
+      "size": 4090
+    },
+    "gift_오라클": {
+      "hash": "sha256:2e4a6cc36ab81a851cf6522496e0ffbcfbd33467975d29b23bc505ec44e3c72c",
+      "size": 8416
+    },
+    "gift_오래된_악보": {
+      "hash": "sha256:ca4a5647429ddad10f802b591fdbb3632980e5a7b3417b49dc1f7806a451934f",
+      "size": 4274
+    },
+    "gift_오래된_조각상": {
+      "hash": "sha256:e3d4dc17abda35c3846d2b9ce0fd05e85c75a69a0803ebce40919e10fa3443ba",
+      "size": 4754
+    },
+    "gift_오염된_실과_바늘": {
+      "hash": "sha256:6a7863cacbff993a7f883eef76523e35aed26c90ef7b33c5725a4a5f2dc42d37",
+      "size": 5804
+    },
+    "gift_옭아맨_타래": {
+      "hash": "sha256:77430f6b4b73b39c2fde087d9b57798470e3b897f36efa8c25b3e309cbbf8dbe",
+      "size": 4444
+    },
+    "gift_완전함": {
+      "hash": "sha256:74cbbec9276fb686cc2094c1c943b148acb2da11bda32cc1d429819253ef8937",
+      "size": 4608
+    },
+    "gift_왕의_잔재": {
+      "hash": "sha256:33505b3dc772921bee5e42d00631c5ef364c0f0b08be119de883aafd7ff459cf",
+      "size": 4064
+    },
+    "gift_요리_비법_전서": {
+      "hash": "sha256:023fa2962f0ed8797889dee988d843ae0bcc797a895f1a312bd9e270367d2295",
+      "size": 4752
+    },
+    "gift_욕망_조각": {
+      "hash": "sha256:81b724eb321469167f0f959e1fe8dd5dedad057f07377fbe6049d4b9233bca8f",
+      "size": 3484
+    },
+    "gift_울화통": {
+      "hash": "sha256:d2826621ba387a0f3424c0d20c476a973c64b54e01156e9fdd6484f9ddb37953",
+      "size": 5026
+    },
+    "gift_워킹_베이스": {
+      "hash": "sha256:a648ed3727ed9f38d02a36ec7fb2998608fa7f5cdead487f1152573d608645a1",
+      "size": 5282
+    },
+    "gift_원목_술잔": {
+      "hash": "sha256:66e9401b11d1df92d45759ff569ef42df03e935587c2b95fd666c78743f6dbc5",
+      "size": 2910
+    },
+    "gift_위장된_화평": {
+      "hash": "sha256:c28f051c55b4cdea422a6a60c74b44cffa49f0ac61f38f407461f9f849e52a56",
+      "size": 7322
+    },
+    "gift_유골_부스러기": {
+      "hash": "sha256:3c420fc4b3e750e67d00e50f0d83e5276e0adf8c51a5294553c1500565752a79",
+      "size": 9378
+    },
+    "gift_유연_화약": {
+      "hash": "sha256:11f92d84b0f5714035c4a7bbf5ad208d915384eee4deaa9421a8687ae76554e1",
+      "size": 5122
+    },
+    "gift_융해된_파라핀": {
+      "hash": "sha256:4037412e50eb5c175af1321bc99909c59c24de48446553f78a91d5ba99e3d911",
+      "size": 2434
+    },
+    "gift_은빛_시계_케이스": {
+      "hash": "sha256:8ccb88d3006d0af0a203cf735d4bfb83540e6415f2cc149a8dcdb694a54d5904",
+      "size": 7614
+    },
+    "gift_은빛_열쇠_모음": {
+      "hash": "sha256:8e74ad0ce9a6fbd332cc5d9fd40a17495ea174966f5384a0ca78b5e1bfa51725",
+      "size": 7334
+    },
+    "gift_의리_사슬": {
+      "hash": "sha256:9661e2bb273f45ee2384d3ee21b7ef3a549a720df37e3d73cd3f2619ed2ea78c",
+      "size": 6328
+    },
+    "gift_의체관절_서보모터": {
+      "hash": "sha256:c1783822a14505c11cff5f5792ee4cacf337fcd85c013a6f07f37e6df434e65c",
+      "size": 3624
+    },
+    "gift_이력서": {
+      "hash": "sha256:78045640b268898fe72639d3e22e6365d80ff1b7235e540213fd588e310f20d7",
+      "size": 4038
+    },
+    "gift_이전칠자": {
+      "hash": "sha256:3c35f7d0f9afabf28b368f72232bc22f3f9fbd3109ada79ae4ef6fce172e2c6d",
+      "size": 5962
+    },
+    "gift_인슐레이터": {
+      "hash": "sha256:d776ac0e5405e259a2a792ce394e63affa1a6c8cd14210e43305e599f52d6d35",
+      "size": 7278
+    },
+    "gift_인연_얽힘": {
+      "hash": "sha256:1c28587b69602ec8d71ce326c29c197798cbc0711c90aca923f44e6abe1da302",
+      "size": 17016
+    },
+    "gift_인연_조각": {
+      "hash": "sha256:78d4e80ada9d947b038a9d8d80a04ba5af123d2e8c663ee18dd306f79cb9e3d0",
+      "size": 3546
+    },
+    "gift_일반석_할인_바우처": {
+      "hash": "sha256:8bcc815e00c12df01a772c87b46d67adbc67040d0a20a7fc9762e8ca52125e18",
+      "size": 2060
+    },
+    "gift_일점타격논리회로": {
+      "hash": "sha256:0bdb9fecfc9c01e9545eecbe3c010526688e83b8408564ec7812b88f17e815c6",
+      "size": 5680
+    },
+    "gift_입장권": {
+      "hash": "sha256:c9461ae5d507a3664aa8c920e4c046e50cd8fd2d1beee23597651371f31ea6d1",
+      "size": 4380
+    },
+    "gift_자율_작동식_관절": {
+      "hash": "sha256:21da2b632d4daf1f683d3cd4593a274a8f7d092075ee164fbca43715ffd3897d",
+      "size": 4430
+    },
+    "gift_작__형__등장": {
+      "hash": "sha256:762a8fd4a8bc803dcf34e6b52a2f367e569301278dcbde02e7337c0472d0e735",
+      "size": 7380
+    },
+    "gift_작고_나쁠_인형": {
+      "hash": "sha256:1b5ecbb60c7dd7d724201687cc92015f089d9db098e96cb6480d77416276cc07",
+      "size": 4154
+    },
+    "gift_작살_의족": {
+      "hash": "sha256:e1b073d036f04f848664416f4f8a3f22fff045ca16cea6604556d26342843a84",
+      "size": 3678
+    },
+    "gift_작열우모": {
+      "hash": "sha256:264d0c05f91f569278f54edf9ec528cff39f34edbb8878c9aaae8a37ed4d4a6e",
+      "size": 5972
+    },
+    "gift_작전_승인_카드": {
+      "hash": "sha256:0c3081c1ba8c77808969b92d6a600ee0cc7ff27edaf7ab5aac1544a098985dea",
+      "size": 3224
+    },
+    "gift_작품___야성": {
+      "hash": "sha256:00668e173440ffc2a6565db15817fc2578dcb72ab9b66d01255988ada42f040f",
+      "size": 6626
+    },
+    "gift_작품___약동": {
+      "hash": "sha256:dfa723757e9665e3094df5c387fb6bd50c35a647829525659be168a4f253ea14",
+      "size": 7480
+    },
+    "gift_작품이_된_마에스트로_링": {
+      "hash": "sha256:f0bbb1b2a19024ba1dc8a4e508a270bbac81bfe345daf6031ee4c8801601ceda",
+      "size": 6258
+    },
+    "gift_잔가지": {
+      "hash": "sha256:31df434db5bfd1c1f255e5b4ab620f18bb13d068ab27b4e28e23613df4c5d2d6",
+      "size": 5350
+    },
+    "gift_잔불": {
+      "hash": "sha256:0a88bae9fd37f7764d29edb033170ba4c6f28e7a0c25e8664c889c1a39b58f3b",
+      "size": 6164
+    },
+    "gift_잔향": {
+      "hash": "sha256:ec6bdaf5259da4b6ac79bbd5e557ff567455b184e7efbde82c017f4af527553e",
+      "size": 3080
+    },
+    "gift_잘려나간_기억": {
+      "hash": "sha256:1df6f3192883a4b7a40d8026f892cc7dd4762909aed0649d11b75cbeb47fe8ec",
+      "size": 4296
+    },
+    "gift_잠식_조각": {
+      "hash": "sha256:3192381009e4df551fc36ed8318a3f2308af557ad9ad8b3cb49dc744e8cbe535",
+      "size": 3142
+    },
+    "gift_장관": {
+      "hash": "sha256:020bcf93d463a8b966d60a3b4430bb920717cb84ca6fb6edbbec5572eeac6940",
+      "size": 2636
+    },
+    "gift_장미_면류관": {
+      "hash": "sha256:8bf5ed43bbf9a8fa4d26e08e5b600df8fbda88b79a1509c1f4f4620ec3a748b7",
+      "size": 3706
+    },
+    "gift_장식된_편자": {
+      "hash": "sha256:16afaeda70a6206d05c65f68aa822fc281d9bebc5ee60262d1b83c9dbc8b4ba8",
+      "size": 4958
+    },
+    "gift_장엄": {
+      "hash": "sha256:d21e27b3730fccabb0327a8560d6f7acf56221a5d365590d71fe9e421c6f9569",
+      "size": 5408
+    },
+    "gift_재단용_가위": {
+      "hash": "sha256:b8f80836e7e80c119b36e9d2d88a9874747247fb70183f267bcd70989aadcc3e",
+      "size": 4298
+    },
+    "gift_재에서_재로": {
+      "hash": "sha256:47434fc2af44853400a00b58f9aa7500387f9d15da3443d7d69cec54204dbdf3",
+      "size": 3612
+    },
+    "gift_재점화_플러그": {
+      "hash": "sha256:a41a6560fdd2268107e191e0b7d29c1ca773dab62547412c9afe6ff7daf30bd4",
+      "size": 6390
+    },
+    "gift_잿빛_별자리의_가호": {
+      "hash": "sha256:3c5b7e557fd878e706a1931bc41b851fc44e5f38235e65e0802d3d3e698d446b",
+      "size": 7110
+    },
+    "gift_잿빛_코트": {
+      "hash": "sha256:ffe7b7d7530bca16cbcd45201581cb50b05cc933fadb939d70061b232441f46d",
+      "size": 2684
+    },
+    "gift_저주_인형": {
+      "hash": "sha256:ac5110d7a140d4f838c1094fea94e7801b73bd870552baa0c7b2bfbca629e79c",
+      "size": 5004
+    },
+    "gift_적색_지령": {
+      "hash": "sha256:ce585cbbbbd8eb12bf5461b1d3f340b52cd42bf95e09b8bfae440cd3894b1e7d",
+      "size": 4666
+    },
+    "gift_전격부": {
+      "hash": "sha256:68e7251d6387d2fc3ed2cd7bcc1d337110f1a832e20602d9c1b6409498f651d6",
+      "size": 4430
+    },
+    "gift_전혈_플라스크": {
+      "hash": "sha256:ec055f25886eced8428f8d86f537599c4300ee91622442e496ef47fb40997784",
+      "size": 6956
+    },
+    "gift_절경": {
+      "hash": "sha256:f3f91f7bbe2d130ed8cf695bfc1ee1d1e4ab46f24b190ef9dedb2de98e68d5d3",
+      "size": 4076
+    },
+    "gift_절차탁마_切磋琢磨": {
+      "hash": "sha256:ea2c09122b3734f3a0d8493bf5c9e8dd3309cebfc53fe077b4f87cef75398bd3",
+      "size": 7970
+    },
+    "gift_점화_장갑": {
+      "hash": "sha256:8601809b10abe86f797e64f9b035354e811200399f70deef69bc9cc7836b4139",
+      "size": 5666
+    },
+    "gift_정신_오염_가속_가스": {
+      "hash": "sha256:4630609b52ccab4e4cdcaec10fa5f35dc1d93e4db35c5937da1d2daa2ba961c7",
+      "size": 7508
+    },
+    "gift_제_1종_영구기관": {
+      "hash": "sha256:0f45dae17e8f90eb56726c0accf092f80b079a667b628d4fafe033d9da286ed7",
+      "size": 7646
+    },
+    "gift_제_5종_영구기관": {
+      "hash": "sha256:9b8cf5cf9f2a86eb4d0574f8962f7e735ebf3c4fc26d00361f72ee013b2b4a71",
+      "size": 8028
+    },
+    "gift_제식_복장___리우_협회": {
+      "hash": "sha256:16b389df8181178ffa6d70daccd5af63549c86b576d91256905e977a0092ee17",
+      "size": 4902
+    },
+    "gift_제한_풀린_제세동기": {
+      "hash": "sha256:86807178361f76e5ee23b10e8cbd67b0781a6b9b027c9f21e9b576d37f5e9254",
+      "size": 2674
+    },
+    "gift_조각난_칼날": {
+      "hash": "sha256:1c3699ad9ba761627d8f3c0952ab58898f7738dfd04c50a28acd0addebd82229",
+      "size": 2886
+    },
+    "gift_조그맣고_근사한_바이올린": {
+      "hash": "sha256:58fe1711a27db6a4f057e1203df008b604ebb26cf822cc76c78e2dfc9a6e15a6",
+      "size": 5894
+    },
+    "gift_종말의_파편": {
+      "hash": "sha256:d1ec738e0bb4dd52e9399a9d757a54d4de08b74834ca5deb727d72a65c19288f",
+      "size": 4276
+    },
+    "gift_주홍_나방떼": {
+      "hash": "sha256:7d20f0e9c89ba2a110f4fb8b296a47ba8780ce8ef56b2320e706e2c1c969ef84",
+      "size": 5652
+    },
+    "gift_죽음바라기": {
+      "hash": "sha256:e6bfe5bfd3f33715c99a7f759eec426a500b5020da70744be246b513a042f02a",
+      "size": 5442
+    },
+    "gift_중지식_너클": {
+      "hash": "sha256:89b9d03b030840eff7ea7e6a201873d4e33bed4c424c70259ce171fc8bd28b08",
+      "size": 5366
+    },
+    "gift_중지의_규율": {
+      "hash": "sha256:d613a5357d8aa68aa367e97db758a84478a97274fc7d90f570bd0647e04aa14b",
+      "size": 3456
+    },
+    "gift_증명의_깃털": {
+      "hash": "sha256:5740706891a298aadfc92cc45be288e9f9eeb5481e85f61f66abc33ec5000bca",
+      "size": 4380
+    },
+    "gift_지령의_보살핌": {
+      "hash": "sha256:dd93028ad833bc9381821335f13eedbe9dea445a7a1608e7405328602f04924b",
+      "size": 7364
+    },
+    "gift_지옥나비의_꿈": {
+      "hash": "sha256:4aa6fa632724d1fd5086612cc1fe5ce4ab387f89a9898da030557c0e87d8cc13",
+      "size": 6956
+    },
+    "gift_진동형_팔찌": {
+      "hash": "sha256:7003f4dc7330097c1d61c7dc0d51f17e6b9678c7fd9490fca3a79e26afb0ff40",
+      "size": 2428
+    },
+    "gift_진실의_종": {
+      "hash": "sha256:add1e021a94df906531e51e99fb25b3195f86539f732818d8e5bc4deb72afdf6",
+      "size": 5618
+    },
+    "gift_진원점": {
+      "hash": "sha256:b82f6fc195633133d5547b6f98f722e9ef6c5bcb13c326f74254ac74313317e7",
+      "size": 12378
+    },
+    "gift_진통제": {
+      "hash": "sha256:3a1a87eaa6a3efff5423d511b369ce1f920023c6cfb8dbbf66c26e906ea6e680",
+      "size": 2954
+    },
+    "gift_진혼": {
+      "hash": "sha256:746ba02686db6e22e98e0abca1ec3c84695c521986c2ee740d121788d2d4183a",
+      "size": 4300
+    },
+    "gift_짧은_케인_소드": {
+      "hash": "sha256:4d7fbc031388fd9079b47835f6be829c743500269159838e292dfccf2518d0a5",
+      "size": 2152
+    },
+    "gift_쪽빛_지포라이터": {
+      "hash": "sha256:7703e9e97a890089e704474f923d0b8581d5d34a439fca2a9078c853c45da758",
+      "size": 2346
+    },
+    "gift_찢어진_밴돌리어": {
+      "hash": "sha256:87824f0dd33cba1fae7f6cf1b5697d3a5d2ac039972e5c98a878894f6040335f",
+      "size": 3634
+    },
+    "gift_찢어진_피주머니": {
+      "hash": "sha256:c582ea6155f3dfeee3cc40c9f528cd86c13d1828117fca627e3fb55d6518a6fa",
+      "size": 4644
+    },
+    "gift_차원분리수거함": {
+      "hash": "sha256:0104ee527f2663eb1b8f9fcdf74ce01f8513155fb3e5f244e34f398741836d6c",
+      "size": 2882
+    },
+    "gift_차원지각변환체": {
+      "hash": "sha256:d901a9233c4b2f95a90158e68fddabc42991720df49152ccd53f7ed67f268be7",
+      "size": 6300
+    },
+    "gift_찬란한_잔영": {
+      "hash": "sha256:96f23982b525db4218575030a7ea9ac209c74c39cc4087783940ee98de14a590",
+      "size": 7550
+    },
+    "gift_찰랑이는_연료통": {
+      "hash": "sha256:518e585681666dbec5a95621385320e34e401eeff6d7e5a31c4a7774de71bebb",
+      "size": 3890
+    },
+    "gift_체험형_플랜_가이드": {
+      "hash": "sha256:beaebbab16cff7f84180685110065fcdcb3ea0ca707b83a1aad2aef1dee25bff",
+      "size": 3946
+    },
+    "gift_초록빛_결실": {
+      "hash": "sha256:fdfedafdcbe5df77ef257a3905a783a4dd1410fcc650096ab73897e9b0fb2091",
+      "size": 5316
+    },
+    "gift_초정밀_시간_가속_장치": {
+      "hash": "sha256:bf24803fae8a32db16b7a9ffc4e56fed72d2d302296608dcf45741463a1b656f",
+      "size": 5136
+    },
+    "gift_추억": {
+      "hash": "sha256:483b2057ebdd07948eee79edc557cb3bab41d9c8c9f5c41a1e6a094646f63d15",
+      "size": 5808
+    },
+    "gift_추억의_펜던트": {
+      "hash": "sha256:825e239f3d01f6fe3f773cece5403fd9a0ed9c615bffb88cf0efe6b6183c89f3",
+      "size": 4558
+    },
+    "gift_축복이었던": {
+      "hash": "sha256:2ab1184062df3df130d6422007a552007893975ed8d438b9669f719d438ae8ac",
+      "size": 3990
+    },
+    "gift_출혈성_쇼크": {
+      "hash": "sha256:4d725c6b44e6e9379e17ea461b663423621092812c26646d2a0e39156ff02052",
+      "size": 6612
+    },
+    "gift_충전식_장갑": {
+      "hash": "sha256:ff8a81ea1e0a193265c217dd3586d975d097333c89e00e0bcd6941a19e11c5b6",
+      "size": 5576
+    },
+    "gift_치사랑": {
+      "hash": "sha256:81157dd5c7e8a66af2fbe3301efb3ee8fd17fa94bd2013356a3582d900a24748",
+      "size": 5470
+    },
+    "gift_치성": {
+      "hash": "sha256:ed7239913de7a6b2782198195b10ace86fbee73e6ad708bcb7b328f6314cb5e5",
+      "size": 2846
+    },
+    "gift_치프_버틀러의_비급서": {
+      "hash": "sha256:4617c689926ad3e08f3b8f03ab11f2aae7a11cb00276082ec49d20e7820561f7",
+      "size": 4582
+    },
+    "gift_카르밀라": {
+      "hash": "sha256:99ab2b22a1897ba9d2439c79387d48aebedb4df501cee2c915345c01e0870e03",
+      "size": 4124
+    },
+    "gift_카포를_위하여": {
+      "hash": "sha256:9a7427cb8493a934b5071ef2e182b32d2e30823ed9cc7a3a32876eb4d38aeb57",
+      "size": 4156
+    },
+    "gift_칸타빌레": {
+      "hash": "sha256:df8ba0d4bec303011a46e9bc0a8cc503e3b52d3a83cb692599caf115f4585ca9",
+      "size": 9468
+    },
+    "gift_캐스크_스피리츠": {
+      "hash": "sha256:cbdf63b8486b7b091f4dab0547b91918023678739ebfd7c4053146e65df53a2e",
+      "size": 8372
+    },
+    "gift_커피와_종이학": {
+      "hash": "sha256:cbe01e388613845ab131fcff560be20d93fdc2cd05b8350c09371691df7abd30",
+      "size": 4444
+    },
+    "gift_쾌감": {
+      "hash": "sha256:ed5748fecf8d73421daeb99cafd6bc29fce3cdaf807edc8be70ae7156220d7ff",
+      "size": 3738
+    },
+    "gift_크랲게_뇌수_담금주": {
+      "hash": "sha256:77d3c575b272fb34036b90a4a8bc8c25cf914791a1fc4bf19ff5e3daa1e6f55c",
+      "size": 7558
+    },
+    "gift_타성_조각": {
+      "hash": "sha256:ffb8b1479bb3a6901a88db40a17db9e405dc64c586738c2c2e3c1d18b3ee4687",
+      "size": 3356
+    },
+    "gift_타오르는_지성": {
+      "hash": "sha256:009377f6eb08dc1c9d0822f20ae601bd501c184a7126481f616f6748e62631e2",
+      "size": 5660
+    },
+    "gift_탁마": {
+      "hash": "sha256:d52f96793a5692c52b77585a2a53d843f66b741adb56de75ecf029aec2b0a2f8",
+      "size": 3130
+    },
+    "gift_탐하는_가시": {
+      "hash": "sha256:471c7be836849bc2c6b4a32cd84e9fd9cedcd8f73c27cca64e93fb3f30655488",
+      "size": 4762
+    },
+    "gift_탱고_닭양념장": {
+      "hash": "sha256:71385d191cf93409e7ee1b87e2b25a9135ec43682dbcf8326f105266607fde35",
+      "size": 3876
+    },
+    "gift_털방울_모자": {
+      "hash": "sha256:f42997ba3fb30247fa4041e62828b52064efe38d87b6c91616e7dea84c1c15c9",
+      "size": 3784
+    },
+    "gift_텅_빈_새장": {
+      "hash": "sha256:38dcf3aaf21e7b08a257bcb93df11f9ecdedeaaea56723d5edea8c7ea3bc4686",
+      "size": 10000
+    },
+    "gift_톱니_파편": {
+      "hash": "sha256:ee440732dcd6a1a800a7ee848f3a040fd329aa202a6f87b0e053b5e179280ea1",
+      "size": 7142
+    },
+    "gift_톱니바퀴_태엽": {
+      "hash": "sha256:f4e46e649f8eba5cc2e7f7ae3d3c10496f25c16d83637c02540606aab7fc6f75",
+      "size": 4764
+    },
+    "gift_통상_작전용_장비": {
+      "hash": "sha256:21e9b98a8ebf8af2f55180cca1bc4268df51b20eeefc34d3a44816572bffc9dd",
+      "size": 4590
+    },
+    "gift_트라우마_방지장": {
+      "hash": "sha256:270befe1f4de82e3be2f2ca9239ac31c0e6656ea7657489e590960433452e34e",
+      "size": 5446
+    },
+    "gift_특별_계약": {
+      "hash": "sha256:6a77eff6bab6b80e26be519507a09b56e6d7173274bc982a6a1b96dd05d5e673",
+      "size": 7510
+    },
+    "gift_특별_카탈로그": {
+      "hash": "sha256:0ad388da6aaf9789c9684f7795890785f3331482ef82099e650de1ff373713e6",
+      "size": 4520
+    },
+    "gift_튿어진_소매": {
+      "hash": "sha256:826934aa8e1ab183da084ffe85003cf0fed9a7f146913f497eb4494859f8fa32",
+      "size": 4736
+    },
+    "gift_파란_별조각": {
+      "hash": "sha256:1a1f67d5edbdca73b83c1b4ecea335ab0d66b777e1730ad9522ef0027c89c006",
+      "size": 5530
+    },
+    "gift_파탄": {
+      "hash": "sha256:358d42936fe8e499f226cddd9405aa7c73d60ba18d8657889595e549e692bd82",
+      "size": 8270
+    },
+    "gift_퍼레이드의_가면": {
+      "hash": "sha256:ef554b4edfaa8ba50d744980fd7be46544fc8e77477fb1dfc6905bc148f22f59",
+      "size": 6446
+    },
+    "gift_편견": {
+      "hash": "sha256:ad09e7e8fe16bdd37be1ca2799730dfad2e5b54d5873111d12db581b141e2921",
+      "size": 4596
+    },
+    "gift_편광": {
+      "hash": "sha256:c3e6f8e1855656fecd47dd2d8f06cf34a96f77ee5184019bd7916112ed78aab6",
+      "size": 7246
+    },
+    "gift_평등": {
+      "hash": "sha256:aa6a7f5728ce624d60219cef9ca9c98484a6b9839978ba1691ee411127455f61",
+      "size": 2660
+    },
+    "gift_포장용_끈": {
+      "hash": "sha256:15eb7351e9acc1061600265b10292f929cef2a9bc0ed41056cadd8bb98386d17",
+      "size": 4998
+    },
+    "gift_포장용_상자": {
+      "hash": "sha256:583dd79e882e0ceacc7baa1e1e4a5e63daf206140cb3af28eefeafa1b6217a21",
+      "size": 3416
+    },
+    "gift_포켓_암기_노트": {
+      "hash": "sha256:e9b3231a14374991bf8cd615f89a9853e4bf7aa32c996ec62c0bd6411c6b6f9e",
+      "size": 4950
+    },
+    "gift_폭우": {
+      "hash": "sha256:0a2079ddba109a46b5eaa1df37d192fec731facf7270a0e39d9d9896cd95520d",
+      "size": 3262
+    },
+    "gift_프레스티지_카드": {
+      "hash": "sha256:1364785619702c1769507da8caf7d5a0a8fcd2dd56f2603e0e9a8695b6b5b240",
+      "size": 2822
+    },
+    "gift_플라스크_속의_아이": {
+      "hash": "sha256:d14630d5bd80f7183308b5eef36a86f774cb86660c63866b9da023576e9a7939",
+      "size": 6926
+    },
+    "gift_피로_된_살점__살점으로_된_피": {
+      "hash": "sha256:635ab21a53a1a8649dcb9d1b782f0b0489166435039c3f5ff83a4537f2bd9581",
+      "size": 6812
+    },
+    "gift_피뢰침": {
+      "hash": "sha256:097cf4cd57e875238f08d2f82cc985934aba1aeb8c193661518843c400d0d742",
+      "size": 4614
+    },
+    "gift_피안개": {
+      "hash": "sha256:c8b87807171a51cd164625f8077a5085fe8cdbfead023157e918443b68ce09d1",
+      "size": 5460
+    },
+    "gift_핏빛_갈기": {
+      "hash": "sha256:94fd20db107197d122632f5c6c6a97abbbdc6eb0d00533d331587e1b53c65fc6",
+      "size": 5124
+    },
+    "gift_하모닉스": {
+      "hash": "sha256:4d20e684b18d0107bb4be7662c8ee1a753cfa477989d5e8d46d4049e2b51d323",
+      "size": 4374
+    },
+    "gift_하츠_파워드_쥬얼": {
+      "hash": "sha256:543b0126e235eaf600ab15616debd9f3e7fc56327afc8fc4ca31842580ead391",
+      "size": 4266
+    },
+    "gift_한_잔_더": {
+      "hash": "sha256:931f4f792fc3dfdd290cb28a92baaab1aa5a4fceb6cb8f312d272a7b45ac511f",
+      "size": 8016
+    },
+    "gift_한겨울_밤의_악몽": {
+      "hash": "sha256:7b44e4653d0488722117cf8725520a61f692249e10881f8b59d69696e1572c9a",
+      "size": 4448
+    },
+    "gift_해진_삿갓": {
+      "hash": "sha256:e744d6039b9ad883460482ec899ac67b802a019d4f95d157ea19dcdcd6477cb3",
+      "size": 2608
+    },
+    "gift_해진_우산": {
+      "hash": "sha256:4229fae2a53963da30e0abfd47c5f8c886f0800802077f7b637c965d990af520",
+      "size": 3690
+    },
+    "gift_혈액_포집팩": {
+      "hash": "sha256:58457df45370379591b1faf39976bd920c4d9c1a800cc5678071c4cba7efa737",
+      "size": 5630
+    },
+    "gift_혈염도": {
+      "hash": "sha256:5d8f2b9e67f6c3a7b31f5900fca65584c7540c01d05b13ec96964301bf0ad422",
+      "size": 2732
+    },
+    "gift_혈향도래": {
+      "hash": "sha256:8dbb29b9fad8ba77e1ffaa775792c4d8210329798e29ea3c3008e1450f97a4c1",
+      "size": 12064
+    },
+    "gift_형광색_램프": {
+      "hash": "sha256:833e4e87b5416e460dad40e58d4d4ef9d2bea3518b49deec82719ca02a86685a",
+      "size": 4606
+    },
+    "gift_확률과_선택": {
+      "hash": "sha256:3df575a117314bba2952e38da4c2105225b87c3c515ccaaf9d27b45fddf64644",
+      "size": 4822
+    },
+    "gift_환상_사냥": {
+      "hash": "sha256:632b89d669b6afd9b8e33bed1525067f00789dfdcbeeb88a266c1598d9cc8e85",
+      "size": 4322
+    },
+    "gift_환상통": {
+      "hash": "sha256:2c79ecd9645b0bf1e4cedc01079b8e4be5315a23899a2104a738f2f973baa169",
+      "size": 5194
+    },
+    "gift_황금빛_시간": {
+      "hash": "sha256:8ba9dfb9d6894044b81eb1d3f267812e66dc06bc3e5a998936e2feb9762bcd7e",
+      "size": 5716
+    },
+    "gift_황금색_항아리": {
+      "hash": "sha256:a5e49ebe4a6393736879309939029212f7f950f29d1ad985c18996d9dc5105a2",
+      "size": 4238
+    },
+    "gift_황금으로_만든_나침반": {
+      "hash": "sha256:7f37f3f7467ed3bd1fd868bf72be9c8a02e5c88c27e40323c17e9c40ddfd95b4",
+      "size": 5512
+    },
+    "gift_황홀경": {
+      "hash": "sha256:9dc7c2aeab99fa18051571c4d6c7a0dd4f0770952b093ad03c4eab79ff5e9b26",
+      "size": 4630
+    },
+    "gift_회전_목마_모형": {
+      "hash": "sha256:186b2ba3dd5a8e03548fc781fd1062b3a5747e97b151e2be7b679e24b685f4ed",
+      "size": 14114
+    },
+    "gift_회중시계__타입_E": {
+      "hash": "sha256:59f83e984d6d9901b41002b8a7bf41279de4bd081822f012cd8a4b31b3f31e40",
+      "size": 7504
+    },
+    "gift_회중시계__타입_L": {
+      "hash": "sha256:c105332746a9f24ae675a967fab279cfa2abfee6f643f02906b75becd4c1e5f1",
+      "size": 8360
+    },
+    "gift_회중시계__타입_P": {
+      "hash": "sha256:ed94d84de7e69fb98a9f04f7dd2ee0c3a23eb63763a20f7c081c49c90c2ca8ec",
+      "size": 5502
+    },
+    "gift_회중시계__타입_Y": {
+      "hash": "sha256:eb1afefce10d81f3c04eea5d9ef54c11d84a557747b0fa86a0799721c49af3e3",
+      "size": 6056
+    },
+    "gift_훔쳐온_불꽃": {
+      "hash": "sha256:890e5a3e0a6cc7d869109e7a1ff45d3fed0ff74ae9c059afae952f3216453d2c",
+      "size": 6280
+    },
+    "gift_휴대용_구급상자": {
+      "hash": "sha256:7dd98bf599fcdaf8c8ad37ea01991639af131e747dc5f7920a65d0d1c8ff437f",
+      "size": 3706
+    },
+    "gift_휴대용_역장_배터리": {
+      "hash": "sha256:7a788a560c82a8f18daa67d45aea1ccdefd18c736e9ec4af9791be4ea56c2761",
+      "size": 4920
+    },
+    "gift_휴대용_전지_소켓": {
+      "hash": "sha256:46dfa2534ae0ae4ce1026ae14cc170abda06bea3bf2046a9374feaaba9c2b64f",
+      "size": 7102
+    },
+    "gift_흑단_브로치": {
+      "hash": "sha256:7643f1a6b928f089e49f65a212779168f03281ee676026fff3eb14bfc1fece34",
+      "size": 3928
+    },
+    "gift_흑수환___묘": {
+      "hash": "sha256:fae71e394249873f1136bfacb04fd4797f7e606b48e3b06b08c9bce00f56b2f7",
+      "size": 5376
+    },
+    "gift_흑염_파이프": {
+      "hash": "sha256:07c804f9aeccff27d3ed0cf1a9704497a8a5a6a88fbacd88386bbc6d597ee846",
+      "size": 4764
+    },
+    "gift_흑철마갑": {
+      "hash": "sha256:c6b0823cd17424f1709fe743f7ec78bc4efd1ec4388dc138b7bcd1166fe01bcd",
+      "size": 7268
+    },
+    "gift_흔들리는_술통": {
+      "hash": "sha256:9543e137b4afffa15d96ba35a8df4ddf14acd2694ddfd1e85914b5ea000ac4f3",
+      "size": 4734
+    },
+    "gift_흘러내린_엔케팔린": {
+      "hash": "sha256:09d9139b982d78b754d91c37cb2eebef49f95d03f7a2a3038d048df259d91a54",
+      "size": 5802
+    },
+    "gift_흰_목화": {
+      "hash": "sha256:e79552dfb3bfca9de7389388bb9dc0f4463e23e43b6d50d88dfcab6d51a3787c",
+      "size": 3716
+    }
+  }
+}
