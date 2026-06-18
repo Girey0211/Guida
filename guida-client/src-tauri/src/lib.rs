@@ -1,7 +1,7 @@
 mod commands;
 mod utils;
 
-use commands::{fs as gfs, settings, crypto};
+use commands::{fs as gfs, settings, crypto, image_cache};
 
 use tauri::{Manager, Emitter};
 
@@ -66,6 +66,11 @@ pub fn run() {
             crypto::encrypt_backup,
             crypto::decrypt_backup,
             crypto::begin_key_migration,
+            // 이미지 content-addressed 캐시 (cache/images/<hash>.webp)
+            image_cache::read_cached_image,
+            image_cache::write_cached_image,
+            image_cache::list_cached_image_hashes,
+            image_cache::delete_cached_images,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Guida application");

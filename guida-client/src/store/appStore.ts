@@ -68,6 +68,11 @@ interface AppState {
   /** 강제 업데이트 게이트 (앱 버전 / 림버스 패치 최신성) */
   update: UpdateGateState;
 
+  /** 게임 데이터 동기화가 진행 중인가 */
+  syncing: boolean;
+  /** 마지막 동기화 성공 시각(ISO). 설정 화면 표시용. 없으면 null */
+  lastSyncAt: string | null;
+
   /** 앱 초기 부팅: UUID 확보 → 설정 로드 → 게임 데이터 동기화 → 업데이트 확인 */
   bootstrap: () => Promise<void>;
   /**
@@ -101,6 +106,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   dependencies: [],
   prisoners: [],
   update: NO_UPDATE,
+  syncing: false,
+  lastSyncAt: null,
 
   bootstrap: async () => {
     try {
@@ -235,6 +242,27 @@ export const useAppStore = create<AppState>((set, get) => ({
         ready: true,
         bootError: e instanceof Error ? e.message : "초기화 중 알 수 없는 오류",
       });
+    }
+  },
+
+  requestGameDataSync: async () => {
+    if (get().syncing) return { status: "busy" };
+
+    set({ syncing: true });
+    try {
+      // 디스크 캐시·매니페스트만 갱신한다. 메모리에 로드된 게임 데이터는 갈아끼우지
+      // 않으며(런타임 핫스왑 없음), 갱신분은 다음 부팅의 로드 단계에서 반영된다.
+      const result = await syncGameData();
+      set({ syncing: false, lastSyncAt: new Date().toISOString() });
+      await logger.info(
+        "Sync",
+        `Game data sync done (disk only, applies next boot; network=${result.fromNetwork})`,
+      );
+      return { status: result.fromNetwork ? "synced" : "offline" };
+    } catch (e) {
+      set({ syncing: false });
+      await logger.error("Sync", "Game data sync trigger failed", e);
+      return { status: "error", message: e instanceof Error ? e.message : "동기화 실패" };
     }
   },
 
