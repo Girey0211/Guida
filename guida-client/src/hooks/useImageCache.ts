@@ -14,6 +14,9 @@
  * 추후 fs 플러그인으로 확장 가능하다. MVP에서는 브라우저 HTTP 캐시에 의존한다.
  */
 
+import { useEffect, useState } from "react";
+import { resolveGiftImageSrc } from "@/api/imageCache";
+
 const DATA_BASE =
   (import.meta.env.VITE_DATA_BASE_URL as string | undefined) ?? "/data";
 
@@ -38,4 +41,44 @@ export function resolveImageUrl(fileName: string | undefined): string | null {
     .map((seg) => encodeURIComponent(seg.normalize("NFC")))
     .join("/");
   return `${CDN_BASE}/${encoded}`;
+}
+
+/**
+ * 기프트 이미지 content-addressed lazy 캐싱 훅 (phase2 dev plan §4 S3).
+ *
+ * image_key(파일명)를 받아 매니페스트 해시 기반으로 로컬 캐시를 확인하고,
+ * 미스 시 1회 다운로드·검증·저장한 뒤 표시용 src 를 반환한다.
+ *  - `src`: 표시할 URL(data:/CDN). 표시 불가(폴백)면 null.
+ *  - `loading`: 해석 진행 중 여부(완료 전 폴백 깜빡임 방지용).
+ */
+export function useCachedImage(imageKey: string | null | undefined): {
+  src: string | null;
+  loading: boolean;
+} {
+  const [src, setSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(!!imageKey);
+
+  useEffect(() => {
+    let alive = true;
+    if (!imageKey) {
+      setSrc(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setSrc(null);
+    resolveGiftImageSrc(imageKey)
+      .then((resolved) => {
+        if (!alive) return;
+        setSrc(resolved);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [imageKey]);
+
+  return { src, loading };
 }
