@@ -1,0 +1,46 @@
+[package]
+name = "matching-core"
+version = "0.1.0"
+edition = "2021"
+description = "Guida Phase 2 매칭 코어 — pHash 변별력 검증/인덱스 빌드 (런타임 비포함, 오프라인)"
+license = "MIT"
+
+# 이 크레이트는 tauri에 의존하지 않는 순수 이미지 해싱 코어다.
+# 런타임(src-tauri/src/matching/identify.rs)과 빌드 도구(build_phash_index/audit_collisions)가
+# 동일한 해시 구현을 공유하기 위한 단일 진실 공급원(SSOT). (계획서 §7.1)
+
+[dependencies]
+# webp 디코드만 필요. 기본 features(avif/exr 등 무거운 코덱·rav1e)는 끈다.
+image = { version = "0.25", default-features = false, features = ["webp", "png"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# 해시 크레이트. M-pre 벤치 결과 image_hasher 확정(변별력 동등 + image 0.25 공유 +
+# 유지보수 활발). 패자 img_hash 는 런타임 경로에서 제외하고 벤치 재현용으로만
+# `bench` feature 뒤에 둔다. (계획서 §1.1, §3 M-pre / "패자는 의존성에서 제거")
+image_hasher = "3"
+img_hash = { version = "3", optional = true }
+
+[features]
+# 크레이트 비교 벤치(bench_crates) 전용. 런타임/도구 기본 빌드는 img_hash 미포함.
+bench = ["dep:img_hash"]
+
+[lib]
+name = "matching_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "bench_crates"
+path = "src/bin/bench_crates.rs"
+required-features = ["bench"]
+
+[[bin]]
+name = "audit_collisions"
+path = "src/bin/audit_collisions.rs"
+
+[[bin]]
+name = "build_phash_index"
+path = "src/bin/build_phash_index.rs"
+
+[profile.release]
+opt-level = 3
