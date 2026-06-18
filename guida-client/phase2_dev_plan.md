@@ -274,10 +274,10 @@ on_frame(frame):
 
 - [x] **M-pre: 크레이트 벤치(`img_hash` vs `image_hasher`) + 해시 파라미터 확정** → image_hasher / DoubleGradient·32×32·DCT off·Lanczos3 (544bit). 근거: `matching-core/MPRE_REPORT.md`
 - [x] **M-pre: `identify.rs` 코어 + 합성 왜곡 자가 테스트** → 현실 왜곡 복원 top-1 99.90% (≥99% 통과)
-- [x] **M-pre: 449 pairwise 변별력 감사 → near-collision 리포트 + `ambiguity_margin` 도출** → min inter 21bit, near<20=0, **ambiguity_margin=19**. 리포트: `matching-core/near_collisions.json`
-- [ ] **M-pre: `build_phash_index.rs` → `phash_index.json` 생성**
-- [ ] M0: WGC 캡처 + game rect 정규화, 5개 해상도 환경 검증
-- [ ] 회귀 세트 수집/라벨링 인프라 구축
+- [x] **M-pre: 449 pairwise 변별력 감사 → near-collision 리포트 + `ambiguity_margin` 도출** → min inter 20bit, near<20=0, **ambiguity_margin=18**(검정 평탄화 반영 후). 리포트: `matching-core/near_collisions.json`
+- [x] **M-pre: `build_phash_index.rs` → `phash_index.json` 생성** → 449개·544bit·91.9KB, 자기검증(self-dist=0) 통과. `matching-core/phash_index.json`
+- [x] M0: WGC 캡처 + game rect 정규화 → **검출 코어 ±2px 검증 완료**(matching-core normalize/geometry, 1080p/1440p/4K/울트라와이드/창모드 합성 프레임). WGC/HWND 캡처 글루는 src-tauri 구현·컴파일 완료, **라이브 캡처는 게임 실행 환경에서 검증 필요**
+- [x] 회귀 세트 수집/라벨링 인프라 구축 → 라벨 스키마+러너+합성 시드(`matching-core/src/regression.rs`, `run_regression` 바이너리, `regression/`). 합성 스모크: 화면 100%·식별 100%·오탐 0
 - [ ] M1: region-pHash 지문 + 히스테리시스 + 상태 머신
 - [ ] `matching_config.json` 스키마 확정 + 로더/검증(serde)
 - [ ] M2: 앵커 탐색 + 다중 앵커 교차검증 + 아이콘 크롭/식별 연동

@@ -17,8 +17,11 @@ use image::RgbaImage;
 use serde::Deserialize;
 use std::path::Path;
 
+pub mod geometry;
 pub mod hash;
 pub mod identify;
+pub mod normalize;
+pub mod regression;
 
 /// 정규화 캔버스 크기. 레퍼런스·phash_index·런타임 크롭이 모두 이 크기로 통일된다.
 /// (계획서 §7.1 "128×128 일관성")
@@ -64,10 +67,26 @@ pub fn load_canonical(path: &Path) -> RgbaImage {
 
 /// 임의 RGBA를 128×128 정규화.
 pub fn canonicalize(src: &RgbaImage) -> RgbaImage {
-    if src.width() == CANON && src.height() == CANON {
-        return src.clone();
+    let mut out = if src.width() == CANON && src.height() == CANON {
+        src.clone()
+    } else {
+        image::imageops::resize(src, CANON, CANON, CANON_FILTER)
+    };
+    flatten_on_black(&mut out);
+    out
+}
+
+/// 알파를 검은 배경에 평탄화한다(투명 영역을 결정적으로 만든다).
+/// 레퍼런스 아이콘은 투명도를 가지므로, 인덱스·런타임·합성이 **동일하게** 평탄화해야
+/// 해시가 일치한다. 검정 합성을 규약으로 고정. (런타임 슬롯은 어두운 배경 가정 — M2에서 검증)
+pub fn flatten_on_black(img: &mut RgbaImage) {
+    for px in img.pixels_mut() {
+        let a = px[3] as u32;
+        px[0] = (px[0] as u32 * a / 255) as u8;
+        px[1] = (px[1] as u32 * a / 255) as u8;
+        px[2] = (px[2] as u32 * a / 255) as u8;
+        px[3] = 255;
     }
-    image::imageops::resize(src, CANON, CANON, CANON_FILTER)
 }
 
 /// 중앙 `keep` 비율만 남기고 잘라낸 뒤 128×128 정규화.
@@ -85,7 +104,9 @@ pub fn center_crop_canon(src: &RgbaImage, keep: f32) -> RgbaImage {
     let x = ((w - cw as f32) / 2.0).round() as u32;
     let y = ((h - ch as f32) / 2.0).round() as u32;
     let cropped = image::imageops::crop_imm(src, x, y, cw.max(1), ch.max(1)).to_image();
-    image::imageops::resize(&cropped, CANON, CANON, CANON_FILTER)
+    let mut out = image::imageops::resize(&cropped, CANON, CANON, CANON_FILTER);
+    flatten_on_black(&mut out);
+    out
 }
 
 /// 정규화된 RGBA를 (raw RGBA8 bytes, w, h)로. 해시 크레이트 버퍼 재구성용.

@@ -1,0 +1,27 @@
+{
+  "frames": [
+    {
+      "path": "frames/reward_1080p_01.png",
+      "width": 1920,
+      "height": 1080,
+      "dpi": 96,
+      "resolution_tag": "1080p",
+      "game_rect": [0, 0, 1920, 1080],
+      "expected_screen": "reward",
+      "gifts": [
+        { "gift_id": "gift_만년_화롯불", "slot": [0.235, 0.30, 0.072, 0.072] },
+        { "gift_id": "gift_불꽃의_편린", "slot": [0.325, 0.30, 0.072, 0.072] }
+      ]
+    },
+    {
+      "path": "frames/reward_ultrawide_01.png",
+      "width": 3440,
+      "height": 1440,
+      "dpi": 96,
+      "resolution_tag": "ultrawide",
+      "game_rect": [440, 0, 2560, 1440],
+      "expected_screen": "reward",
+      "gifts": []
+    }
+  ]
+}

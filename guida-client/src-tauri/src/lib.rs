@@ -1,7 +1,8 @@
+mod capture;
 mod commands;
 mod utils;
 
-use commands::{fs as gfs, settings, crypto, image_cache};
+use commands::{capture as gcapture, crypto, fs as gfs, image_cache, settings};
 
 use tauri::{Manager, Emitter};
 
@@ -9,6 +10,7 @@ use tauri::{Manager, Emitter};
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(gcapture::CaptureState::default())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_fs::init())
         // 앱 자동 업데이트(서명 검증 후 설치) + 설치 후 재시작.
@@ -71,6 +73,10 @@ pub fn run() {
             image_cache::write_cached_image,
             image_cache::list_cached_image_hashes,
             image_cache::delete_cached_images,
+            // Layer 0 캡처: WGC 시작/정지 + game rect 이벤트 (M0)
+            gcapture::start_capture,
+            gcapture::stop_capture,
+            gcapture::is_game_window_present,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Guida application");

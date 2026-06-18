@@ -42,5 +42,9 @@ path = "src/bin/audit_collisions.rs"
 name = "build_phash_index"
 path = "src/bin/build_phash_index.rs"
 
+[[bin]]
+name = "run_regression"
+path = "src/bin/run_regression.rs"
+
 [profile.release]
 opt-level = 3

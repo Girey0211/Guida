@@ -1,2 +1,11 @@
 # Rust 빌드 산출물
 /target
+
+# 도구 실행으로 재생성되는 산출물(컴파일 산출물 아님)
+#  - phash_index.json     : cargo run --bin build_phash_index
+#  - near_collisions.json : cargo run --bin audit_collisions
+# 둘 다 gifts.json+이미지+SSOT 해시에서 결정적으로 재생성된다.
+# (phash_index.json 은 릴리스 파이프라인/CDN 빌드 단계에서 생성·배포)
+phash_index.json
+near_collisions.json
+

@@ -1,0 +1,6 @@
+# 배포 파이프라인(.github/workflows/deploy-data.yml) 생성물 — 커밋하지 않는다.
+#  - phash_index.json : Rust build_phash_index 산출 (gifts+images+SSOT 해시)
+#  - manifest.json    : generate-manifest.mjs 산출 (data/이미지 콘텐츠 해시)
+# 소스 데이터(gifts.json·images/ 등)는 계속 추적된다.
+/phash_index.json
+/manifest.json
