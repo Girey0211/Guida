@@ -2,7 +2,7 @@
 
 > 림버스 컴퍼니 유저의 거울 던전 플레이 및 수집 목표 관리를 돕기 위한 **PC 전용 데스크톱 편의성 애플리케이션**입니다.
 >
-> 오픈소스의 투명성을 기반으로 하며, 게임의 공정성을 해치지 않는 **'읽기 전용(Read-Only)'** 및 **'로컬 중심(Offline-First)'** 설계를 지향합니다.
+> 오픈소스의 투명성을 기반으로 하며, 게임 클라이언트를 변조하지 않는 **'읽기 전용(Read-Only)'** 및 **'로컬 중심(Offline-First)'** 설계를 지향합니다.
 >
 > *"Guida"는 단테의 신곡에서 베르길리우스가 단테의 안내자(길잡이)로 불리던 이탈리아어 단어입니다. 한국어 표기 및 약칭은 **가이다**입니다.*
 
@@ -50,9 +50,9 @@
 | 기조 | 설명 |
 |---|---|
 | 🔍 **Transparency** (투명성) | GitHub 전면 오픈소스 공개로 코드 투명성 확보 및 보안 취약점 원천 차단 |
-| 🛡️ **Read-Only** (안전성) | 게임 내 조작(Input) 및 클라이언트 변조가 없는 비인젝션(Non-Injection) 방식 설계 |
+| 🛡️ **Non-Invasive** (비침습) | 게임 프로세스 메모리 접근·클라이언트 변조·입력 주입이 없는 비침습(Non-Injection) 설계. 화면 캡처 기반 읽기 전용으로만 동작 |
 | 📦 **Offline-First** (독립성) | 중앙 서버 가동 여부와 관계없이 핵심 기능이 100% 가동되는 하이브리드 아키텍처 |
-| 🪶 **Lightweight** (경량화) | 설치 용량 **15MB 이하** 목표 (이미지 지연 로딩 적용) |
+| 🪶 **Lightweight** (경량화) | 설치 용량 **15MB 이하** 목표. 게임 이미지 에셋은 번들링하지 않고 CDN에서 지연 로딩하며, 보상 인식도 OCR/OpenCV 없이 경량 Rust 크레이트로 구현해 Phase 2에서도 목표 용량을 유지 |
 
 ---
 
@@ -66,18 +66,20 @@
 | ✅ **루트 작성 및 로컬 저장** | 유저가 직접 루트를 작성하고 로컬에 저장 |
 | ✅ **루트 공유 허브 (코드 방식)** | 6자리 난수 코드 기반 익명 루트 업로드/다운로드 |
 | ✅ **루트 탐색 및 필터** | 패치 버전, 추천순, 목표 재화 등 필터 기반 루트 검색 |
-| ✅ **추천(좋아요) 시스템** | UUID 기반 디바이스당 1추천, 패치 버전 단위 집계 |
+| ✅ **추천(좋아요) 시스템** | UUID + IP 기반 디바이스당 1추천, revocation/이관 API, 패치 버전 단위 집계 |
 | ✅ **이미지 지연 로딩 및 캐싱** | 이미지 키 구조 확보, MVP는 텍스트+배지로 대체 운영 |
 
 > ⚠️ Phase 1에서 루트 공유의 검증 조건은 자기 신고 방식(체크박스)으로 대체합니다.
 
-### Phase 2 — OCR 베타
+### Phase 2 — 이미지 매칭 베타
+
+> 📌 기존 "OCR 베타" 단계를 **이미지 매칭(Image Matching) 기반 보상 인식**으로 재설계했습니다. 보상창에 등장하는 기프트는 449개로 한정된 알려진 집합이며 레퍼런스 webp를 이미 보유하므로, 임의 텍스트를 읽는 OCR보다 정답 집합에 대한 **분류(classification)** 가 정확도·유지보수·용량 모든 면에서 우월합니다. 자세한 설계는 [5.3 이미지 매칭 기반 보상 인식](#53-인게임-실시간-보상-인식-phase-2) 참조.
 
 | 기능 | 설명 |
 |---|---|
-| 🔬 **OCR 보상 추적 (베타)** | 거던 클리어 결과창 자동 감지 및 아이템/수량 추출 |
-| 🔬 **OCR 기반 루트 자동 검증** | 결과창 감지 시 `verified: true` 자동 플래그 |
-| 🔬 **다양한 해상도/DPI 대응** | 창 모드, 전체화면, DPI scaling 별 캡처 보정 |
+| 🔬 **이미지 매칭 보상 인식 (베타)** | 거던 클리어 결과창 자동 감지 → perceptual hash 기반 기프트 식별 |
+| 🔬 **이미지 매칭 기반 루트 자동 검증** | 결과창 감지 및 매칭 성공 시 `verified: true` 자동 플래그 |
+| 🔬 **앵커 정규화 기반 해상도/DPI 대응** | 절대 좌표 대신 화면 내 고정 앵커로 스케일을 정규화해 창 모드·전체화면·DPI scaling을 단일 코드로 처리 |
 | 🔬 **게임 이미지 에셋 도입** | CDN 이미지 제공 시작, `ImageWithFallback` 컴포넌트로 점진 전환 |
 
 ### Phase 3 — 고도화
@@ -98,7 +100,7 @@
 #### 🖥️ Client Layer (Tauri)
 
 - **UI / Frontend:** React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui
-- **App Core / Backend (Rust):** Windows Graphics Capture API *(Phase 2~)*, OCR *(Phase 2~)*, 로컬 파일 시스템
+- **App Core / Backend (Rust):** Windows Graphics Capture API *(Phase 2~)*, 이미지 매칭 보상 인식 *(Phase 2~)*, 로컬 파일 시스템
 
 #### 💾 Local Storage Layer
 
@@ -109,16 +111,17 @@
 
 #### ☁️ Server & Data Layer
 
-- **CDN (정적 파일):** `gifts.json`, `packs.json`, `events.json`, `dependencies.json`, `patch_version.json`, 이미지 에셋 *(Phase 2~)*
-- **Backend Server (동적 API):** 루트 공유 허브, 추천/조회 통계, Rate Limiting, UUID 중복 방지
+- **CDN (정적 파일):** `gifts.json`, `packs.json`, `events.json`, `dependencies.json`, `dungeon_meta.json`, `prisoners.json`, `patch_version.json`, 이미지 에셋 *(Phase 2~)*
+- **Backend Server (동적 API):** 루트 공유 허브, 추천/조회 통계, Rate Limiting, UUID + IP 기반 중복/sybil 방지, revocation·이관 API
+- **Database (Postgres):** 루트 공개 데이터, 추천/조회 집계, UUID 추천 락 레코드
 
 ### 3.2. 데이터 저장소 분류 원칙
 
 | 데이터 종류 | 변경 빈도 | 저장소 | 이유 |
 |---|---|---|---|
-| 에고기프트 / 팩 / 선택지 / 의존성 | 패치마다 | **CDN JSON** | 읽기 전용, 전 유저 동일, 오프라인 캐싱 적합 |
+| 에고기프트 / 팩 / 선택지 / 의존성 / 수감자 | 패치마다 | **CDN JSON** | 읽기 전용, 전 유저 동일, 오프라인 캐싱 적합 |
 | 게임 이미지 에셋 | 패치마다 | **CDN + 로컬 캐시** | 용량 크므로 지연 로딩 및 로컬 캐싱 |
-| 루트 공유 / 추천 / 조회 통계 | 실시간 | **DB (서버)** | 유저마다 다르고 실시간 누적 |
+| 루트 공유 / 추천 / 조회 통계 | 실시간 | **DB** | 유저마다 다르고 실시간 누적 |
 | 유저 설정 / 로컬 루트 / 플레이 세션 | 유저 행동마다 | **로컬 파일** | 개인 데이터, 서버 불필요 |
 
 ---
@@ -185,10 +188,11 @@ guida/
 │       │   ├── fs.rs
 │       │   ├── settings.rs
 │       │   └── capture.rs        # Phase 2~
-│       ├── ocr/                  # Phase 2~
-│       │   ├── capture.rs
-│       │   ├── preprocess.rs
-│       │   └── recognize.rs
+│       ├── matching/             # Phase 2~ (구 ocr/)
+│       │   ├── capture.rs        # WGC 화면 캡처
+│       │   ├── anchor.rs         # 보상창 앵커 탐지 및 스케일 정규화
+│       │   ├── hash.rs           # perceptual hash 계산
+│       │   └── identify.rs       # 해시 비교 식별 + 템플릿 2차 판별
 │       └── utils/uuid.rs
 │
 ├── data/
@@ -196,7 +200,10 @@ guida/
 │   ├── gifts.json
 │   ├── packs.json
 │   ├── events.json
-│   └── dependencies.json
+│   ├── dependencies.json
+│   ├── dungeon_meta.json
+│   ├── prisoners.json
+│   └── phash_index.json          # Phase 2~ 기프트 아이콘 perceptual hash 인덱스
 │
 ├── package.json
 ├── vite.config.ts
@@ -217,7 +224,7 @@ guida/
 
 #### 루트 업로드
 - 로그인 없이 서버에 업로드
-- Phase 1: 자기 신고 체크박스 / Phase 2~: OCR 자동 검증
+- Phase 1: 자기 신고 체크박스 / Phase 2~: 이미지 매칭 자동 검증
 - 업로드 시 서버에서 현재 패치 버전 자동 태깅
 - 6자리 고유 난수 코드 발급 (예: `X7R2B9`)
 
@@ -225,31 +232,102 @@ guida/
 - 6자리 코드 직접 입력으로 특정 루트 즉시 호출
 - 필터/정렬 조합으로 루트 검색 (섹션 6 참조)
 
-#### 추천(좋아요) 시스템
-- 디바이스 UUID 기반 루트 1추천 제한
-- 추천수는 패치 버전 단위로 집계
-- 이전 패치 데이터는 아카이브로 보존
+#### 추천(좋아요) 시스템 및 어뷰징 방지
+
+추천 랭킹의 신뢰성을 위해 다층 방어를 적용합니다.
+
+- **디바이스 UUID 기반 1추천 제한:** 동일 UUID는 동일 루트(패치 버전 단위)에 1회만 추천 가능
+- **IP 기반 sybil 방지 락:** 동일 IP에서의 대량 추천 패턴을 차단해 UUID 위조를 통한 다중 추천을 억제
+- **Revocation / 이관(transfer) API:** 기기 변경·UUID 초기화 시 추천 권한을 안전하게 이관하고, 어뷰징으로 식별된 UUID의 추천을 무효화(revoke)
+- **집계 단위:** 추천수는 패치 버전 단위로 집계하며 이전 패치 데이터는 아카이브로 보존
+
+> 📌 추천 락/조회수 등 쓰기 핫패스는 Cloudflare KV(중복 판정) 및 Durable Objects(원자적 카운터) 활용을 검토하여 Neon 쓰기 부하를 분산합니다.
 
 #### 조회수 집계
 - `GET /routes/:code` 호출 시 +1 (Phase 1)
-- Phase 2~ OCR 연동 시 실제 플레이 기반 카운트 전환 검토
+- Phase 2~ 보상 인식 연동 시 실제 플레이 기반 카운트 전환 검토
 
 #### 편성(덱) 공유 코드 연동
 
 루트 작성 시 게임 내 **편성 코드**(클립보드 복사용 문자열)를 붙여넣어 수감자 인격/에고 편성을 불러오거나, 편집된 편성을 다시 코드로 내보낼 수 있습니다. 게임 클라이언트와 동일한 코드 형식을 사용하며 양방향 변환을 지원합니다.
 
-### 5.3. 인게임 실시간 보상 추적 `Phase 2`
+### 5.3. 인게임 실시간 보상 인식 `Phase 2`
 
-- 거울 던전 클리어 후 보상 획득 결과 창 백그라운드 감지
-- OCR로 획득 아이템 종류 및 수량 추출 → 로컬 자동 반영
-- 결과 창 감지 시 현재 루트에 `verified: true` 자동 플래그
+거던 클리어 결과창을 백그라운드에서 감지하여 획득 기프트를 자동 인식하고 루트에 반영합니다. **OCR(텍스트 인식)이 아닌 이미지 매칭(분류)** 방식을 사용합니다.
+
+#### 5.3.1. 설계 원칙 — "읽지 말고 맞춘다"
+
+보상창에서 식별해야 하는 대상은 **449개로 한정된 알려진 기프트 집합**이며, 각 기프트의 레퍼런스 webp(원본 합계 약 4~5MB, CDN 보관)를 이미 보유하고 있습니다. 따라서 이 문제는 임의 텍스트를 읽어내는 인식(recognition) 문제가 아니라, 유한한 정답 집합 중 하나로 분류(classification)하는 문제입니다.
+
+- **OCR 미사용:** Tesseract 계열은 인쇄체 문서용 엔진으로 채색·텍스처 배경의 게임 UI에 취약하며, 한글 인식 정확도 저하와 `kor.traineddata`·OpenCV 번들로 인한 용량 증가(15MB 목표 붕괴) 문제가 큽니다.
+- **이미지 매칭 채택:** 인게임 아이콘은 레퍼런스 webp를 화면 스케일에 맞춰 렌더한 사실상 동일 이미지(회전·원근·조명 변화 없음)이므로, perceptual hash 기반 매칭이 가장 견고하고 가볍습니다.
+
+#### 5.3.2. 인식 파이프라인 (4단계)
+
+```
+[1] 화면 캡처 (WGC)
+        ▼
+[2] 보상창 앵커 탐지 → 스케일 정규화
+        ▼
+[3] 아이콘 슬롯 크롭 → 고정 크기 리사이즈
+        ▼
+[4] perceptual hash 식별 (+ 모호 시 템플릿 2차 판별)
+        ▼
+[ 매칭 결과 → playStore 자동 반영 / verified: true ]
+```
+
+**[1] 화면 캡처**
+- Windows Graphics Capture API(WGC) 사용 — 구식 BitBlt/Desktop Duplication 대비 현대적·안정적
+- **테두리 없는 창모드(borderless windowed) 권장:** WGC는 borderless 전체화면을 깨끗하게 캡처. 독점(exclusive) 전체화면만 캡처가 까다로우므로 설정에서 borderless 사용을 안내
+
+**[2] 앵커 기반 정규화 (핵심)** — *전체화면·창모드·DPI 동시 지원의 열쇠*
+- 절대 좌표를 박지 않음 (해상도/DPI마다 즉시 깨짐)
+- 보상창의 변하지 않는 고정 UI 요소(헤더·프레임 모서리 등)를 앵커로 탐지
+- 앵커의 위치·크기로 현재 화면의 스케일 배율을 산출
+- 아이콘 그리드 위치를 앵커 상대 좌표로 계산 → 스케일 정규화
+- 전체화면이든 창모드든 DPI scaling이든 **단일 코드 경로**로 처리됨
+
+> ⚠️ Phase 2 작업 시간의 대부분은 매칭 알고리즘이 아니라 **이 앵커 탐지를 다양한 환경에서 안정화하는 데** 투입될 것으로 예상합니다.
+
+**[3] 아이콘 크롭 및 정규화**
+- 앵커 상대 좌표로 각 슬롯을 크롭
+- 고정 크기(예: 128×128)로 리사이즈
+- "신규" 배지·등급 프레임·획득 체크마크 등의 오버레이 영향을 줄이기 위해 **아이콘 중앙 영역 위주로 크롭**
+
+**[4] perceptual hash(pHash) 식별**
+- 449개 레퍼런스 아이콘의 해시를 사전 계산하여 `phash_index.json`에 박제(해시 1개당 8바이트, 전체 약 3.5KB 수준)
+- 런타임: 크롭 아이콘의 해시 ↔ 449개 레퍼런스 해시 해밍 거리 비교 → 최소 거리로 매칭 (마이크로초 단위)
+- 스케일 정규화 후 해시하므로 스케일 불변성이 자연히 확보됨
+- **2차 판별 fallback:** top-1/top-2 해밍 거리 차이가 작아 모호한 경우에만 normalized template correlation으로 재판별 (pHash 1차 + 템플릿 2차 하이브리드)
+
+> 💡 ORB/SIFT 등 feature matching을 쓰지 않는 이유: 시점·조명·부분 가림이 다를 때 쓰는 무거운 도구로, 본 케이스에서는 오버킬이며 플랫한 아이콘에서 키포인트가 잡히지 않아 오히려 불안정합니다.
+
+#### 5.3.3. 수량 인식 (고려사항 — 현재 미구현)
+
+거던 기프트는 대부분 고유 획득이라 수량 표기 빈도가 낮아, 현재 단계에서는 **계획상 언급만 남기고 구현은 보류**합니다. 향후 수량 인식이 필요해질 경우에도 OCR 대신 **0~9 디짓 10장 템플릿 매칭**으로 처리할 수 있습니다(고정 폰트·고정 자형이므로 OCR보다 견고하고 의존성 0).
+
+#### 5.3.4. 기술 스택 — 순수 Rust 크레이트
+
+OpenCV·Tesseract·한글 traineddata 없이 구현하여 경량 기조를 유지합니다.
+
+| 크레이트 | 용도 |
+|---|---|
+| `image` | 이미지 디코딩 / 리사이즈 |
+| `img_hash` | perceptual hash 계산 |
+| `imageproc` | 앵커 탐지 보조 / (필요 시) 디짓·2차 템플릿 매칭 |
+
+#### 5.3.5. 검증 플래그 및 실패 처리
+
+- 결과창 감지 + 매칭 성공 시 현재 루트에 `verified: true`, `verified_method: "image_match"` 자동 플래그
+- **저신뢰/매칭 실패 시 수동 확인 UX로 폴백:** 오인식(잘못된 자동 반영)보다 미인식(유저 수동 확인 유도)이 안전하므로, 확신이 낮은 결과는 자동 확정하지 않음
 
 ### 5.4. 화면 전환 자동화 `Phase 2`
 
-- 앱 켜져 있는 동안 백그라운드 게임 화면 모니터링 (Phase 2~ OCR 도입 시 진행)
+- 앱 켜져 있는 동안 백그라운드 게임 화면 모니터링 (Phase 2~ 이미지 매칭 도입 시 진행)
 - 거던 탐사 시작 화면 감지 시 기본화면 → 플레이화면 자동 전환
 - 탐사 종료 감지 시 플레이화면 → 기본화면 복귀
 
+> 📌 시작/종료 화면 감지 역시 5.3의 앵커 탐지 인프라를 공유합니다(특정 화면 고유 앵커의 존재 여부로 판정).
 
 ---
 
@@ -297,8 +375,8 @@ guida/
 [ CDN에 버전 체크 요청 ]
         │
         ├─► 로컬 캐시 버전 == 서버 버전: 로컬 캐시 사용
-        └─► 버전 차이: 변경된 JSON 파일만 선택적 다운로드
-              (gifts / packs / events / dependencies 병렬 요청)
+        ├─► 버전 차이: 변경된 JSON 파일만 선택적 다운로드
+        │     (gifts / packs / events / dependencies / meta / prisoners 병렬 요청)
         │
         ▼
 [ 게임 데이터 메모리 탑재 완료 → 앱 사용 가능 ]
@@ -311,9 +389,9 @@ guida/
         ▼
 [ 자기 신고 체크박스 확인 ]
         ▼
-[ 루트 데이터 + UUID + 현재 패치 버전 → 서버 전송 ]
+[ 루트 데이터 + UUID + 현재 패치 버전 → 서버(Workers) 전송 ]
         ▼
-[ 서버: 유효성 검증 + 패치 버전 자동 태깅 ]
+[ 서버: 유효성 검증 + 패치 버전 자동 태깅 → Neon 저장 ]
         ▼
 [ 6자리 난수 코드 발급 → 클라이언트 반환 ]
 ```
@@ -323,9 +401,11 @@ guida/
 ```
 [ 유저: 루트 탐색 중 '추천' 버튼 클릭 ]
         ▼
-[ 서버: { uuid, route_code, patch_version } 중복 확인 ]
-        ├─► 중복: 요청 거부
-        └─► 최초: 추천수 +1 (패치 버전 단위)
+[ 서버(Workers): { uuid, ip, route_code, patch_version } 검사 ]
+        ├─► UUID 중복: 요청 거부
+        ├─► IP 기반 sybil 패턴 감지: 요청 거부 / 락
+        ├─► revoke 처리된 UUID: 요청 거부
+        └─► 최초·정상: 추천수 +1 (패치 버전 단위) → 집계 반영
 ```
 
 ### 7.4. 이미지 로딩 흐름 (Phase 2~)
@@ -336,6 +416,24 @@ guida/
         └─► 캐시 없음
                 ├─► CDN 정상: 다운로드 → 캐시 저장 → 표시
                 └─► CDN 다운: KeywordBadge(텍스트) 폴백
+```
+
+### 7.5. 보상 인식 흐름 (Phase 2~)
+
+```
+[ WGC 백그라운드 캡처 ]
+        ▼
+[ 보상창 앵커 탐지 ]
+        ├─► 앵커 없음: 보상창 아님 → 대기
+        └─► 앵커 검출: 스케일 정규화
+                ▼
+        [ 아이콘 슬롯 크롭 → 리사이즈 ]
+                ▼
+        [ pHash 비교 식별 ]
+                ├─► 명확: 기프트 확정 → playStore 반영 / verified: true
+                └─► 모호: 템플릿 2차 판별
+                        ├─► 판별 성공: 확정
+                        └─► 저신뢰: 수동 확인 UX 폴백
 ```
 
 ---
@@ -465,7 +563,7 @@ guida/
 | `gahos[].stage` | 0 = 기본 / 1 = + / 2 = ++ |
 | `restrictions` | `difficulty_mode: "extreme"`일 때만 유효. 층별 선택한 제약 목록 |
 
-> 📌 `verified_method`: `"self_report"` (Phase 1) / `"ocr"` (Phase 2~)
+> 📌 `verified_method`: `"self_report"` (Phase 1) / `"image_match"` (Phase 2~)
 
 ### 8.3. 로컬 — 플레이 세션 상태 (`playStore` 메모리)
 
@@ -527,7 +625,7 @@ guida/
 
 ### 8.5. CDN — 게임 데이터 JSON 구조
 
-앱 시작 시 4개 파일을 병렬로 요청합니다.
+앱 시작 시 게임 데이터 파일을 병렬로 요청합니다.
 
 ```
 data/
@@ -536,7 +634,9 @@ data/
 ├── packs.json
 ├── events.json
 ├── dependencies.json
-└── dungeon_meta.json
+├── dungeon_meta.json
+├── prisoners.json
+└── phash_index.json      # Phase 2~ 기프트 아이콘 perceptual hash 인덱스
 ```
 
 #### `gifts.json` — 에고기프트 (449개, 실제 데이터 기준)
@@ -581,6 +681,8 @@ data/
 | `is_craftable` | 합성으로만 획득 가능한 기프트 여부 |
 | `craft_recipe` | 합성 조합식. `null`이면 합성 불가. 조합 방식에 따라 `type`이 달라짐 (아래 참조) |
 | `craft_result_of` | 이 기프트가 재료로 사용될 때 만들어지는 결과 기프트의 `gift_id` 배열. `null`이면 재료로 사용되지 않음 |
+
+> 📌 `ocr_keywords` 필드명은 Phase 1 텍스트 매칭 호환을 위해 유지하되, Phase 2~ 보상 인식은 OCR이 아닌 `phash_index.json`의 아이콘 해시를 사용합니다.
 
 **`craft_recipe` 구조 — `type`별 형태**
 
@@ -634,6 +736,22 @@ data/
 | `simple` | 지정된 재료를 모두 투입하면 완성. 가장 일반적인 형태 |
 | `required_and_pick` | 필수 재료(`required`) + 선택 그룹(`pick.from`)에서 `pick.count`종 선택 |
 | `multi_path` | `paths` 배열 중 하나의 경로를 선택해 조합. 중간 기프트 경유 또는 재료 직접 투입 중 선택 가능 |
+
+#### `phash_index.json` — 기프트 아이콘 perceptual hash 인덱스 *(Phase 2~)*
+
+보상 인식용으로 449개 기프트 아이콘(webp)의 perceptual hash를 사전 계산해 보관합니다. 이미지 에셋 빌드 시 함께 생성하며, 패치로 아이콘이 추가/변경되면 갱신합니다.
+
+```json
+[
+  { "gift_id": "gift_묘각", "phash": "f0e1c2a3..." },
+  { "gift_id": "gift_물부리", "phash": "9b8c7d6e..." }
+]
+```
+
+| 필드 | 설명 |
+|---|---|
+| `gift_id` | 매칭 결과로 반환할 기프트 식별자 (`gifts.json`의 `id`와 동일) |
+| `phash` | 정규화된 아이콘의 perceptual hash 문자열. 런타임 크롭 아이콘 해시와 해밍 거리 비교 |
 
 #### `packs.json` — 팩 (118개, 실제 데이터 기준)
 
@@ -938,19 +1056,31 @@ data/
 | **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui | 동일 |
 | **상태 관리** | Zustand | 동일 |
 | **Backend Bridge** | Tauri v2 Core (Rust) | 동일 |
-| **Screen Capture** | — | Windows Graphics Capture API |
-| **OCR** | — | Tesseract.js → leptess Rust 바인딩 |
-| **Image Processing** | — | OpenCV (Rust Binding) |
-| **CDN** | GitHub Raw | Cloudflare (트래픽 증가 시 전환) |
-| **이미지 표현** | KeywordBadge (텍스트+색상) | 512×512 WebP (30~50KB/장) |
+| **Screen Capture** | — | Windows Graphics Capture API (borderless 권장) |
+| **보상 인식** | — | 이미지 매칭 — perceptual hash(`img_hash`) + 모호 시 템플릿 2차 판별 |
+| **이미지 처리** | — | `image`, `imageproc` (순수 Rust, OpenCV/Tesseract 미사용) |
+| **CDN** | Cloudflare Pages | 동일 |
+| **동적 API** | Cloudflare Workers | 동일 |
+| **Database** | Neon (Serverless Postgres) | 동일 |
+| **이미지 표현** | KeywordBadge (텍스트+색상) | 512×512 WebP (30~50KB/장), 원본 합계 약 4~5MB · CDN 보관 |
 
 ### 9.2. 개발 제약
 
 - 🚫 **No Memory Touch:** `OpenProcess` 등 게임 프로세스 직접 접근 금지
-- 🚫 **No Input Injection:** 마우스/키보드 자동화 코드 포함 불가
+- 🚫 **No Input Injection:** 마우스/키보드 자동화(주입) 코드 포함 불가. *전역 단축키 수신은 입력 주입이 아니므로 허용됨(받는 것은 OK, 보내는 것이 금지)*
 - ✅ **서버 오프라인 대응:** 로컬 캐시 기반으로 오버레이 가이드 기능 100% 정상 작동 (루트 공유/탐색/추천만 제한)
 - ✅ **화면 캡처 권한 명시 (Phase 2~):** 앱 UI에서 명시적 권한 요청 및 용도 안내
-- ✅ **저작권 준수:** 게임 이미지 에셋 도입 시 Project Moon 정책 검토 후 진행
+- ✅ **비변조·읽기 전용:** 화면 캡처 기반 인식만 수행하며 게임 클라이언트에 어떤 데이터도 쓰지 않음
+- ✅ **저작권 준수:** 게임 이미지 에셋 도입 시 Project Moon 정책 및 ToS 검토 후 진행
+
+### 9.3. 백엔드 스택 보강 메모
+
+현재 구성(Cloudflare Workers + Pages + Neon)은 본 규모에 적합한 저비용 서버리스 조합입니다. 운영 중 고려할 보강 포인트:
+
+- **Neon 연결:** Workers의 비영속 커넥션 특성상 Neon serverless 드라이버(HTTP/WebSocket)를 사용. 일반 TCP Postgres 클라이언트는 Edge에서 불안정
+- **쓰기 핫패스 분산:** 추천 중복 판정·조회수 증가는 Cloudflare KV(중복 키 체크) 및 Durable Objects(원자적 카운터)로 처리해 Neon 쓰기 부하·비용 절감 검토
+- **Rate Limiting:** Workers 단의 Cloudflare 레이트리밋 룰 + UUID/IP 조합으로 추천·업로드 남용 억제
+- **백업:** Neon의 PITR(시점 복구) 보존 기간 확인 및 루트 공개 데이터 주기 백업
 
 ---
 
@@ -958,22 +1088,36 @@ data/
 
 ### 10.1. 배포 방식
 
-- **데스크톱 앱 다운로드:** [GitHub Releases 최신 버전](https://github.com/Girey0211/Guida/releases/latest)을 통해 `.exe` (또는 `.msi`) 설치 파일 배포
-- **공식 웹 페이지:** 소개, 설치 방법 안내 및 웹 피드백 창을 제공하는 [가이다 웹 버전](https://girey0211.github.io/Guida/) 운영
+- **데스크톱 앱 다운로드:** [GitHub Releases 최신 버전](https://github.com/Girey0211/Guida/releases/latest)을 통해 `.exe` 설치 파일을 GitHub Actions로 **자동 빌드·배포**
+- **공식 웹 페이지:** 소개, 설치 방법 안내 및 웹 피드백 창을 제공하는 [가이다 랜딩 페이지](https://girey0211.github.io/Guida/)를 GitHub Pages로 운영
 - 각 릴리즈에 VirusTotal 스캔 결과 링크 첨부
 - 오픈소스 공개로 코드 투명성 보장
 
 ### 10.2. 베타 출시 전략
 
 1. 디시인사이드 림버스 컴퍼니 갤러리에 베타 테스트 모집 공고
-2. "OCR 없이도 루트 공유/검색 즉시 사용 가능" 강조
+2. "보상 인식 없이도 루트 공유/검색 즉시 사용 가능" 강조
 3. 오버레이 실시간 가이드 데모 영상 (유튜브/X) 선공개
-4. 초기 피드백 기반으로 OCR Phase 2 개발 방향 결정
+4. 초기 피드백 기반으로 Phase 2(이미지 매칭 보상 인식) 개발 방향 결정
 
 ### 10.3. 유지보수 정책
 
-- 패치 적용 시 `gifts.json` / `packs.json` / `events.json` / `dependencies.json` 업데이트 + `patch_version.json` 갱신
-- Phase 2~ OCR 도입 시 해상도/DPI별 캡처 보정 템플릿 별도 관리
+#### 데이터 갱신 — 커뮤니티 PR 기반
+
+게임 데이터(`gifts.json` / `packs.json` / `events.json` / `dependencies.json` / `dungeon_meta.json` / `prisoners.json`)는 **GitHub Pull Request 기반 기여**로 유지보수합니다.
+
+- 플레이 중 잘못된 데이터를 발견한 유저(대부분의 오류는 데이터 문제)가 해당 JSON을 직접 수정해 PR을 제출
+- 머지된 기여자는 **컨트리뷰터로 어트리뷰션** (README/릴리즈 노트 크레딧)
+- PR 템플릿으로 수정 항목·근거(인게임 스크린샷 등) 제출 양식 표준화
+- CI에서 JSON 스키마 검증 및 `dependencies.json` DAG 순환 검증 자동 실행 후 머지
+
+> 이 방식은 단일 메인테이너의 데이터 입력 부담(이 유형 팬 툴이 죽는 가장 흔한 원인)을 분산시키는 것을 목표로 합니다.
+
+#### 기타
+
+- 패치 적용 시 게임 데이터 JSON 업데이트 + `patch_version.json` 갱신
+- Phase 2~ 이미지 에셋/`phash_index.json`은 아이콘 변경 시 함께 재생성
+- Phase 2~ 보상 인식 도입 시 해상도/DPI별 앵커 탐지 보정 템플릿 별도 관리
 - 앱 최초 실행 시 비공식 팬 프로젝트 고지 팝업 필수 노출
 
 ---
@@ -1006,7 +1150,7 @@ data/
 - 오버레이 투명도 슬라이더
 - 테마 설정 (다크 고정)
 - 앱 버전 정보
-- UUID 초기화 (경고 다이얼로그)
+- UUID 이관 / 초기화 (revocation·이관 API 연동, 경고 다이얼로그)
 - 비공식 팬 프로젝트 고지 확인
 
 #### 거던 진행 중 복귀 배너
@@ -1037,7 +1181,7 @@ data/
 - 루트 목표 에고기프트 전체 리스트
 - 선행 조건 미충족 기프트: 🔒 잠금 배지 + 조건 표시
 - 미획득 기프트: 밝게, 상단 / 획득 완료: opacity 감소 + 하단 이동
-- Phase 1: 카드 탭으로 수동 토글 / Phase 2: OCR 자동 반영
+- Phase 1: 카드 탭으로 수동 토글 / Phase 2: 이미지 매칭 자동 반영
 
 #### 탭 2 — 선택지 (⚠️ Phase 1 제외)
 
