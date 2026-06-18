@@ -19,7 +19,7 @@ import { isTauri } from "@/lib/env";
 /** 앱 설정 페이지 */
 export function Settings() {
   const navigate = useNavigate();
-  const { settings, patch, online, updateSettings, bootstrap } = useAppStore();
+  const { settings, patch, online, updateSettings, bootstrap, requestGameDataSync } = useAppStore();
   const endSession = usePlayStore((s) => s.endSession);
   const loadMyRoutes = useRouteStore((s) => s.loadMyRoutes);
   const [syncing, setSyncing] = useState(false);
@@ -116,9 +116,25 @@ export function Settings() {
 
   const resync = async () => {
     setSyncing(true);
-    await bootstrap();
-    setSyncing(false);
-    toast.success("게임 데이터를 다시 동기화했습니다.");
+    try {
+      const result = await requestGameDataSync();
+      switch (result.status) {
+        case "synced":
+          toast.success("게임 데이터를 동기화했습니다. 변경분은 다음 실행 시 반영됩니다.");
+          break;
+        case "offline":
+          toast.info("오프라인 상태입니다. 마지막으로 받은 데이터로 동작합니다.");
+          break;
+        case "busy":
+          toast.info("이미 동기화가 진행 중입니다.");
+          break;
+        case "error":
+          toast.error(result.message || "동기화에 실패했습니다.");
+          break;
+      }
+    } finally {
+      setSyncing(false);
+    }
   };
 
   // 보안 키 갱신 및 이관(B-1): 신규 키를 발급하고 구/신 이중 서명으로 서버 데이터

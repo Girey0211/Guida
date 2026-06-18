@@ -70,9 +70,22 @@ interface AppState {
 
   /** 앱 초기 부팅: UUID 확보 → 설정 로드 → 게임 데이터 동기화 → 업데이트 확인 */
   bootstrap: () => Promise<void>;
+  /**
+   * 게임 데이터 동기화 트리거(부팅 외 — 설정 "게임 데이터 동기화" 버튼).
+   * 디스크 캐시·매니페스트만 갱신하며, 런타임 메모리는 교체하지 않는다(핫스왑 없음).
+   * 갱신분은 다음 부팅의 로드 단계에서 반영된다(phase2 dev plan §3·§7 S2).
+   */
+  requestGameDataSync: () => Promise<SyncTriggerResult>;
   /** 설정 일부 갱신 후 저장 */
   updateSettings: (patch: Partial<UserSettings>) => Promise<void>;
 }
+
+/** requestGameDataSync 결과 — 호출 UI(설정 화면 토스트)가 분기에 사용. */
+export type SyncTriggerResult =
+  | { status: "synced" }
+  | { status: "offline" }
+  | { status: "busy" }
+  | { status: "error"; message: string };
 
 export const useAppStore = create<AppState>((set, get) => ({
   ready: false,
