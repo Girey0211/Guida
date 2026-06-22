@@ -1,0 +1,135 @@
+{
+  "_comment": "M1 참조 템플릿. phash 값은 placeholder(0). 실제 값은 라이브 캡처 프레임에서 screen::region_phash 로 생성해 채운다(계획서 M1 라이브 검증). 구조/전이 그래프/스키마 검증용.",
+  "schema_version": "1.0",
+  "game_aspect_ratio": "16:9",
+  "patch_version": "2.7",
+  "screens": [
+    {
+      "screen_id": "base_explore",
+      "name": "기본 탐사 화면",
+      "fingerprints": [
+        {
+          "region": [
+            0.0,
+            0.0,
+            0.3,
+            0.1
+          ],
+          "phash": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "tolerance": 14
+        }
+      ],
+      "transitions_allowed": [
+        "choice",
+        "reward",
+        "start_end"
+      ]
+    },
+    {
+      "screen_id": "choice",
+      "name": "선택지 화면",
+      "fingerprints": [
+        {
+          "region": [
+            0.3,
+            0.02,
+            0.4,
+            0.1
+          ],
+          "phash": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "tolerance": 14
+        }
+      ],
+      "transitions_allowed": [
+        "base_explore",
+        "reward"
+      ]
+    },
+    {
+      "screen_id": "reward",
+      "name": "보상 결과창",
+      "fingerprints": [
+        {
+          "region": [
+            0.4,
+            0.04,
+            0.2,
+            0.06
+          ],
+          "phash": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "tolerance": 10
+        }
+      ],
+      "anchors": [
+        {
+          "anchor_id": "header_icon",
+          "template_key": "anchor_reward_header",
+          "search_region": [
+            0.42,
+            0.05,
+            0.16,
+            0.08
+          ],
+          "match_threshold": 0.85
+        },
+        {
+          "anchor_id": "frame_corner",
+          "template_key": "anchor_reward_corner",
+          "search_region": [
+            0.1,
+            0.78,
+            0.1,
+            0.1
+          ],
+          "match_threshold": 0.85
+        }
+      ],
+      "cross_check": {
+        "predict_from": "header_icon",
+        "verify": "frame_corner",
+        "max_error": 0.01
+      },
+      "elements": [
+        {
+          "element_id": "gift_slot_grid",
+          "type": "icon_grid",
+          "origin": [
+            0.3,
+            0.35
+          ],
+          "cell": [
+            0.08,
+            0.1
+          ],
+          "cols": 5,
+          "rows": 2,
+          "center_crop": 1.0,
+          "match": "phash",
+          "ambiguity_margin": 18
+        }
+      ],
+      "transitions_allowed": [
+        "base_explore"
+      ]
+    },
+    {
+      "screen_id": "start_end",
+      "name": "탐사 시작/종료 화면",
+      "fingerprints": [
+        {
+          "region": [
+            0.35,
+            0.4,
+            0.3,
+            0.2
+          ],
+          "phash": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "tolerance": 14
+        }
+      ],
+      "transitions_allowed": [
+        "base_explore"
+      ]
+    }
+  ]
+}

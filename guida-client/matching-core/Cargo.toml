@@ -46,5 +46,10 @@ path = "src/bin/build_phash_index.rs"
 name = "run_regression"
 path = "src/bin/run_regression.rs"
 
+[[bin]]
+# 매칭 데이터 저작 도구(캡처 → 지문/템플릿/미리보기). 런타임 비포함, 오프라인.
+name = "author"
+path = "src/bin/author.rs"
+
 [profile.release]
 opt-level = 3

@@ -18,6 +18,7 @@ use serde::Deserialize;
 use std::path::Path;
 
 pub mod anchor;
+pub mod authoring;
 pub mod config;
 pub mod geometry;
 pub mod hash;

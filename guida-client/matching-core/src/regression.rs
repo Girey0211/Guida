@@ -6,10 +6,12 @@
 //!
 //! 목표 지표: 화면 ≥99% / 기프트 식별 ≥99% / 자동 반영 오탐 = 0.
 
+use crate::anchor::{verify_and_identify, FrameOutcome, IdentifyOpts, TemplateSet};
 use crate::config::MatchingConfig;
-use crate::geometry::{GameRect, NormRect};
+use crate::geometry::{GameRect, NormPoint, NormRect};
 use crate::identify::PhashIndex;
 use crate::normalize::{detect_game_rect, DetectOpts};
+use crate::screen::classify;
 use image::RgbaImage;
 use serde::{Deserialize, Serialize};
 
@@ -36,9 +38,12 @@ pub struct FrameLabel {
     /// 기대 game rect `[x, y, w, h]`(픽셀). None 이면 game rect 검증 생략.
     #[serde(default)]
     pub game_rect: Option<[i32; 4]>,
-    /// 화면 종류(M1). 현재 미사용이나 스키마에 포함.
+    /// 화면 종류(M1). config 기반 파이프라인에서 화면 분류 정답으로 사용.
     #[serde(default)]
     pub expected_screen: Option<String>,
+    /// 전환 중/팝업 프레임 표시. true 면 화면 미상 또는 Layer 2 기각이 정답(계획서 M2 완료기준).
+    #[serde(default)]
+    pub is_transition: bool,
     /// 등장 기프트 슬롯들.
     #[serde(default)]
     pub gifts: Vec<GiftSlotLabel>,
@@ -64,6 +69,11 @@ pub struct Metrics {
     pub screen_correct: usize,
     /// 라벨과 다른 화면으로 confident 분류(화면 오탐).
     pub screen_false_positives: usize,
+    /// config 기반 파이프라인: 전환 프레임 총수 / 그 중 올바르게 기각된 수(계획서 M2).
+    pub transition_total: usize,
+    pub transition_correctly_rejected: usize,
+    /// Layer 2 게이트(앵커/교차검증)에 의해 기각된 비전환 프레임 수.
+    pub gate_rejected_frames: usize,
     pub failures: Vec<String>,
 }
 
@@ -76,6 +86,9 @@ impl Metrics {
     }
     pub fn screen_pct(&self) -> f64 {
         pct(self.screen_correct, self.screen_total)
+    }
+    pub fn transition_pct(&self) -> f64 {
+        pct(self.transition_correctly_rejected, self.transition_total)
     }
 }
 
@@ -197,6 +210,162 @@ pub fn run_frame_screen(
     }
 }
 
+/// **config 기반 전체 파이프라인**을 라벨 프레임 1장에 돌린다 (Layer 0→1→2).
+/// 저작 도구로 만든 `matching_config.json` + `templates.json` 을 실프레임에 적용해
+/// 화면 분류·앵커 게이트·그리드 식별을 한 번에 검증한다. (M3 없이 데이터 검증 루프)
+///
+/// 정책(런타임과 동일한 end-to-end):
+/// - 전환 프레임(`is_transition`): 화면 미상 또는 Layer 2 기각이면 정답.
+/// - 비전환: 화면 분류를 `expected_screen` 과 대조 → 분류된(없으면 expected) 화면으로
+///   `verify_and_identify`. 게이트 통과 시 그리드 결과를 라벨 기프트에 **공간 매칭**해 식별 평가.
+pub fn run_frame_pipeline(
+    label: &FrameLabel,
+    img: &RgbaImage,
+    config: &MatchingConfig,
+    templates: &TemplateSet,
+    index: &PhashIndex,
+    opts: &RunOpts,
+    m: &mut Metrics,
+) {
+    let dopts = DetectOpts::default();
+    let gr = detect_game_rect(img.as_raw(), img.width(), img.height(), &dopts)
+        .unwrap_or_else(|| GameRect::new(0, 0, img.width(), img.height()));
+
+    // Layer 0: game rect 검증(라벨 있으면).
+    if let Some(exp) = label.game_rect {
+        m.gamerect_total += 1;
+        let exp = GameRect::new(exp[0], exp[1], exp[2] as u32, exp[3] as u32);
+        if rect_close(gr, exp, opts.gamerect_tol) {
+            m.gamerect_within_tol += 1;
+        } else {
+            m.failures.push(format!("[{}] game rect {gr:?} != {exp:?}", label.path));
+        }
+    }
+
+    let id_opts = IdentifyOpts {
+        k: 2,
+        ambiguity_margin: opts.ambiguity_margin,
+        max_dist: opts.max_dist,
+        center_crop: opts.center_crop,
+    };
+
+    // Layer 1: 화면 분류.
+    let cls = classify(img, &gr, config).screen_id;
+
+    // 전환 프레임: 미상 또는 Layer 2 기각이 정답.
+    if label.is_transition {
+        m.transition_total += 1;
+        let rejected = match cls.as_deref() {
+            None => true,
+            Some(sid) => match config.screen(sid) {
+                Some(sc) => matches!(
+                    verify_and_identify(img, &gr, sc, templates, index, &id_opts),
+                    FrameOutcome::Rejected(_)
+                ),
+                None => true,
+            },
+        };
+        if rejected {
+            m.transition_correctly_rejected += 1;
+        } else {
+            m.failures
+                .push(format!("[{}] 전환 프레임 미기각(분류={:?})", label.path, cls));
+        }
+        return;
+    }
+
+    // 비전환: 화면 분류 정확도.
+    if let Some(exp_screen) = label.expected_screen.as_deref() {
+        m.screen_total += 1;
+        match cls.as_deref() {
+            Some(got) if got == exp_screen => m.screen_correct += 1,
+            Some(got) => {
+                m.screen_false_positives += 1;
+                m.failures.push(format!("[{}] 화면 {exp_screen} → {got}", label.path));
+            }
+            None => m.failures.push(format!("[{}] 화면 {exp_screen} → 미분류", label.path)),
+        }
+    }
+
+    // Layer 2: 분류된(없으면 expected) 화면의 앵커 게이트 + 그리드 식별.
+    let Some(sid) = cls.as_deref().or(label.expected_screen.as_deref()) else {
+        return;
+    };
+    let Some(sc) = config.screen(sid) else {
+        return;
+    };
+    if sc.elements.is_empty() {
+        return; // 식별할 요소 없는 화면(탐사/선택지 등)
+    }
+
+    match verify_and_identify(img, &gr, sc, templates, index, &id_opts) {
+        FrameOutcome::Rejected(why) => {
+            m.gate_rejected_frames += 1;
+            if !label.gifts.is_empty() {
+                // 기프트가 있어야 할 프레임이 기각됨 → 미탐.
+                m.failures.push(format!("[{}] 게이트 기각: {why}", label.path));
+            }
+        }
+        FrameOutcome::Identified(results) => {
+            // 라벨 기프트 → 그리드 결과 슬롯 공간 매칭.
+            for gl in &label.gifts {
+                m.identify_total += 1;
+                let lc = rect_center(gl.slot);
+                match results.iter().find(|r| center_in(lc, &r.slot)) {
+                    Some(r) if r.ident.rejected => m
+                        .failures
+                        .push(format!("[{}] {} 미식별(dist={})", label.path, gl.gift_id, r.ident.top[0].dist)),
+                    Some(r) if r.ident.top[0].gift_id == gl.gift_id => m.identify_correct += 1,
+                    Some(r) => {
+                        if !r.ident.ambiguous {
+                            m.false_positives += 1;
+                        }
+                        m.failures.push(format!(
+                            "[{}] {} → {} (dist={}, ambiguous={})",
+                            label.path, gl.gift_id, r.ident.top[0].gift_id, r.ident.top[0].dist, r.ident.ambiguous
+                        ));
+                    }
+                    None => m.failures.push(format!(
+                        "[{}] {} 슬롯에 매칭 그리드 칸 없음 — config 그리드 좌표 확인",
+                        label.path, gl.gift_id
+                    )),
+                }
+            }
+            // 빈 칸에 confident 식별 = 오탐.
+            for r in &results {
+                let rc = NormPoint {
+                    x: r.slot.x + r.slot.w / 2.0,
+                    y: r.slot.y + r.slot.h / 2.0,
+                };
+                let covers = label
+                    .gifts
+                    .iter()
+                    .any(|gl| center_in(rc, &NormRect::from_array(gl.slot)));
+                if !covers && !r.ident.rejected && !r.ident.ambiguous {
+                    m.false_positives += 1;
+                    m.failures.push(format!(
+                        "[{}] 빈 칸 오탐 → {} (dist={})",
+                        label.path, r.ident.top[0].gift_id, r.ident.top[0].dist
+                    ));
+                }
+            }
+        }
+    }
+}
+
+/// `[x,y,w,h]` 정규화 사각형의 중심.
+fn rect_center(r: [f32; 4]) -> NormPoint {
+    NormPoint {
+        x: r[0] + r[2] / 2.0,
+        y: r[1] + r[3] / 2.0,
+    }
+}
+
+/// 점이 사각형 안에 있는지.
+fn center_in(p: NormPoint, r: &NormRect) -> bool {
+    p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h
+}
+
 fn rect_close(a: GameRect, b: GameRect, tol: i32) -> bool {
     (a.x - b.x).abs() <= tol
         && (a.y - b.y).abs() <= tol
@@ -296,6 +465,7 @@ pub fn synth_frame(
         resolution_tag: tag.to_string(),
         game_rect: Some([game_rect.x, game_rect.y, game_rect.w as i32, game_rect.h as i32]),
         expected_screen: Some("reward".into()),
+        is_transition: false,
         gifts,
     };
     (label, canvas)

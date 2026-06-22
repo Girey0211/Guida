@@ -21,7 +21,9 @@ use crate::config::{Anchor, Element, ScreenConfig};
 use crate::geometry::{GameRect, NormPoint, NormRect};
 use crate::identify::{Identification, PhashIndex};
 use image::RgbaImage;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::Path;
 
 /// NCC 작업 해상도 상한(템플릿 최대 변 px). 비용을 묶고 스케일 강건성을 준다.
 const NCC_WORK_MAX: u32 = 48;
@@ -48,6 +50,36 @@ impl Template {
 
 /// template_key → 템플릿. 런타임이 채워 [`match_anchor`]에 넘긴다.
 pub type TemplateSet = HashMap<String, Template>;
+
+/// `templates.json` 한 항목(저작 도구가 생성, 런타임이 로드).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TemplateMeta {
+    /// 템플릿 이미지 파일명(인덱스 파일과 같은 디렉토리 기준).
+    pub file: String,
+    /// game rect 기준 정규화 footprint(앵커가 화면에서 차지하는 비율).
+    pub norm_w: f32,
+    pub norm_h: f32,
+}
+
+/// `templates.json` 전체: template_key → 메타.
+pub type TemplateIndex = HashMap<String, TemplateMeta>;
+
+/// `templates.json` 인덱스 + 동일 디렉토리의 PNG들을 로드해 [`TemplateSet`] 구성.
+/// 저작 도구(`bin/author.rs`)가 만든 산출물을 런타임이 그대로 읽는다(SSOT).
+pub fn load_template_set(dir: &Path, index_path: &Path) -> Result<TemplateSet, String> {
+    let txt = std::fs::read_to_string(index_path)
+        .map_err(|e| format!("템플릿 인덱스 읽기 실패 {}: {e}", index_path.display()))?;
+    let index: TemplateIndex =
+        serde_json::from_str(&txt).map_err(|e| format!("템플릿 인덱스 파싱 실패: {e}"))?;
+    let mut set = TemplateSet::new();
+    for (key, meta) in index {
+        let img = image::open(dir.join(&meta.file))
+            .map_err(|e| format!("템플릿 '{key}' 이미지 로드 실패: {e}"))?
+            .to_rgba8();
+        set.insert(key, Template::new(img, meta.norm_w, meta.norm_h));
+    }
+    Ok(set)
+}
 
 /// 앵커 1개의 검출 결과.
 #[derive(Debug, Clone)]
@@ -490,6 +522,32 @@ mod tests {
             am("corner", 0.15, 0.85, 0.95, true),
         ];
         assert!(matches!(cross_check(&s, &matches, true), CrossCheck::Rejected(_)));
+    }
+
+    #[test]
+    fn template_set_roundtrips_through_index() {
+        // 저작 도구 산출(PNG + templates.json) → 런타임 load_template_set 왕복.
+        let dir = std::env::temp_dir().join(format!("guida_tmpl_{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let img = RgbaImage::from_pixel(20, 12, image::Rgba([10, 20, 30, 255]));
+        img.save(dir.join("a.png")).unwrap();
+        let mut idx = TemplateIndex::new();
+        idx.insert(
+            "anchor_a".into(),
+            TemplateMeta {
+                file: "a.png".into(),
+                norm_w: 0.08,
+                norm_h: 0.05,
+            },
+        );
+        let idx_path = dir.join("templates.json");
+        std::fs::write(&idx_path, serde_json::to_string(&idx).unwrap()).unwrap();
+
+        let set = load_template_set(&dir, &idx_path).unwrap();
+        let t = set.get("anchor_a").expect("템플릿 로드");
+        assert_eq!((t.image.width(), t.image.height()), (20, 12));
+        assert_eq!((t.norm_w, t.norm_h), (0.08, 0.05));
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

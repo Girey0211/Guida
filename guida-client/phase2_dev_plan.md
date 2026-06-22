@@ -278,9 +278,11 @@ on_frame(frame):
 - [x] **M-pre: `build_phash_index.rs` → `phash_index.json` 생성** → 449개·544bit·91.9KB, 자기검증(self-dist=0) 통과. `matching-core/phash_index.json`
 - [x] M0: WGC 캡처 + game rect 정규화 → **검출 코어 ±2px 검증 완료**(matching-core normalize/geometry, 1080p/1440p/4K/울트라와이드/창모드 합성 프레임). WGC/HWND 캡처 글루는 src-tauri 구현·컴파일 완료, **라이브 캡처는 게임 실행 환경에서 검증 필요**
 - [x] 회귀 세트 수집/라벨링 인프라 구축 → 라벨 스키마+러너+합성 시드(`matching-core/src/regression.rs`, `run_regression` 바이너리, `regression/`). 합성 스모크: 화면 100%·식별 100%·오탐 0
-- [ ] M1: region-pHash 지문 + 히스테리시스 + 상태 머신
-- [ ] `matching_config.json` 스키마 확정 + 로더/검증(serde)
-- [ ] M2: 앵커 탐색 + 다중 앵커 교차검증 + 아이콘 크롭/식별 연동
+- [x] M1: region-pHash 지문 + 히스테리시스 + 상태 머신 → `matching-core/src/screen.rs`. region-pHash 분류 **스케일 불변·변별력 검증**(합성 5해상도: cross-resolution 자기거리 max 31 vs 화면간 min 172 → 마진 충분, 식별 100%·오탐 0). 히스테리시스(연속 N=4프레임)+상태 머신(`transitions_allowed` 합법 전이만 커밋, 불법 점프 기각, 깜빡임/팝업 흡수) 시퀀스 검증 완료(`tests/screen.rs`). **라이브 지문값은 게임 캡처 프레임에서 생성 필요**
+- [x] `matching_config.json` 스키마 확정 + 로더/검증(serde) → `matching-core/src/config.rs`(§4 전체 스키마: fingerprints/anchors/cross_check/elements/transitions). 검증: screen_id 유일성, 전이 참조 무결성, region 정규화 범위, phash 길이 SSOT 정합(68B), 앵커/교차검증 참조. 참조 템플릿 `matching-core/matching_config.sample.json`(4화면) 로드+검증 통과
+- [x] M2: 앵커 탐색 + 다중 앵커 교차검증 + 아이콘 크롭/식별 연동 → `matching-core/src/anchor.rs`. **NCC 템플릿 매칭**(imageproc 대신 작업해상도 캡 48px 직접 구현, 스케일 인지) — 합성 보상창에서 앵커 검출 score 0.99·위치오차 <0.004(1080p/1440p/4K). **다중 앵커 교차검증**(설계 상대오프셋 예측 vs 검출, max_error 초과 기각). AND 게이트(`verify_and_identify`): 정렬 프레임 그리드 식별 100%·오탐 0, **전환 중(앵커 오정렬) 프레임 100% 기각**. 모호 슬롯 **NCC 2차 판별**(`disambiguate_ncc`). 검증: `tests/anchor.rs`. **라이브 앵커 템플릿은 게임 캡처에서 작성 필요**
+- [x] 매칭 데이터 **저작 도구** (M1/M2 라이브 데이터 작성용) → `matching-core/src/authoring.rs` + `author` 바이너리. 캡처 프레임 → ①region-pHash 지문 자동 생성(`fingerprints`, 런타임과 동일 `screen::region_phash` SSOT) ②앵커 템플릿 크롭/인덱싱(`templates` → PNG + `templates.json`, 런타임 `anchor::load_template_set` 로 로드) ③좌표 검증 미리보기(`preview`). e2e 스모크 + 단위 검증 완료. **남은 건 사람이 캡처+좌표 지정**. 가이드: `matching-core/AUTHORING.md`
+- [x] **config 기반 전체 파이프라인 회귀 러너** (M3 없이 데이터 검증 루프) → `regression::run_frame_pipeline` + `run_regression` 바이너리에 `matching_config`/`templates` 인자 배선. 라벨 실프레임에 Layer 0→1→2(화면 분류 + 앵커 게이트 + 그리드 식별 + 전환 기각)를 한 번에 돌려 지표 산출. 합성 통합검증: 화면 1/1·식별 5/5·오탐 0·전환 100% 기각(`tests/regression.rs`). 라벨 스키마에 `is_transition` 추가
 - [ ] M3: AND 게이트 + 멱등 반영 + 오버레이 정합 + 수동 폴백
 - [ ] M4: 시작/종료 자동 전환
 - [ ] M5: 권한 UX, 텔레메트리 튜닝, 릴리즈
