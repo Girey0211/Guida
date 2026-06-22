@@ -112,7 +112,8 @@ impl PhashIndex {
 }
 
 /// 해시 바이트 ↔ hex 문자열 직렬화 헬퍼.
-mod hex_bytes {
+/// `phash_index.json`(IndexEntry)과 `matching_config.json`(Fingerprint)이 공유한다.
+pub mod hex_bytes {
     use serde::{Deserialize, Deserializer, Serializer};
 
     pub fn serialize<S: Serializer>(bytes: &[u8], s: S) -> Result<S::Ok, S::Error> {

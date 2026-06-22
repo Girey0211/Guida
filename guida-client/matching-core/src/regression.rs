@@ -6,6 +6,7 @@
 //!
 //! 목표 지표: 화면 ≥99% / 기프트 식별 ≥99% / 자동 반영 오탐 = 0.
 
+use crate::config::MatchingConfig;
 use crate::geometry::{GameRect, NormRect};
 use crate::identify::PhashIndex;
 use crate::normalize::{detect_game_rect, DetectOpts};
@@ -58,6 +59,11 @@ pub struct Metrics {
     pub identify_correct: usize,
     /// 라벨에 없는데 high-confidence 로 잘못 식별(자동 반영 오탐 대용).
     pub false_positives: usize,
+    /// Layer 1 화면 분류(계획서 M1). expected_screen 라벨이 있는 프레임만 집계.
+    pub screen_total: usize,
+    pub screen_correct: usize,
+    /// 라벨과 다른 화면으로 confident 분류(화면 오탐).
+    pub screen_false_positives: usize,
     pub failures: Vec<String>,
 }
 
@@ -67,6 +73,9 @@ impl Metrics {
     }
     pub fn identify_pct(&self) -> f64 {
         pct(self.identify_correct, self.identify_total)
+    }
+    pub fn screen_pct(&self) -> f64 {
+        pct(self.screen_correct, self.screen_total)
     }
 }
 
@@ -155,6 +164,36 @@ pub fn run_frame(
                 label.path, slot.gift_id, top.gift_id, top.dist, res.ambiguous
             ));
         }
+    }
+}
+
+/// 한 프레임을 Layer 1 화면 분류(region-pHash)해 `expected_screen` 라벨과 대조한다.
+/// (계획서 M1) 라벨에 `expected_screen` 이 없으면 skip. config 의 지문이 이 프레임의
+/// 캡처 환경에서 생성된 것이어야 의미 있다(실프레임/라벨 세트용).
+pub fn run_frame_screen(
+    label: &FrameLabel,
+    img: &RgbaImage,
+    config: &MatchingConfig,
+    m: &mut Metrics,
+) {
+    let Some(expected) = label.expected_screen.as_deref() else {
+        return;
+    };
+    let dopts = DetectOpts::default();
+    let gr = detect_game_rect(img.as_raw(), img.width(), img.height(), &dopts)
+        .unwrap_or_else(|| GameRect::new(0, 0, img.width(), img.height()));
+    m.screen_total += 1;
+    let res = crate::screen::classify(img, &gr, config);
+    match res.screen_id.as_deref() {
+        Some(got) if got == expected => m.screen_correct += 1,
+        Some(got) => {
+            m.screen_false_positives += 1;
+            m.failures
+                .push(format!("[{}] 화면 {expected} → {got} (오분류)", label.path));
+        }
+        None => m
+            .failures
+            .push(format!("[{}] 화면 {expected} → 미분류", label.path)),
     }
 }
 

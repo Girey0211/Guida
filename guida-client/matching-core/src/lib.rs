@@ -17,11 +17,14 @@ use image::RgbaImage;
 use serde::Deserialize;
 use std::path::Path;
 
+pub mod anchor;
+pub mod config;
 pub mod geometry;
 pub mod hash;
 pub mod identify;
 pub mod normalize;
 pub mod regression;
+pub mod screen;
 
 /// 정규화 캔버스 크기. 레퍼런스·phash_index·런타임 크롭이 모두 이 크기로 통일된다.
 /// (계획서 §7.1 "128×128 일관성")
